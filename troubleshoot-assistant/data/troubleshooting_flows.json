@@ -1,0 +1,208 @@
+- Question: "What is the ONT state in Calix/Adtran?"
+  Options:
+    - O1 (Initial State - ONT detected but not authenticated)
+      → Check fiber signal levels
+      → Verify ONT serial number matches order
+      → Check for duplicate RONTA
+    
+    - O5 (Operation State - ONT online but service not working)
+      → Check service profile assignment
+      → Verify bandwidth profile is correct
+      → Check VLAN configuration
+      → Verify subscriber account link
+    
+    - Not visible in system at all
+      → Check physical fiber connection
+      → Verify ONT is powered
+      → Check if ONT is connected to wrong splitter
+      → Verify splitter port is available in ODiN
+      → Check if facility is built in provisioning system
+
+**Common Solutions:**
+- Assign correct service profile (100M/500M/1G)
+- Link ONT to subscriber account in SMx
+- Fix missing CE-VLAN (201 error)
+- Correct RONTA mismatch
+- Build ONT in ODiN if missing
+
+**Key Documents:**
+- "Quantum Fiber – Provisioning in Calix and Adtran"
+- "How to Build an ONT in ODiN"
+- "SMx - Linking ONT to Subscriber Account"
+
+---
+
+## 2. **Authentication Failures**
+
+**Scenario:** Customer can't connect to internet, gets authentication errors, or service keeps dropping.
+
+**Decision Tree:**
+``````yaml
+- Question: "Where is the authentication failing?"
+  Options:
+    - At ONT level
+      → Verify ONT is provisioned in Calix/Adtran
+      → Check Optius programming complete
+      → Verify service is activated
+    
+    - At credentials level
+      → Check Improv credentials using QMate
+      → Verify username/password correct
+      → Check for duplicate CVLAN
+      → Verify RADIUS server communication
+    
+    - At network level
+      → Verify VLAN configuration
+      → Check for CVLAN conflicts
+      → Verify TA Path is built correctly
+      → Check BRAS device and port configuration
+
+**Common Solutions:**
+- Update credentials in Improv/QMate
+- Suspend and reassign CVLAN
+- Fix duplicate CVLAN issues
+- Rebuild TA Path
+- Verify programming in Optius
+
+**Key Documents:**
+- "Authentication Troubleshooting Guide"
+- "QMate - Working with Credentials"
+- "Quantum Fiber - Suspending CVLANS"
+- "How to Find Duplicate CVLAN"
+
+---
+
+## 3. **No Light / Fiber Signal Issues**
+
+**Scenario:** ONT power light is on but PON/LOS light indicates no fiber signal.
+
+**Decision Tree:**
+`````yaml
+- Question: "What are the fiber signal levels (RX power)?"
+  Options:
+    - Good signal (-15 to -25 dBm)
+      → Issue is not fiber-related
+      → Check provisioning/authentication
+    
+    - Marginal signal (-26 to -28 dBm)
+      → Check for dirty connectors
+      → Verify splitter ratios aren't overloaded
+      → Check for fiber bends
+      → May need field tech to clean/reseat
+    
+    - Poor/No signal (worse than -28 dBm or no reading)
+      → Physical fiber issue
+      → Check FDH for disconnections
+      → Verify correct splitter leg
+      → Check for fiber cuts
+      → Escalate to field operations
+    
+    - Can't check signal (ONT not visible)
+      → Verify ONT is powered
+      → Check ONT connected to correct port
+      → Verify facility is built
+
+**Common Solutions:**
+- Field tech cleans fiber connectors
+- Change splitter leg
+- Verify correct Physical Port (PP) to Leg association in ODiN
+- Fix fiber strand mapping issues
+- Escalate for fiber repair/burial
+
+**Key Documents:**
+- "No Light Troubleshooting Guide"
+- "Quantum Fiber - Verify and Associate Fiber Distribution Strand"
+- "Quantum Fiber - Changing Splitter Leg"
+- "Field Data Toolkit" procedures
+
+---
+
+## 4. **Speed Issues / Performance Problems**
+
+**Scenario:** Customer reports slow internet speeds, not getting advertised speeds.
+
+**Decision Tree:**
+````yaml
+- Question: "What speed test results are you seeing?"
+  Options:
+    - Significantly below provisioned speed (100M service getting 20M)
+      → Verify bandwidth profile in Calix/Adtran
+      → Check for incorrect service profile assignment
+      → Verify Ethernet port speed (1G vs 10G)
+      → Check for congestion on OLT
+      → Check BIP errors (line quality issues)
+    
+    - Intermittent speed drops
+      → Check fiber signal levels (marginal = intermittent)
+      → Check for OLT congestion during peak hours
+      → Verify QoS/bandwidth shaping settings
+      → Check for equipment issues (old ONT firmware)
+    
+    - Speed good on speed test, slow in use
+      → WiFi issues (not fiber issue)
+      → Customer device/network problems
+      → Check 360 WiFi pod placement
+      → Verify SSID configuration in QMate
+
+**Common Solutions:**
+- Assign correct bandwidth profile (500M vs 1G)
+- Verify programming matches order
+- Fix Ethernet port configuration
+- Check neighboring DTN speeds (isolate issue)
+- Verify no splitter capacity issues
+- Update ONT firmware if needed
+
+**Key Documents:**
+- "Quantum Fiber - Troubleshooting Speed Issues"
+- "QMate - Speed Test"
+- "How to Check for Congestion in Poll DSLAM"
+- "Verify Programming - Ethernet Port & Speed"
+
+---
+
+## 5. **New Build Not Ready / Facility Not Available**
+
+**Scenario:** Customer has installation scheduled but address shows as "not ready" or facility doesn't exist in systems.
+
+**Decision Tree:**
+```yaml
+- Question: "What is the status in Salesforce/Optius?"
+  Options:
+    - Address not found in Optius
+      → Check if address exists in ODiN
+      → Verify address format (spelling, unit #)
+      → Check if Bulk Property needs to be created
+      → May need to add address manually
+    
+    - Address exists but shows "not serviceable"
+      → Check if fiber is actually built (Field Data Toolkit)
+      → Verify OLT is in provisioning system
+      → Check if TA Path needs to be built
+      → Verify splitter has available ports
+    
+    - OLT not in provisioning system
+      → Escalate to Structure Load team
+      → May need OLT commissioned
+      → Provide OLT serial number and location
+    
+    - TA Path not built
+      → Build TA Path using QMate or Optius
+      → Verify FDH to OLT connectivity
+      → Assign available splitter leg
+
+**Common Solutions:**
+- Add address in O2/Optius
+- Build TA Path for new construction
+- Verify facility is actually built before scheduling
+- Escalate to Structure Load for OLT issues
+- Use "New Build Not Ready" escalation process
+- Create Market Launch Test Order (MLTO)
+
+**Key Documents:**
+- "Quantum Fiber - New Build Not Ready Escalation Process"
+- "Quantum Fiber - New Build End to End"
+- "Using QMate to build TA Path"
+- "How to build a BRAS Device and Port in Optius"
+- "Quantum Fiber - Finding Addresses in Optius and ODiN"
+
+---
