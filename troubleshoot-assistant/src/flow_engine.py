@@ -60,7 +60,7 @@ class TroubleshootingEngine:
             {
                 'id': flow['id'],
                 'name': flow['name'],
-                'description': flow['description']
+                'description': flow.get('description', '')
             }
             for flow in self.flows
         ]
