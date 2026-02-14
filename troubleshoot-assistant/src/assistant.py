@@ -78,9 +78,9 @@ class TroubleshootAssistant:
         
         for idx, flow in enumerate(flows, 1):
             table.add_row(
-                f"{idx}\n",
-                f"{flow['name']}\n",
-                f"{flow['description']}\n"
+                str(idx) + "\n",
+                flow['name'] + "\n",
+                flow['description'] + "\n"
             )
         
         console.print(table)
