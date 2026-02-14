@@ -1,208 +1,258 @@
-- Question: "What is the ONT state in Calix/Adtran?"
-  Options:
-    - O1 (Initial State - ONT detected but not authenticated)
-      → Check fiber signal levels
-      → Verify ONT serial number matches order
-      → Check for duplicate RONTA
-    
-    - O5 (Operation State - ONT online but service not working)
-      → Check service profile assignment
-      → Verify bandwidth profile is correct
-      → Check VLAN configuration
-      → Verify subscriber account link
-    
-    - Not visible in system at all
-      → Check physical fiber connection
-      → Verify ONT is powered
-      → Check if ONT is connected to wrong splitter
-      → Verify splitter port is available in ODiN
-      → Check if facility is built in provisioning system
+flows:
+  - id: ont_not_provisioning
+    name: "ONT Not Provisioning / Not Coming Online"
+    description: "Field tech reports ONT installed but not showing online or provisioning in Calix/Adtran"
+    steps:
+      - id: start
+        question: "What is the ONT state in Calix/Adtran?"
+        options:
+          - value: "O1"
+            description: "O1 - Initial State (ONT detected but not authenticated)"
+            next: check_o1_issues
+          - value: "O5"
+            description: "O5 - Operation State (ONT online but service not working)"
+            next: check_o5_issues
+          - value: "not_visible"
+            description: "ONT not visible in system at all"
+            next: check_not_visible
+          - value: "other"
+            description: "Other state (O2, O3, O4, O6, O7)"
+            solution: check_ont_state_reference
+      
+      - id: check_o1_issues
+        question: "What are the fiber signal levels (RX power in dBm)?"
+        options:
+          - value: "good"
+            description: "Good signal: -15 to -25 dBm"
+            next: check_serial_number
+          - value: "marginal"
+            description: "Marginal signal: -26 to -28 dBm"
+            solution: marginal_signal_procedure
+          - value: "poor"
+            description: "Poor/No signal: worse than -28 dBm or no reading"
+            solution: fiber_issue_escalation
+          - value: "cant_check"
+            description: "Can't check signal levels"
+            next: check_ont_visibility
+      
+      - id: check_serial_number
+        question: "Does the ONT serial number in Calix match the physical ONT?"
+        options:
+          - value: "yes"
+            next: check_duplicate_ronta
+          - value: "no"
+            solution: fix_serial_number_mismatch
+          - value: "unsure"
+            solution: verify_ont_serial_guide
+      
+      - id: check_duplicate_ronta
+        question: "Is there a duplicate RONTA in the system?"
+        options:
+          - value: "yes"
+            solution: resolve_duplicate_ronta
+          - value: "no"
+            solution: o1_state_escalation
+          - value: "how_to_check"
+            solution: check_duplicate_ronta_guide
+      
+      - id: check_o5_issues
+        question: "Is the correct service profile assigned in Calix?"
+        options:
+          - value: "yes"
+            next: check_vlan_o5
+          - value: "no"
+            solution: assign_service_profile
+          - value: "unsure"
+            solution: verify_service_profile_guide
+      
+      - id: check_vlan_o5
+        question: "Is the VLAN configuration correct?"
+        options:
+          - value: "yes"
+            next: check_subscriber_link
+          - value: "no"
+            solution: fix_vlan_configuration
+          - value: "missing_ce_vlan"
+            solution: fix_missing_ce_vlan_201
+      
+      - id: check_subscriber_link
+        question: "Is the ONT linked to the subscriber account in SMx?"
+        options:
+          - value: "yes"
+            solution: o5_advanced_troubleshooting
+          - value: "no"
+            solution: link_ont_to_subscriber
+          - value: "unsure"
+            solution: verify_subscriber_link_guide
+      
+      - id: check_not_visible
+        question: "Is the ONT powered on (lights visible on device)?"
+        options:
+          - value: "yes"
+            next: check_facility_built
+          - value: "no"
+            solution: ont_power_troubleshooting
+          - value: "unsure"
+            solution: verify_ont_power_guide
+      
+      - id: check_facility_built
+        question: "Does the ONT exist in ODiN inventory?"
+        options:
+          - value: "yes"
+            next: check_correct_splitter
+          - value: "no"
+            solution: build_ont_in_odin
+          - value: "how_to_check"
+            solution: search_odin_guide
+      
+      - id: check_correct_splitter
+        question: "Is the ONT connected to the correct splitter leg?"
+        options:
+          - value: "yes"
+            solution: advanced_not_visible_troubleshooting
+          - value: "no"
+            solution: wrong_splitter_procedure
+          - value: "unsure"
+            solution: verify_splitter_connection_guide
 
-**Common Solutions:**
-- Assign correct service profile (100M/500M/1G)
-- Link ONT to subscriber account in SMx
-- Fix missing CE-VLAN (201 error)
-- Correct RONTA mismatch
-- Build ONT in ODiN if missing
-
-**Key Documents:**
-- "Quantum Fiber – Provisioning in Calix and Adtran"
-- "How to Build an ONT in ODiN"
-- "SMx - Linking ONT to Subscriber Account"
-
----
-
-## 2. **Authentication Failures**
-
-**Scenario:** Customer can't connect to internet, gets authentication errors, or service keeps dropping.
-
-**Decision Tree:**
-``````yaml
-- Question: "Where is the authentication failing?"
-  Options:
-    - At ONT level
-      → Verify ONT is provisioned in Calix/Adtran
-      → Check Optius programming complete
-      → Verify service is activated
-    
-    - At credentials level
-      → Check Improv credentials using QMate
-      → Verify username/password correct
-      → Check for duplicate CVLAN
-      → Verify RADIUS server communication
-    
-    - At network level
-      → Verify VLAN configuration
-      → Check for CVLAN conflicts
-      → Verify TA Path is built correctly
-      → Check BRAS device and port configuration
-
-**Common Solutions:**
-- Update credentials in Improv/QMate
-- Suspend and reassign CVLAN
-- Fix duplicate CVLAN issues
-- Rebuild TA Path
-- Verify programming in Optius
-
-**Key Documents:**
-- "Authentication Troubleshooting Guide"
-- "QMate - Working with Credentials"
-- "Quantum Fiber - Suspending CVLANS"
-- "How to Find Duplicate CVLAN"
-
----
-
-## 3. **No Light / Fiber Signal Issues**
-
-**Scenario:** ONT power light is on but PON/LOS light indicates no fiber signal.
-
-**Decision Tree:**
-`````yaml
-- Question: "What are the fiber signal levels (RX power)?"
-  Options:
-    - Good signal (-15 to -25 dBm)
-      → Issue is not fiber-related
-      → Check provisioning/authentication
-    
-    - Marginal signal (-26 to -28 dBm)
-      → Check for dirty connectors
-      → Verify splitter ratios aren't overloaded
-      → Check for fiber bends
-      → May need field tech to clean/reseat
-    
-    - Poor/No signal (worse than -28 dBm or no reading)
-      → Physical fiber issue
-      → Check FDH for disconnections
-      → Verify correct splitter leg
-      → Check for fiber cuts
-      → Escalate to field operations
-    
-    - Can't check signal (ONT not visible)
-      → Verify ONT is powered
-      → Check ONT connected to correct port
-      → Verify facility is built
-
-**Common Solutions:**
-- Field tech cleans fiber connectors
-- Change splitter leg
-- Verify correct Physical Port (PP) to Leg association in ODiN
-- Fix fiber strand mapping issues
-- Escalate for fiber repair/burial
-
-**Key Documents:**
-- "No Light Troubleshooting Guide"
-- "Quantum Fiber - Verify and Associate Fiber Distribution Strand"
-- "Quantum Fiber - Changing Splitter Leg"
-- "Field Data Toolkit" procedures
-
----
-
-## 4. **Speed Issues / Performance Problems**
-
-**Scenario:** Customer reports slow internet speeds, not getting advertised speeds.
-
-**Decision Tree:**
-````yaml
-- Question: "What speed test results are you seeing?"
-  Options:
-    - Significantly below provisioned speed (100M service getting 20M)
-      → Verify bandwidth profile in Calix/Adtran
-      → Check for incorrect service profile assignment
-      → Verify Ethernet port speed (1G vs 10G)
-      → Check for congestion on OLT
-      → Check BIP errors (line quality issues)
-    
-    - Intermittent speed drops
-      → Check fiber signal levels (marginal = intermittent)
-      → Check for OLT congestion during peak hours
-      → Verify QoS/bandwidth shaping settings
-      → Check for equipment issues (old ONT firmware)
-    
-    - Speed good on speed test, slow in use
-      → WiFi issues (not fiber issue)
-      → Customer device/network problems
-      → Check 360 WiFi pod placement
-      → Verify SSID configuration in QMate
-
-**Common Solutions:**
-- Assign correct bandwidth profile (500M vs 1G)
-- Verify programming matches order
-- Fix Ethernet port configuration
-- Check neighboring DTN speeds (isolate issue)
-- Verify no splitter capacity issues
-- Update ONT firmware if needed
-
-**Key Documents:**
-- "Quantum Fiber - Troubleshooting Speed Issues"
-- "QMate - Speed Test"
-- "How to Check for Congestion in Poll DSLAM"
-- "Verify Programming - Ethernet Port & Speed"
-
----
-
-## 5. **New Build Not Ready / Facility Not Available**
-
-**Scenario:** Customer has installation scheduled but address shows as "not ready" or facility doesn't exist in systems.
-
-**Decision Tree:**
-```yaml
-- Question: "What is the status in Salesforce/Optius?"
-  Options:
-    - Address not found in Optius
-      → Check if address exists in ODiN
-      → Verify address format (spelling, unit #)
-      → Check if Bulk Property needs to be created
-      → May need to add address manually
-    
-    - Address exists but shows "not serviceable"
-      → Check if fiber is actually built (Field Data Toolkit)
-      → Verify OLT is in provisioning system
-      → Check if TA Path needs to be built
-      → Verify splitter has available ports
-    
-    - OLT not in provisioning system
-      → Escalate to Structure Load team
-      → May need OLT commissioned
-      → Provide OLT serial number and location
-    
-    - TA Path not built
-      → Build TA Path using QMate or Optius
-      → Verify FDH to OLT connectivity
-      → Assign available splitter leg
-
-**Common Solutions:**
-- Add address in O2/Optius
-- Build TA Path for new construction
-- Verify facility is actually built before scheduling
-- Escalate to Structure Load for OLT issues
-- Use "New Build Not Ready" escalation process
-- Create Market Launch Test Order (MLTO)
-
-**Key Documents:**
-- "Quantum Fiber - New Build Not Ready Escalation Process"
-- "Quantum Fiber - New Build End to End"
-- "Using QMate to build TA Path"
-- "How to build a BRAS Device and Port in Optius"
-- "Quantum Fiber - Finding Addresses in Optius and ODiN"
-
----
+solutions:
+  - id: assign_service_profile
+    title: "Assign Correct Service Profile in Calix"
+    steps:
+      - "Log into Calix SMx"
+      - "Navigate to: Subscriber → ONT Management"
+      - "Search for ONT by serial number or RONTA"
+      - "Click 'Edit' on the subscriber account"
+      - "Under 'Service Profile', select the appropriate bandwidth profile:"
+      - "  • 100M service: Profile_100M_Residential"
+      - "  • 500M service: Profile_500M_Residential"
+      - "  • 1G service: Profile_1G_Residential"
+      - "  • 2G service: Profile_2G_Residential (XGS-PON only)"
+      - "Click 'Save' and wait 30-60 seconds for provisioning"
+      - "Refresh and verify ONT state shows O5 (Operation)"
+      - "Have field tech test connection"
+    reference_doc: "Quantum Fiber – Provisioning in Calix and Adtran"
+    video: "SMx - Verify Programming.mp4"
+    escalate_if: "Service profile doesn't apply after 2 minutes or ONT stays in O1"
+  
+  - id: link_ont_to_subscriber
+    title: "Link ONT to Subscriber Account in SMx"
+    steps:
+      - "Log into Calix SMx"
+      - "Navigate to: Subscriber → Subscriber Management"
+      - "Search for customer by account number or address"
+      - "Click on the subscriber account"
+      - "Click 'ONT' tab"
+      - "Click 'Link ONT'"
+      - "Enter ONT Registration ID (serial number)"
+      - "Click 'Save'"
+      - "Verify ONT appears under subscriber account"
+      - "Check that service profile is applied automatically"
+      - "Wait 30 seconds and verify ONT state is O5"
+    reference_doc: "SMx - Linking ONT to Subscriber Account"
+    video: "SMx - Linking ONT to Subscriber Account.webm"
+    escalate_if: "Cannot find subscriber account or ONT won't link after multiple attempts"
+  
+  - id: fix_missing_ce_vlan_201
+    title: "Fix Missing CE-VLAN 201 Error"
+    steps:
+      - "Log into Calix SMx"
+      - "Navigate to: Subscriber → ONT Management"
+      - "Find the ONT with missing CE-VLAN"
+      - "Click 'Edit' on subscriber account"
+      - "Go to 'VLAN' section"
+      - "Add CE-VLAN: 201 (standard for data services)"
+      - "Verify S-VLAN matches what's in Optius/ODiN"
+      - "Click 'Save'"
+      - "Wait 30 seconds for provisioning"
+      - "Verify service comes online"
+    reference_doc: "SMx - Missing CE-VLAN 201"
+    video: "SMx - Missing CE-VLAN 201.webm"
+    escalate_if: "CE-VLAN won't save or error persists after adding VLAN"
+  
+  - id: build_ont_in_odin
+    title: "Build ONT in ODiN System"
+    steps:
+      - "Log into ODiN"
+      - "Navigate to: Inventory → Network Elements → ONT"
+      - "Click 'Create New ONT'"
+      - "Enter ONT details:"
+      - "  • Serial Number (from physical ONT label)"
+      - "  • Vendor: Calix or Adtran (check device model)"
+      - "  • Associated Splitter (verify with field tech)"
+      - "  • Available splitter leg/port"
+      - "  • Service address"
+      - "Click 'Save'"
+      - "Verify ONT shows in ODiN inventory"
+      - "Wait 2-3 minutes for sync to provisioning systems"
+      - "Check if ONT now appears in Calix/Adtran"
+    reference_doc: "How to Build an ONT in ODiN"
+    escalate_if: "Cannot create ONT in ODiN (address not found, no available ports, system errors)"
+  
+  - id: marginal_signal_procedure
+    title: "Marginal Fiber Signal - Field Tech Action Required"
+    steps:
+      - "Signal levels are marginal (-26 to -28 dBm) - service may be intermittent"
+      - "Inform field tech to perform the following:"
+      - "  1. Clean fiber connectors at ONT and FDH with alcohol wipes"
+      - "  2. Reseat all fiber connections"
+      - "  3. Check for tight fiber bends or kinks in cable"
+      - "  4. Verify correct splitter ratio (1:32 preferred, 1:64 max)"
+      - "After cleaning, recheck signal levels in Calix/Adtran"
+      - "Acceptable range: -15 to -25 dBm"
+      - "If signal improves to good range, proceed with provisioning"
+      - "If signal remains marginal or worsens, escalate to fiber repair"
+    reference_doc: "No Light Troubleshooting Guide"
+    escalate_if: "Signal doesn't improve after cleaning or is getting worse"
+  
+  - id: fiber_issue_escalation
+    title: "Fiber Issue - Escalate to Field Operations"
+    steps:
+      - "Poor or no fiber signal detected (worse than -28 dBm)"
+      - "This indicates a physical fiber issue requiring truck roll"
+      - "Verify with field tech:"
+      - "  • Is fiber connected at FDH?"
+      - "  • Any visible damage to fiber cable?"
+      - "  • Is correct splitter leg being used?"
+      - "Create escalation ticket in Salesforce:"
+      - "  • Category: Fiber Issue - No Light"
+      - "  • Include: Address, ONT serial, splitter location, signal readings"
+      - "  • Priority: High (customer waiting)"
+      - "Notify field supervisor for immediate dispatch"
+      - "Estimated resolution: Same day for emergency, 1-3 days standard"
+    reference_doc: "Outage Reporting for TSC and Structure Load"
+    escalate_if: "Always escalate - this requires physical fiber repair"
+  
+  - id: wrong_splitter_procedure
+    title: "ONT Connected to Wrong Splitter - Correction Procedure"
+    steps:
+      - "ONT is physically connected to different splitter than what's in ODiN"
+      - "Option 1: Update ODiN to match physical reality (if field tech confirms)"
+      - "  • Navigate to ODiN → ONT inventory"
+      - "  • Update splitter association"
+      - "  • Update leg/port assignment"
+      - "Option 2: Field tech moves ONT to correct splitter"
+      - "  • Verify correct splitter location in ODiN"
+      - "  • Coordinate with field tech to relocate connection"
+      - "After correction, wait 1-2 minutes for ONT to register"
+      - "Verify ONT appears in Calix/Adtran with correct facility info"
+    reference_doc: "Adtran – Identifying if ONT Serial Number is Connected to Wrong Splitter"
+    escalate_if: "Unsure which splitter is correct or ODiN data conflicts with field reality"
+  
+  - id: verify_service_profile_guide
+    title: "How to Verify Service Profile in Calix"
+    steps:
+      - "Log into Calix SMx"
+      - "Navigate to: Subscriber → ONT Management"
+      - "Search for ONT by serial number or RONTA"
+      - "Click on subscriber account to view details"
+      - "Check 'Service Profile' field - should show:"
+      - "  • Profile name matching customer's speed tier"
+      - "  • Bandwidth: Download/Upload speeds"
+      - "Compare to Salesforce order:"
+      - "  • 100M service = Profile_100M_Residential (100 down / 100 up)"
+      - "  • 500M service = Profile_500M_Residential (500 down / 500 up)"
+      - "  • 1G service = Profile_1G_Residential (1000 down / 1000 up)"
+      - "If mismatch found, follow 'Assign Service Profile' procedure"
+    reference_doc: "Verify Programming - Ethernet Port & Speed"
+    video: "Verify Programming - Ethernet Port & Speed 2.mp4"
