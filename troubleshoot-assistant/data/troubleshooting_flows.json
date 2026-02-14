@@ -1,7 +1,3 @@
-# data/troubleshooting_flows.yaml
-# FF37 TechAssist Bot - Troubleshooting Workflows
-# Version 1.0
-
 flows:
   # ============================================================================
   # FLOW 1: ONT Not Provisioning / Not Coming Online
@@ -2537,3 +2533,4 @@ solutions:
       - "Key action: Escalate to Structure Load for capacity planning"
     reference_doc: "Quantum Fiber – Splitter Capacity Issues & 1GIG Capability"
     escalate_if: "Always escalate capacity issues to Structure Load"
+
