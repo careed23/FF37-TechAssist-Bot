@@ -81,7 +81,7 @@ class TroubleshootAssistant:
             table.add_row(
                 str(idx),
                 flow['name'],
-                flow['description'],
+                flow.get('description', ''),
                 end_section=idx != total_flows
             )
         
@@ -141,9 +141,13 @@ class TroubleshootAssistant:
             options_table.add_column("Option", style="white")
             
             for idx, option in enumerate(current_step['options'], 1):
+                option_description = option.get('description')
+                option_text = f"[yellow]{option['value']}[/yellow]"
+                if option_description:
+                    option_text = f"{option_text} - {option_description}"
                 options_table.add_row(
                     f"{idx}.",
-                    f"[yellow]{option['value']}[/yellow] - {option['description']}"
+                    option_text
                 )
             
             console.print(options_table)
@@ -162,7 +166,7 @@ class TroubleshootAssistant:
                 'step_id': current_step.get('id', 'unknown'),
                 'question': current_step['question'],
                 'answer': selected_option['value'],
-                'answer_description': selected_option['description']
+                'answer_description': selected_option.get('description', '')
             })
             
             console.print()  # Spacing
