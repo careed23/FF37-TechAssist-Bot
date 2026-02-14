@@ -76,11 +76,13 @@ class TroubleshootAssistant:
         table.add_column("Issue", style="white", width=40)
         table.add_column("Description", style="dim", width=60)
         
+        total_flows = len(flows)
         for idx, flow in enumerate(flows, 1):
             table.add_row(
                 str(idx),
                 flow['name'],
-                flow['description']
+                flow['description'],
+                end_section=idx != total_flows
             )
         
         console.print(table)
