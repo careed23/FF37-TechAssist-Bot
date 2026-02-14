@@ -1,4 +1,11 @@
+# data/troubleshooting_flows.yaml
+# FF37 TechAssist Bot - Troubleshooting Workflows
+# Version 1.0
+
 flows:
+  # ============================================================================
+  # FLOW 1: ONT Not Provisioning / Not Coming Online
+  # ============================================================================
   - id: ont_not_provisioning
     name: "ONT Not Provisioning / Not Coming Online"
     description: "Field tech reports ONT installed but not showing online or provisioning in Calix/Adtran"
@@ -73,6 +80,7 @@ flows:
           - value: "no"
             solution: fix_vlan_configuration
           - value: "missing_ce_vlan"
+            description: "Missing CE-VLAN 201 error"
             solution: fix_missing_ce_vlan_201
       
       - id: check_subscriber_link
@@ -114,8 +122,473 @@ flows:
             solution: wrong_splitter_procedure
           - value: "unsure"
             solution: verify_splitter_connection_guide
+      
+      - id: check_ont_visibility
+        question: "Can you find the ONT by serial number in Calix search?"
+        options:
+          - value: "yes"
+            next: check_serial_number
+          - value: "no"
+            next: check_facility_built
 
+  # ============================================================================
+  # FLOW 2: Authentication Failures
+  # ============================================================================
+  - id: authentication_failure
+    name: "Authentication Failures"
+    description: "Customer can't connect to internet, gets authentication errors, or service keeps dropping"
+    steps:
+      - id: start
+        question: "Where is the authentication failing?"
+        options:
+          - value: "ont_level"
+            description: "At ONT level - ONT not authenticating to network"
+            next: check_ont_provisioning
+          - value: "credentials"
+            description: "At credentials level - username/password errors"
+            next: check_credentials
+          - value: "network_level"
+            description: "At network level - VLAN or routing issues"
+            next: check_network_config
+          - value: "unsure"
+            description: "Not sure where failure is occurring"
+            solution: authentication_diagnostic_steps
+      
+      - id: check_ont_provisioning
+        question: "Is the ONT showing O5 (Operation) state in Calix/Adtran?"
+        options:
+          - value: "yes"
+            next: check_optius_programming
+          - value: "no"
+            solution: ont_not_operational
+          - value: "ont_not_visible"
+            solution: ont_provisioning_required
+      
+      - id: check_optius_programming
+        question: "Is Optius programming complete for this order?"
+        options:
+          - value: "yes"
+            next: check_service_activation
+          - value: "no"
+            solution: complete_optius_programming
+          - value: "how_to_check"
+            solution: verify_optius_programming_guide
+      
+      - id: check_service_activation
+        question: "Is the service activated in the provisioning system?"
+        options:
+          - value: "yes"
+            next: check_credentials
+          - value: "no"
+            solution: activate_service
+          - value: "unsure"
+            solution: verify_service_activation_guide
+      
+      - id: check_credentials
+        question: "Have you verified credentials using QMate?"
+        options:
+          - value: "yes_correct"
+            description: "Yes, credentials are correct"
+            next: check_cvlan_duplicate
+          - value: "yes_incorrect"
+            description: "Yes, credentials are incorrect or missing"
+            solution: update_improv_credentials
+          - value: "not_checked"
+            description: "Not checked yet"
+            solution: verify_improv_credentials_qmate
+      
+      - id: check_cvlan_duplicate
+        question: "Is there a duplicate CVLAN conflict?"
+        options:
+          - value: "yes"
+            solution: resolve_duplicate_cvlan
+          - value: "no"
+            next: check_radius_communication
+          - value: "how_to_check"
+            solution: check_duplicate_cvlan_guide
+      
+      - id: check_radius_communication
+        question: "Is the RADIUS server responding?"
+        options:
+          - value: "yes"
+            solution: auth_advanced_troubleshooting
+          - value: "no"
+            solution: radius_server_escalation
+          - value: "unsure"
+            solution: test_radius_communication
+      
+      - id: check_network_config
+        question: "Is the VLAN configuration correct in Calix?"
+        options:
+          - value: "yes"
+            next: check_ta_path_built
+          - value: "no"
+            solution: fix_vlan_configuration
+          - value: "unsure"
+            solution: verify_vlan_configuration_guide
+      
+      - id: check_ta_path_built
+        question: "Is the TA Path built correctly in Optius?"
+        options:
+          - value: "yes"
+            next: check_bras_config
+          - value: "no"
+            solution: rebuild_ta_path
+          - value: "how_to_check"
+            solution: verify_ta_path_guide
+      
+      - id: check_bras_config
+        question: "Is the BRAS device and port configured correctly?"
+        options:
+          - value: "yes"
+            solution: network_level_escalation
+          - value: "no"
+            solution: fix_bras_configuration
+          - value: "unsure"
+            solution: verify_bras_config_guide
+
+  # ============================================================================
+  # FLOW 3: No Light / Fiber Signal Issues
+  # ============================================================================
+  - id: no_light_fiber_issues
+    name: "No Light / Fiber Signal Issues"
+    description: "ONT power light is on but PON/LOS light indicates no fiber signal"
+    steps:
+      - id: start
+        question: "What are the fiber signal levels (RX power in dBm)?"
+        options:
+          - value: "good"
+            description: "Good signal: -15 to -25 dBm (Issue not fiber-related)"
+            solution: not_fiber_issue_redirect
+          - value: "marginal"
+            description: "Marginal signal: -26 to -28 dBm"
+            next: check_physical_connections
+          - value: "poor"
+            description: "Poor/No signal: worse than -28 dBm or no reading"
+            next: check_fiber_physical_layer
+          - value: "cant_measure"
+            description: "Cannot measure signal (ONT not communicating)"
+            next: check_ont_power_and_connection
+      
+      - id: check_physical_connections
+        question: "Has the field tech cleaned and reseated all fiber connections?"
+        options:
+          - value: "yes_improved"
+            description: "Yes, and signal improved to good range"
+            solution: marginal_signal_resolved
+          - value: "yes_no_change"
+            description: "Yes, but signal still marginal or poor"
+            next: check_splitter_ratio
+          - value: "not_yet"
+            description: "Not yet done"
+            solution: clean_reseat_connectors
+      
+      - id: check_splitter_ratio
+        question: "What is the splitter ratio at this location?"
+        options:
+          - value: "1_32"
+            description: "1:32 splitter"
+            next: check_fiber_bends
+          - value: "1_64"
+            description: "1:64 splitter (may cause marginal signal)"
+            solution: high_split_ratio_issue
+          - value: "unsure"
+            description: "Don't know splitter ratio"
+            solution: check_splitter_ratio_guide
+      
+      - id: check_fiber_bends
+        question: "Are there any tight fiber bends or kinks in the cable?"
+        options:
+          - value: "yes"
+            solution: fix_fiber_bends
+          - value: "no"
+            solution: marginal_signal_escalation
+      
+      - id: check_fiber_physical_layer
+        question: "Is fiber connected at the FDH (Fiber Distribution Hub)?"
+        options:
+          - value: "yes"
+            next: check_visible_damage
+          - value: "no"
+            solution: fiber_not_connected_fdh
+          - value: "cant_access"
+            description: "Field tech cannot access FDH"
+            solution: dispatch_field_supervisor
+      
+      - id: check_visible_damage
+        question: "Is there any visible damage to the fiber cable?"
+        options:
+          - value: "yes"
+            solution: fiber_damage_repair
+          - value: "no"
+            next: check_correct_leg
+      
+      - id: check_correct_leg
+        question: "Is the correct splitter leg being used (verify with ODiN)?"
+        options:
+          - value: "yes"
+            solution: fiber_issue_escalation
+          - value: "no"
+            solution: wrong_splitter_leg
+          - value: "unsure"
+            solution: verify_splitter_leg_guide
+      
+      - id: check_ont_power_and_connection
+        question: "Is the ONT powered on (power light solid)?"
+        options:
+          - value: "yes"
+            next: check_fiber_connected_ont
+          - value: "no"
+            solution: ont_power_troubleshooting
+          - value: "blinking"
+            description: "Power light is blinking"
+            solution: ont_power_issue
+      
+      - id: check_fiber_connected_ont
+        question: "Is the fiber cable connected to the ONT's PON port?"
+        options:
+          - value: "yes"
+            solution: ont_or_fiber_hardware_issue
+          - value: "no"
+            solution: connect_fiber_to_ont
+          - value: "loose"
+            description: "Connection is loose"
+            solution: reseat_fiber_connection
+
+  # ============================================================================
+  # FLOW 4: Speed Issues / Performance Problems
+  # ============================================================================
+  - id: speed_issues
+    name: "Speed Issues / Performance Problems"
+    description: "Customer reports slow internet speeds, not getting advertised speeds"
+    steps:
+      - id: start
+        question: "What speed test results are you seeing compared to provisioned speed?"
+        options:
+          - value: "significantly_below"
+            description: "Significantly below (e.g., 100M service getting 20-50M)"
+            next: check_bandwidth_profile
+          - value: "slightly_below"
+            description: "Slightly below provisioned speed (within 10-20%)"
+            next: check_wifi_vs_wired
+          - value: "intermittent"
+            description: "Intermittent speed drops (sometimes fast, sometimes slow)"
+            next: check_signal_quality
+          - value: "no_test_yet"
+            description: "Haven't run speed test yet"
+            solution: perform_qmate_speed_test
+      
+      - id: check_bandwidth_profile
+        question: "Does the bandwidth profile in Calix match the customer's service tier?"
+        options:
+          - value: "yes"
+            next: check_ethernet_port_config
+          - value: "no"
+            solution: fix_bandwidth_profile_mismatch
+          - value: "unsure"
+            solution: verify_bandwidth_profile_guide
+      
+      - id: check_ethernet_port_config
+        question: "Is the Ethernet port configured correctly (1G vs 10G)?"
+        options:
+          - value: "yes"
+            next: check_olt_congestion
+          - value: "no"
+            solution: fix_ethernet_port_speed
+          - value: "unsure"
+            solution: verify_ethernet_port_guide
+      
+      - id: check_olt_congestion
+        question: "Is there congestion on the OLT (check in Poll DSLAM)?"
+        options:
+          - value: "yes"
+            solution: olt_congestion_issue
+          - value: "no"
+            next: check_bip_errors
+          - value: "how_to_check"
+            solution: check_olt_congestion_guide
+      
+      - id: check_bip_errors
+        question: "Are there BIP errors indicating line quality issues?"
+        options:
+          - value: "yes_high"
+            description: "Yes, high BIP error count"
+            solution: line_quality_issue
+          - value: "yes_low"
+            description: "Yes, but low error count"
+            next: test_neighboring_dtn
+          - value: "no"
+            next: test_neighboring_dtn
+      
+      - id: test_neighboring_dtn
+        question: "Have you tested speed on a neighboring DTN (different customer)?"
+        options:
+          - value: "yes_same_issue"
+            description: "Yes, neighbor has same speed issue"
+            solution: network_wide_speed_issue
+          - value: "yes_no_issue"
+            description: "Yes, neighbor has good speeds"
+            solution: customer_specific_speed_issue
+          - value: "not_tested"
+            solution: test_neighbor_speed_guide
+      
+      - id: check_wifi_vs_wired
+        question: "Is the speed issue on WiFi only or wired connections too?"
+        options:
+          - value: "wifi_only"
+            description: "Only on WiFi (wired speeds are good)"
+            solution: wifi_performance_issue
+          - value: "both"
+            description: "Both WiFi and wired connections slow"
+            next: check_bandwidth_profile
+          - value: "wired_only"
+            description: "Wired is slow but WiFi is fine"
+            solution: unusual_wired_issue
+      
+      - id: check_signal_quality
+        question: "Are the fiber signal levels stable and in good range?"
+        options:
+          - value: "yes"
+            next: check_peak_hours
+          - value: "no_marginal"
+            description: "No, signal is marginal or fluctuating"
+            solution: marginal_signal_speed_impact
+          - value: "no_poor"
+            description: "No, signal is poor"
+            solution: fiber_signal_issue_redirect
+      
+      - id: check_peak_hours
+        question: "Does the speed issue occur during peak hours (6-10 PM)?"
+        options:
+          - value: "yes"
+            solution: peak_hour_congestion
+          - value: "no"
+            solution: intermittent_speed_advanced
+          - value: "all_times"
+            description: "Occurs at all times of day"
+            next: check_bandwidth_profile
+
+  # ============================================================================
+  # FLOW 5: New Build Not Ready / Facility Not Available
+  # ============================================================================
+  - id: new_build_not_ready
+    name: "New Build Not Ready / Facility Not Available"
+    description: "Customer installation scheduled but address shows not ready or facility doesn't exist"
+    steps:
+      - id: start
+        question: "What is the status in Salesforce/Optius?"
+        options:
+          - value: "address_not_found"
+            description: "Address not found in Optius/O2"
+            next: check_address_in_odin
+          - value: "not_serviceable"
+            description: "Address exists but shows not serviceable"
+            next: check_fiber_actually_built
+          - value: "olt_missing"
+            description: "OLT not in provisioning system"
+            solution: olt_not_commissioned
+          - value: "ta_path_missing"
+            description: "TA Path not built"
+            next: check_fdh_connectivity
+      
+      - id: check_address_in_odin
+        question: "Does the address exist in ODiN?"
+        options:
+          - value: "yes"
+            next: check_address_format
+          - value: "no"
+            next: check_bulk_property
+          - value: "how_to_check"
+            solution: search_address_odin_guide
+      
+      - id: check_address_format
+        question: "Is the address formatted correctly (spelling, unit number, etc.)?"
+        options:
+          - value: "yes"
+            solution: add_address_to_optius
+          - value: "no"
+            solution: correct_address_format
+          - value: "bulk_property"
+            description: "This is a bulk/MDU property"
+            next: check_bulk_property
+      
+      - id: check_bulk_property
+        question: "Is this a bulk property (apartment/MDU) that needs special setup?"
+        options:
+          - value: "yes"
+            solution: create_bulk_property
+          - value: "no"
+            solution: add_address_manually
+          - value: "unsure"
+            solution: bulk_property_identification_guide
+      
+      - id: check_fiber_actually_built
+        question: "Has fiber actually been built to this address (check Field Data Toolkit)?"
+        options:
+          - value: "yes"
+            next: check_olt_provisioned
+          - value: "no"
+            solution: fiber_not_built_yet
+          - value: "unsure"
+            solution: verify_fiber_built_fdt
+      
+      - id: check_olt_provisioned
+        question: "Is the OLT in the provisioning system (Calix/Adtran)?"
+        options:
+          - value: "yes"
+            next: check_ta_path_needed
+          - value: "no"
+            solution: olt_not_commissioned
+          - value: "how_to_check"
+            solution: check_olt_provisioned_guide
+      
+      - id: check_ta_path_needed
+        question: "Does a TA Path need to be built for this location?"
+        options:
+          - value: "yes"
+            next: check_fdh_connectivity
+          - value: "already_built"
+            description: "TA Path already exists"
+            next: check_splitter_ports
+          - value: "unsure"
+            solution: ta_path_requirements_guide
+      
+      - id: check_fdh_connectivity
+        question: "Is there FDH to OLT connectivity verified?"
+        options:
+          - value: "yes"
+            next: check_splitter_available
+          - value: "no"
+            solution: verify_fdh_olt_connectivity
+          - value: "unsure"
+            solution: check_fdh_connectivity_guide
+      
+      - id: check_splitter_available
+        question: "Is there an available splitter leg for this customer?"
+        options:
+          - value: "yes"
+            solution: build_ta_path_qmate
+          - value: "no"
+            solution: no_available_splitter_ports
+          - value: "how_to_check"
+            solution: verify_splitter_availability_guide
+      
+      - id: check_splitter_ports
+        question: "Does the splitter have available ports?"
+        options:
+          - value: "yes"
+            solution: facility_ready_proceed
+          - value: "no"
+            solution: splitter_capacity_issue
+          - value: "unsure"
+            solution: verify_splitter_availability_guide
+
+
+# ============================================================================
+# SOLUTIONS - Resolution Procedures
+# ============================================================================
 solutions:
+  # ONT Provisioning Solutions
   - id: assign_service_profile
     title: "Assign Correct Service Profile in Calix"
     steps:
@@ -132,7 +605,7 @@ solutions:
       - "Refresh and verify ONT state shows O5 (Operation)"
       - "Have field tech test connection"
     reference_doc: "Quantum Fiber – Provisioning in Calix and Adtran"
-    video: "SMx - Verify Programming.mp4"
+    video: "Verify Programming - Ethernet Port & Speed 2.mp4"
     escalate_if: "Service profile doesn't apply after 2 minutes or ONT stays in O1"
   
   - id: link_ont_to_subscriber
@@ -256,3 +729,1811 @@ solutions:
       - "If mismatch found, follow 'Assign Service Profile' procedure"
     reference_doc: "Verify Programming - Ethernet Port & Speed"
     video: "Verify Programming - Ethernet Port & Speed 2.mp4"
+  
+  - id: o1_state_escalation
+    title: "O1 State Escalation - Advanced Troubleshooting Required"
+    steps:
+      - "ONT is in O1 state (detected but not authenticating)"
+      - "Basic troubleshooting steps have been completed without resolution"
+      - "Create escalation ticket in Salesforce:"
+      - "  • Category: ONT Authentication Failure - O1 State"
+      - "  • Include: ONT serial number, RONTA, signal levels, steps already taken"
+      - "  • Attach screenshots of Calix ONT details page"
+      - "Escalate to Network Engineering team"
+      - "Common advanced issues that may require engineering:"
+      - "  • OLT port configuration errors"
+      - "  • VLAN provisioning issues in core network"
+      - "  • ONT firmware incompatibility"
+      - "  • System synchronization delays between Optius/Calix/ODiN"
+    reference_doc: "Escalation Contacts"
+    escalate_if: "ONT has been in O1 state for more than 15 minutes with good signal"
+  
+  - id: o5_advanced_troubleshooting
+    title: "O5 State Advanced Troubleshooting"
+    steps:
+      - "ONT is in O5 (Operation) state but customer has no service"
+      - "This indicates ONT is communicating but service not passing traffic"
+      - "Additional checks to perform:"
+      - "  1. Verify customer equipment (router/gateway) is powered and connected"
+      - "  2. Check for authentication errors in Improv (see Authentication flow)"
+      - "  3. Verify routing and gateway configuration in Calix"
+      - "  4. Check for firewall or security policy blocking traffic"
+      - "  5. Test with direct connection (bypass customer router)"
+      - "If all checks pass and still no service, escalate to Network Engineering"
+    reference_doc: "Authentication Troubleshooting Guide"
+    escalate_if: "ONT in O5, all configurations correct, but traffic not passing"
+  
+  - id: check_ont_state_reference
+    title: "ONT State Reference Guide"
+    steps:
+      - "ONT States in Calix/Adtran and their meanings:"
+      - "  • O1 - Initial: ONT detected, not authenticated"
+      - "  • O2 - Standby: ONT in standby mode"
+      - "  • O3 - Serial Number: Serial number acquisition phase"
+      - "  • O4 - Ranging: Distance measurement phase"
+      - "  • O5 - Operation: ONT online and operational (good state)"
+      - "  • O6 - POPUP: Intermediate authentication state"
+      - "  • O7 - Emergency Stop: ONT in emergency shutdown"
+      - "Most common states you'll see: O1, O5"
+      - "If ONT is in O2, O3, O4, or O6: Usually transitional, wait 1-2 minutes"
+      - "If ONT stays in unusual state (O2/O3/O4/O6/O7) for >5 minutes, escalate"
+    reference_doc: "Calix E7-2 and E7-20 GPON Data Only Programming"
+  
+  - id: fix_serial_number_mismatch
+    title: "Fix ONT Serial Number Mismatch"
+    steps:
+      - "Serial number in system doesn't match physical ONT"
+      - "Verify physical ONT serial number:"
+      - "  • Check label on ONT device"
+      - "  • Calix format: CXNK followed by 8 characters"
+      - "  • Adtran format: Varies by model"
+      - "Update serial number in ODiN:"
+      - "  1. Log into ODiN"
+      - "  2. Find ONT record by address or old serial"
+      - "  3. Update serial number to match physical device"
+      - "  4. Save changes"
+      - "Wait 2-3 minutes for synchronization"
+      - "Verify ONT now shows in Calix/Adtran with correct serial"
+      - "ONT should auto-register within 1-2 minutes"
+    reference_doc: "Quantum Fiber - Searching for the ONT Serial Number in ODiN"
+    escalate_if: "Cannot update serial number in ODiN or ONT still won't register"
+  
+  - id: verify_ont_serial_guide
+    title: "How to Verify ONT Serial Number"
+    steps:
+      - "Physical ONT verification:"
+      - "  • Have field tech read serial number from label on device"
+      - "  • Serial is usually on bottom or side of ONT"
+      - "  • Take photo if unclear"
+      - "System verification in Calix:"
+      - "  1. Log into Calix SMx"
+      - "  2. Navigate to: Subscriber → ONT Management"
+      - "  3. Search by customer address or account number"
+      - "  4. Check 'Registration ID' field (this is the serial number)"
+      - "System verification in ODiN:"
+      - "  1. Log into ODiN"
+      - "  2. Search by address"
+      - "  3. View ONT record and check serial number field"
+      - "All three should match: Physical device, Calix, ODiN"
+    reference_doc: "How to search by Serial Number or RONTA in Calix"
+    video: "Verify Programming - FSAN 2.mp4"
+  
+  - id: resolve_duplicate_ronta
+    title: "Resolve Duplicate RONTA Conflict"
+    steps:
+      - "Multiple ONTs using the same RONTA causes authentication conflicts"
+      - "Identify which ONT is correct:"
+      - "  1. Compare addresses - which matches the current installation?"
+      - "  2. Check with field tech - which ONT is physically present?"
+      - "  3. Check order dates - which is the current active order?"
+      - "Resolution options:"
+      - "Option 1: Delete old/incorrect ONT record in ODiN"
+      - "  • Navigate to ODiN → Find duplicate ONT"
+      - "  • Verify it's the wrong one (old address, disconnected service)"
+      - "  • Delete or mark as inactive"
+      - "Option 2: Change RONTA for one of the ONTs"
+      - "  • Update RONTA to unique value in ODiN"
+      - "  • Wait for system sync (2-3 minutes)"
+      - "After resolution, verify correct ONT registers in Calix"
+    reference_doc: "Quantum Fiber - RONTA"
+    escalate_if: "Both ONT records appear valid or unsure which to keep"
+  
+  - id: check_duplicate_ronta_guide
+    title: "How to Check for Duplicate RONTA"
+    steps:
+      - "In Calix SMx:"
+      - "  1. Navigate to: Subscriber → ONT Management"
+      - "  2. Search by RONTA value"
+      - "  3. If multiple results appear, there's a duplicate"
+      - "In ODiN:"
+      - "  1. Navigate to: Inventory → Network Elements → ONT"
+      - "  2. Search by RONTA"
+      - "  3. Check if multiple ONT records exist with same RONTA"
+      - "RONTA format: XX(Shelf)-XX(Slot)-XX(Port)-XX(Leg)"
+      - "  • Example: 70-01-20-01-08"
+      - "  • 70 = Shelf, 01 = Slot, 20 = Port, 01 = Physical Port, 08 = Leg"
+      - "Each RONTA should be unique across the network"
+    reference_doc: "Quantum Fiber - RONTA"
+    video: "Locate OLT and Circuit Details.mp4"
+  
+  - id: ont_power_troubleshooting
+    title: "ONT Power Issue Troubleshooting"
+    steps:
+      - "ONT power light is off or not solid"
+      - "Have field tech verify:"
+      - "  1. Power adapter is plugged into working outlet"
+      - "  2. Test outlet with another device (phone charger, etc.)"
+      - "  3. Power cable firmly connected to ONT"
+      - "  4. Check for damage to power adapter or cable"
+      - "If power outlet works but ONT won't power on:"
+      - "  • Try different power adapter (if available on truck)"
+      - "  • Check ONT for physical damage"
+      - "  • Try power cycling: unplug 30 seconds, plug back in"
+      - "If ONT still won't power on, likely hardware failure"
+      - "  • Create service ticket for ONT replacement"
+      - "  • Field tech may have spare ONT on truck for immediate swap"
+    reference_doc: "No Light Troubleshooting Guide"
+    escalate_if: "ONT won't power on with known good power source"
+  
+  - id: verify_ont_power_guide
+    title: "How to Verify ONT Power Status"
+    steps:
+      - "ONT power indicators vary by model:"
+      - "Calix ONTs:"
+      - "  • PWR (Power): Should be solid green"
+      - "  • PON (Fiber): Should be solid green when connected"
+      - "  • LAN/ETH: Flashing when data passing"
+      - "Adtran ONTs:"
+      - "  • Power: Solid green"
+      - "  • Optical: Solid green (fiber connected)"
+      - "  • Ethernet: Flashing green (active connection)"
+      - "If power light is:"
+      - "  • Off: No power to ONT"
+      - "  • Blinking: ONT booting up or power issue"
+      - "  • Amber/Red: Hardware fault"
+      - "  • Solid Green: Normal operating state"
+    reference_doc: "Quantum Fiber - SmartNID info"
+  
+  - id: search_odin_guide
+    title: "How to Search for ONT in ODiN"
+    steps:
+      - "Log into ODiN system"
+      - "Search methods:"
+      - "Option 1: Search by Address"
+      - "  1. Navigate to: Search → Address Search"
+      - "  2. Enter street address"
+      - "  3. View all network elements at that address"
+      - "Option 2: Search by Serial Number"
+      - "  1. Navigate to: Inventory → Network Elements → ONT"
+      - "  2. Enter ONT serial number in search field"
+      - "  3. Click Search"
+      - "Option 3: Search by RONTA"
+      - "  1. Use the RONTA search function"
+      - "  2. Enter full RONTA (format: XX-XX-XX-XX-XX)"
+      - "If ONT not found in ODiN, it needs to be created"
+    reference_doc: "Quantum Fiber - Searching for RONTA in ODiN"
+    video: "Verify Legacy Account 2.mp4"
+  
+  - id: advanced_not_visible_troubleshooting
+    title: "Advanced ONT Not Visible Troubleshooting"
+    steps:
+      - "ONT is powered, fiber connected correctly, built in ODiN, but still not visible in Calix"
+      - "Advanced checks:"
+      - "  1. Verify OLT is online and functioning"
+      - "  2. Check if OLT port is enabled and not in error state"
+      - "  3. Verify splitter is correctly configured in system"
+      - "  4. Check for system synchronization delays (Optius → Calix → ODiN)"
+      - "  5. Review recent change logs - was equipment recently replaced?"
+      - "  6. Verify correct OLT shelf/slot/port in ODiN matches physical reality"
+      - "Force re-discovery attempts:"
+      - "  • Power cycle ONT (unplug 30 sec, plug back in)"
+      - "  • Wait 3-5 minutes for auto-discovery"
+      - "  • Check if ONT appears in 'unregistered' or 'pending' state"
+      - "If still not visible after all checks, escalate to Network Engineering"
+    reference_doc: "Escalation Contacts"
+    escalate_if: "All basic checks complete, ONT still not appearing in system after 10 minutes"
+  
+  - id: verify_splitter_connection_guide
+    title: "How to Verify Correct Splitter Connection"
+    steps:
+      - "Verify splitter information in ODiN:"
+      - "  1. Log into ODiN"
+      - "  2. Search for customer address"
+      - "  3. View ONT record - note:"
+      - "     • Splitter ID/location"
+      - "     • Splitter leg number"
+      - "     • Physical port assignment"
+      - "Communicate to field tech:"
+      - "  • Provide FDH location (address or GPS coordinates)"
+      - "  • Provide splitter cabinet number/ID"
+      - "  • Provide specific splitter port/leg number"
+      - "Field tech verification:"
+      - "  • Locate correct FDH"
+      - "  • Identify correct splitter (may be multiple in one FDH)"
+      - "  • Verify fiber is connected to correct port"
+      - "  • If connected to wrong port, relocate to correct port"
+      - "After any physical changes, wait 1-2 minutes for ONT to register"
+    reference_doc: "Quantum Fiber - Verify and Associate Fiber Distribution Strand in ODiN"
+    video: "How to Associate a Physical Port (PP) to a Leg.mp4"
+  
+  - id: ont_not_operational
+    title: "ONT Not in O5 Operational State - Redirect"
+    steps:
+      - "ONT is not in O5 (Operation) state"
+      - "This authentication issue actually starts with an ONT provisioning problem"
+      - "Recommend using 'ONT Not Provisioning' troubleshooting flow instead"
+      - "That flow will walk through:"
+      - "  • Checking ONT states (O1, O2, O3, O4, O5, etc.)"
+      - "  • Fiber signal verification"
+      - "  • Serial number validation"
+      - "  • Service profile assignment"
+      - "Once ONT reaches O5 state, return to authentication troubleshooting"
+    reference_doc: "Quantum Fiber – Provisioning in Calix and Adtran"
+  
+  - id: ont_provisioning_required
+    title: "ONT Not Visible - Provisioning Required"
+    steps:
+      - "ONT is not visible in Calix/Adtran system"
+      - "This is a provisioning issue, not authentication"
+      - "Recommend using 'ONT Not Provisioning' troubleshooting flow"
+      - "That flow will guide through:"
+      - "  • Checking if ONT exists in ODiN"
+      - "  • Building ONT if missing"
+      - "  • Verifying correct splitter connection"
+      - "  • Checking physical fiber and power"
+      - "Once ONT is visible and in O5 state, return to authentication flow"
+    reference_doc: "How to Build an ONT in ODiN"
+  
+  # Authentication Solutions
+  - id: authentication_diagnostic_steps
+    title: "Authentication Failure Diagnostic Steps"
+    steps:
+      - "Follow this systematic approach to identify where authentication is failing:"
+      - "Step 1: Check ONT level"
+      - "  • Is ONT in O5 (Operation) state in Calix? If no, fix ONT first"
+      - "Step 2: Check provisioning"
+      - "  • Is Optius programming complete? Check order status"
+      - "  • Is service activated in system?"
+      - "Step 3: Check credentials"
+      - "  • Use QMate to view current credentials"
+      - "  • Verify username/password are correct in Improv"
+      - "Step 4: Check network config"
+      - "  • Verify VLAN configuration matches order"
+      - "  • Check for CVLAN duplicates"
+      - "  • Verify TA Path exists and is correct"
+      - "If unsure at any step, ask field tech to run speed test"
+      - "If speed test works, issue is likely customer equipment, not network"
+    reference_doc: "Authentication Troubleshooting Guide"
+    video: "QMate - Working with Credentials 2.mp4"
+  
+  - id: complete_optius_programming
+    title: "Complete Optius Programming for Order"
+    steps:
+      - "Order exists in Salesforce but programming not complete in Optius"
+      - "Check order status in Optius:"
+      - "  1. Log into Optius"
+      - "  2. Search for order by order number or customer info"
+      - "  3. Check programming status - should show 'Complete'"
+      - "If status is 'Pending' or 'In Progress':"
+      - "  • Wait 5-10 minutes - may be auto-provisioning"
+      - "  • Check for error messages or holds"
+      - "If status is 'Failed' or 'Held':"
+      - "  • Review error message"
+      - "  • Common issues: Missing facility data, CVLAN conflicts, system sync errors"
+      - "  • May need to manually complete programming steps"
+      - "  • Use 'Managing Work Tickets in Optius' guide"
+      - "If order is stuck >30 minutes, escalate to Systems team"
+    reference_doc: "Quantum Fiber - Managing Work Tickets in Optius"
+    video: "Validate programming is complete in Optius (referenced in docs)"
+    escalate_if: "Programming fails repeatedly or stuck for >30 minutes"
+  
+  - id: verify_optius_programming_guide
+    title: "How to Verify Optius Programming Status"
+    steps:
+      - "Log into Optius system"
+      - "Navigate to: Orders → Order Management"
+      - "Search for order using:"
+      - "  • Order number (from Salesforce)"
+      - "  • Customer account number"
+      - "  • Service address"
+      - "Check 'Programming Status' field:"
+      - "  • Complete = Ready for activation"
+      - "  • In Progress = Currently provisioning (wait 5-10 min)"
+      - "  • Pending = Waiting for prereqs or manual action"
+      - "  • Failed = Error occurred, check error details"
+      - "  • Held = Order on hold, check hold reason"
+      - "Review programming details:"
+      - "  • VLAN assignments"
+      - "  • Service parameters (speed, type)"
+      - "  • Facility information"
+      - "  • TA Path status"
+    reference_doc: "Quantum Fiber - Understanding the Programming Status Codes in OPTIUS"
+  
+  - id: activate_service
+    title: "Activate Service in Provisioning System"
+    steps:
+      - "Service order exists and programming complete, but service not activated"
+      - "In Optius:"
+      - "  1. Navigate to order"
+      - "  2. Verify programming status = Complete"
+      - "  3. Click 'Activate Service' button"
+      - "  4. Confirm activation"
+      - "  5. Wait 1-2 minutes for provisioning to complete"
+      - "Verify activation in Calix:"
+      - "  • ONT should move to O5 state"
+      - "  • Service profile should be applied"
+      - "  • Subscriber account should show active"
+      - "Test with field tech:"
+      - "  • Run speed test via QMate"
+      - "  • Or have customer test connection"
+      - "If service doesn't activate, check for:"
+      - "  • Errors in Optius activation log"
+      - "  • CVLAN conflicts"
+      - "  • Improv credential issues"
+    reference_doc: "Quantum Fiber - Creating Install order in Optius"
+    escalate_if: "Activation fails or service doesn't come online after activation"
+  
+  - id: verify_service_activation_guide
+    title: "How to Verify Service Activation Status"
+    steps:
+      - "Check multiple systems for confirmation:"
+      - "Salesforce:"
+      - "  • Order status should be 'Complete' or 'Activated'"
+      - "  • Installation date should be today or past"
+      - "Optius:"
+      - "  • Programming Status: Complete"
+      - "  • Service Status: Active"
+      - "  • No holds or errors"
+      - "Calix SMx:"
+      - "  • ONT in O5 state"
+      - "  • Service profile assigned"
+      - "  • Subscriber account linked"
+      - "QMate:"
+      - "  • Can search and find customer account"
+      - "  • Shows active service"
+      - "  • Can run speed test successfully"
+      - "If any system shows service as inactive, that's where to troubleshoot"
+    reference_doc: "Quantum Fiber - Salesforce Overview"
+  
+  - id: update_improv_credentials
+    title: "Update Credentials in Improv Using QMate"
+    steps:
+      - "Log into QMate 2.0"
+      - "Search for customer by:"
+      - "  • Account number"
+      - "  • Phone number"
+      - "  • Address"
+      - "  • ONT serial number"
+      - "Navigate to account details"
+      - "View current credentials:"
+      - "  • Username format: usually address-based or account-based"
+      - "  • Password: view existing or generate new"
+      - "Update credentials if incorrect:"
+      - "  1. Click 'Edit Credentials'"
+      - "  2. Enter correct username"
+      - "  3. Generate new password or enter specific password"
+      - "  4. Save changes"
+      - "  5. Wait 30 seconds for sync to Improv/RADIUS"
+      - "Test authentication:"
+      - "  • Have customer reconnect with new credentials"
+      - "  • Or run QMate speed test to verify"
+    reference_doc: "QMate - Working with Credentials"
+    video: "QMate - Working with Credentials 2.mp4"
+    escalate_if: "Credentials update but authentication still fails"
+  
+  - id: verify_improv_credentials_qmate
+    title: "How to Verify Improv Credentials Using QMate"
+    steps:
+      - "Log into QMate 2.0"
+      - "Search for customer account"
+      - "Navigate to 'Credentials' or 'Account Info' section"
+      - "Verify the following:"
+      - "  • Username is displayed and matches customer's info"
+      - "  • Password is set (actual password may be masked)"
+      - "  • Account status shows 'Active'"
+      - "  • No authentication errors or warnings"
+      - "Compare to what customer is using:"
+      - "  • Ask customer what username they're entering"
+      - "  • Verify it matches QMate"
+      - "  • If mismatch, provide correct username from QMate"
+      - "Test credentials:"
+      - "  • Use 'View Improv Account' feature in QMate"
+      - "  • Verify account pulls up correctly"
+      - "  • Check for any error messages"
+    reference_doc: "QMate - Working with Credentials"
+    video: "QMate - View Improv Account.mp4"
+  
+  - id: resolve_duplicate_cvlan
+    title: "Resolve Duplicate CVLAN Conflict"
+    steps:
+      - "Multiple customers assigned the same CVLAN causes authentication failures"
+      - "Identify the duplicate:"
+      - "  1. In Calix, search for the CVLAN number"
+      - "  2. Note which subscribers are using it"
+      - "  3. Determine which is the current/active service"
+      - "Resolution option 1: Suspend old CVLAN"
+      - "  • If one subscriber is inactive/disconnected"
+      - "  • Navigate to ODiN or Calix"
+      - "  • Suspend the CVLAN for the inactive customer"
+      - "  • Reference: 'Suspending CVLANS' procedure"
+      - "Resolution option 2: Assign new CVLAN"
+      - "  • For the newer customer, assign fresh CVLAN"
+      - "  • Update in ODiN"
+      - "  • Wait for sync to Calix (2-3 minutes)"
+      - "  • Verify service comes online"
+      - "After resolution, test authentication"
+    reference_doc: "Quantum Fiber - Suspending CVLANS"
+    video: "How to Find Duplicate CVLAN (referenced in docs)"
+    escalate_if: "Both customers appear active or CVLAN suspension doesn't resolve issue"
+  
+  - id: check_duplicate_cvlan_guide
+    title: "How to Check for Duplicate CVLAN"
+    steps:
+      - "In Calix SMx:"
+      - "  1. Navigate to: Subscriber → VLAN Management"
+      - "  2. Search by CVLAN number (customer VLAN)"
+      - "  3. If multiple subscribers appear, there's a duplicate"
+      - "In ODiN:"
+      - "  1. Use CVLAN search function"
+      - "  2. Enter CVLAN value to search"
+      - "  3. Check results for multiple assignments"
+      - "In Optius:"
+      - "  1. Can search by CVLAN to find associated order"
+      - "  2. Use 'Using CVLAN To Find Associated Order' procedure"
+      - "CVLAN format: Typically 3-4 digit number"
+      - "Each CVLAN should be unique to one customer/service"
+      - "Duplicates cause authentication conflicts and service failures"
+    reference_doc: "How to Find Duplicate CVLAN"
+    video: "Duplicate CVLAN Verification (referenced in Authentication guide)"
+  
+  - id: test_radius_communication
+    title: "Test RADIUS Server Communication"
+    steps:
+      - "RADIUS server handles authentication between ONT and network"
+      - "Basic RADIUS checks:"
+      - "  1. Verify BRAS (Broadband Remote Access Server) is online"
+      - "  2. Check if RADIUS server IP is reachable"
+      - "  3. Review RADIUS logs for authentication attempts"
+      - "In Poll DSLAM or similar tool:"
+      - "  • Check authentication logs"
+      - "  • Look for RADIUS timeout errors"
+      - "  • Verify authentication requests are reaching server"
+      - "Common RADIUS issues:"
+      - "  • Server timeout (network issue)"
+      - "  • Authentication rejected (wrong credentials)"
+      - "  • No response (server down or unreachable)"
+      - "If RADIUS server appears down or unresponsive:"
+      - "  • Escalate to Network Engineering immediately"
+      - "  • This affects multiple customers, not just one"
+    reference_doc: "Authentication Troubleshooting Guide"
+    escalate_if: "RADIUS server not responding or showing errors for multiple customers"
+  
+  - id: radius_server_escalation
+    title: "RADIUS Server Issue - Escalate to Network Engineering"
+    steps:
+      - "RADIUS server is not responding - this is a network-level issue"
+      - "Create high-priority escalation ticket:"
+      - "  • Category: Network Infrastructure - RADIUS Failure"
+      - "  • Impact: Multiple customers likely affected"
+      - "  • Include: BRAS device, region/market, error messages"
+      - "Notify Network Engineering team immediately"
+      - "  • Use emergency contact if available"
+      - "  • This may be a widespread outage"
+      - "Check if other tickets are reporting similar issues:"
+      - "  • May be part of larger service disruption"
+      - "  • Coordinate with NOC (Network Operations Center)"
+      - "Customer communication:"
+      - "  • Inform customer of network issue"
+      - "  • Provide ETA if available"
+      - "  • Create follow-up ticket"
+    reference_doc: "Outage Reporting for TSC and Structure Load"
+    escalate_if: "Always escalate RADIUS server failures - affects multiple customers"
+  
+  - id: auth_advanced_troubleshooting
+    title: "Authentication Advanced Troubleshooting"
+    steps:
+      - "Basic authentication checks have passed but customer still can't connect"
+      - "Advanced diagnostic steps:"
+      - "  1. Capture authentication logs from RADIUS server"
+      - "  2. Review PPPoE session establishment logs"
+      - "  3. Check for QoS or bandwidth policy blocking traffic"
+      - "  4. Verify routing tables and default gateway"
+      - "  5. Check for MAC address filtering or security policies"
+      - "  6. Test with different customer equipment (bypass router)"
+      - "If customer equipment works with direct connection:"
+      - "  • Issue is customer's router/firewall config"
+      - "  • Not a network authentication problem"
+      - "If issue persists with all equipment and all checks pass:"
+      - "  • Escalate to Network Engineering"
+      - "  • Provide full diagnostic history"
+    reference_doc: "Authentication Troubleshooting Guide"
+    escalate_if: "All standard checks complete, still cannot authenticate"
+  
+  - id: fix_vlan_configuration
+    title: "Fix VLAN Configuration in Calix"
+    steps:
+      - "VLAN (Virtual LAN) configuration is incorrect or missing"
+      - "In Calix SMx:"
+      - "  1. Navigate to: Subscriber → ONT Management"
+      - "  2. Find customer account"
+      - "  3. Click 'Edit' → 'VLAN Configuration'"
+      - "Standard VLAN configuration:"
+      - "  • CE-VLAN (Customer Edge): Usually 201 for data services"
+      - "  • S-VLAN (Service): Varies by location and service"
+      - "  • Verify S-VLAN matches what's in Optius/ODiN"
+      - "Apply correct VLAN:"
+      - "  • Match to service order in Salesforce"
+      - "  • Reference Optius for correct VLAN assignments"
+      - "  • Save configuration"
+      - "  • Wait 30 seconds for provisioning"
+      - "Test service after VLAN update"
+    reference_doc: "Quantum Fiber - CVLAN Change"
+    escalate_if: "VLAN configuration correct but authentication still fails"
+  
+  - id: rebuild_ta_path
+    title: "Rebuild TA Path in Optius"
+    steps:
+      - "Transport Access (TA) Path is missing or incorrectly configured"
+      - "TA Path connects customer location (FDH) to network (OLT/BRAS)"
+      - "Check if TA Path exists:"
+      - "  1. Log into Optius"
+      - "  2. Search for customer address"
+      - "  3. View 'Transport Access Path' section"
+      - "If TA Path is missing or incomplete:"
+      - "Option 1: Build using QMate (if supported)"
+      - "  • Use 'Using QMate to build TA Path' procedure"
+      - "Option 2: Build manually in Optius"
+      - "  • Use 'TA Path Build' procedure for your market"
+      - "  • Requires: FDH location, Splitter info, OLT details, BRAS port"
+      - "After building TA Path:"
+      - "  • Wait 3-5 minutes for provisioning"
+      - "  • Verify in Optius: View Transport Access Path"
+      - "  • Check that ONT can now authenticate"
+    reference_doc: "Using QMate to build TA Path"
+    escalate_if: "Cannot build TA Path due to missing facility data or system errors"
+  
+  - id: verify_ta_path_guide
+    title: "How to Verify TA Path in Optius"
+    steps:
+      - "Log into Optius"
+      - "Navigate to: Facilities → Transport Access Path"
+      - "Search by customer address or order number"
+      - "TA Path should show:"
+      - "  • FDH (Fiber Distribution Hub) location"
+      - "  • Splitter assignment"
+      - "  • Fiber strand mapping"
+      - "  • OLT connection (shelf/slot/port)"
+      - "  • BRAS device and port"
+      - "  • Status: Active or Complete"
+      - "If TA Path is missing:"
+      - "  • Status shows 'Not Built' or blank"
+      - "  • Need to build TA Path before service can work"
+      - "If TA Path exists but incomplete:"
+      - "  • Check for missing components (splitter, OLT, etc.)"
+      - "  • May need to complete or rebuild"
+    reference_doc: "Quantum Fiber – View Transport Access Path in Optius"
+  
+  - id: verify_vlan_configuration_guide
+    title: "How to Verify VLAN Configuration"
+    steps:
+      - "In Calix SMx:"
+      - "  1. Navigate to: Subscriber → ONT Management"
+      - "  2. Search for customer"
+      - "  3. View 'VLAN Configuration' section"
+      - "Check for:"
+      - "  • CE-VLAN: Should be 201 (standard for data)"
+      - "  • S-VLAN: Varies by market, should match Optius"
+      - "  • VLAN Status: Active"
+      - "Cross-reference with Optius:"
+      - "  1. Log into Optius"
+      - "  2. Search for order/customer"
+      - "  3. View provisioning details"
+      - "  4. Compare VLAN assignments"
+      - "VLANs must match across all systems:"
+      - "  • Calix SMx (ONT level)"
+      - "  • Optius (provisioning system)"
+      - "  • ODiN (facility database)"
+      - "If mismatch found, update to match the order"
+    reference_doc: "Quantum Fiber - CVLAN Change"
+  
+  - id: fix_bras_configuration
+    title: "Fix BRAS Device and Port Configuration"
+    steps:
+      - "BRAS (Broadband Remote Access Server) configuration is incorrect"
+      - "This is an advanced issue - typically handled by Network Engineering"
+      - "Basic BRAS checks you can perform:"
+      - "  1. Verify BRAS device is online and reachable"
+      - "  2. Check BRAS port assignment in Optius matches physical reality"
+      - "  3. Verify port is not in error state or disabled"
+      - "In Optius:"
+      - "  • Navigate to BRAS device configuration"
+      - "  • View port assignments for this customer"
+      - "  • Check port status and capacity"
+      - "If BRAS port appears misconfigured:"
+      - "  • This usually requires Network Engineering to fix"
+      - "  • Escalate with detailed findings"
+      - "If BRAS device is down or unresponsive:"
+      - "  • Major network issue affecting multiple customers"
+      - "  • Escalate immediately as high priority"
+    reference_doc: "How to build a BRAS Device and Port in Optius"
+    escalate_if: "BRAS configuration issues - beyond Service Desk scope"
+  
+  - id: verify_bras_config_guide
+    title: "How to Verify BRAS Configuration"
+    steps:
+      - "Log into Optius"
+      - "Navigate to: Network Elements → BRAS Devices"
+      - "Search for the BRAS device serving this customer's area"
+      - "Check BRAS device status:"
+      - "  • Should show 'Active' or 'Online'"
+      - "  • If 'Down' or 'Error', escalate immediately"
+      - "View port assignments:"
+      - "  • Find the port assigned to this customer"
+      - "  • Check port status (Active/Inactive/Error)"
+      - "  • Verify port capacity isn't exceeded"
+      - "In customer's order/service record:"
+      - "  • Should show BRAS device name"
+      - "  • Should show specific port assignment"
+      - "  • Should match physical network topology"
+      - "If any mismatches or errors, escalate to Network Engineering"
+    reference_doc: "How to build a BRAS Device and Port in Optius"
+  
+  - id: network_level_escalation
+    title: "Network-Level Authentication Issue - Escalation Required"
+    steps:
+      - "All authentication troubleshooting steps completed without resolution"
+      - "Issue appears to be at network routing or policy level"
+      - "Prepare escalation with complete diagnostic history:"
+      - "  • ONT state and signal levels (from Calix)"
+      - "  • Service profile and VLAN config (verified correct)"
+      - "  • Credentials (verified in Improv via QMate)"
+      - "  • TA Path status (verified built and complete)"
+      - "  • BRAS device and port (verified online)"
+      - "  • Authentication logs and error messages"
+      - "  • Steps already attempted"
+      - "Create escalation ticket:"
+      - "  • Category: Authentication Failure - Network Level"
+      - "  • Priority: High (customer without service)"
+      - "  • Assign to: Network Engineering team"
+      - "Customer communication:"
+      - "  • Inform of network-level issue requiring engineering"
+      - "  • Provide realistic ETA (typically 2-4 hours for engineering response)"
+    reference_doc: "Escalation Contacts"
+    escalate_if: "All Service Desk troubleshooting complete, issue persists"
+  
+  # No Light / Fiber Solutions
+  - id: not_fiber_issue_redirect
+    title: "Not a Fiber Issue - Check Provisioning or Authentication"
+    steps:
+      - "Fiber signal levels are good (-15 to -25 dBm)"
+      - "The problem is NOT with the physical fiber connection"
+      - "If customer has no service, the issue is likely:"
+      - "  • ONT provisioning (use 'ONT Not Provisioning' flow)"
+      - "  • Authentication (use 'Authentication Failures' flow)"
+      - "  • Speed/performance (use 'Speed Issues' flow)"
+      - "Confirm with field tech that ONT PON/Fiber light is solid green"
+      - "If PON light is green and signal is good, physical layer is working"
+      - "Troubleshoot at provisioning or authentication layer instead"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: marginal_signal_resolved
+    title: "Marginal Signal Resolved"
+    steps:
+      - "After cleaning and reseating, signal improved to good range (-15 to -25 dBm)"
+      - "Issue was dirty or loose fiber connectors - resolved"
+      - "Verify ONT PON/Fiber light is now solid green (not blinking)"
+      - "Check ONT state in Calix:"
+      - "  • Should be O5 (Operation) if service is provisioned"
+      - "  • If still O1, proceed with provisioning troubleshooting"
+      - "Have field tech test service:"
+      - "  • Customer equipment should connect"
+      - "  • Run speed test to confirm full service"
+      - "Document resolution in ticket:"
+      - "  • Fiber connectors cleaned"
+      - "  • Signal improved from marginal to good range"
+      - "  • Service operational"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: clean_reseat_connectors
+    title: "Clean and Reseat Fiber Connectors"
+    steps:
+      - "Have field tech perform fiber connector maintenance:"
+      - "At ONT:"
+      - "  1. Disconnect fiber from ONT PON port"
+      - "  2. Clean connector tip with alcohol wipe (lint-free)"
+      - "  3. Inspect for dirt, scratches, or damage"
+      - "  4. Clean PON port on ONT as well"
+      - "  5. Firmly reseat connector into PON port"
+      - "  6. Ensure connection is fully seated and secure"
+      - "At FDH (if accessible):"
+      - "  1. Locate splitter connection"
+      - "  2. Clean both ends of fiber patch cable"
+      - "  3. Reseat connections at splitter"
+      - "After cleaning:"
+      - "  • Wait 30 seconds for ONT to acquire signal"
+      - "  • Check signal levels in Calix/Adtran"
+      - "  • Signal should improve if dirt was the issue"
+      - "If signal doesn't improve, proceed to next troubleshooting step"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: high_split_ratio_issue
+    title: "High Split Ratio May Cause Marginal Signal"
+    steps:
+      - "Splitter ratio of 1:64 can cause marginal signal levels"
+      - "1:64 splitter divides optical power more than 1:32"
+      - "  • 1:32 ratio: -17 to -18 dB insertion loss"
+      - "  • 1:64 ratio: -20 to -21 dB insertion loss"
+      - "This may result in marginal signal at customer location"
+      - "Verify splitter ratio in ODiN:"
+      - "  • Check splitter configuration"
+      - "  • Determine if 1:32 or 1:64"
+      - "If signal is marginal with 1:64 splitter:"
+      - "  • Clean connectors to optimize signal"
+      - "  • Check fiber run length (longer runs = more loss)"
+      - "  • May need to relocate to 1:32 splitter if available"
+      - "If relocation needed, coordinate with Structure Load team"
+    reference_doc: "Quantum Fiber - Changing the Size of a Splitter"
+    escalate_if: "Marginal signal persists with 1:64 splitter despite cleaning"
+  
+  - id: check_splitter_ratio_guide
+    title: "How to Check Splitter Ratio in ODiN"
+    steps:
+      - "Log into ODiN"
+      - "Navigate to customer address or service location"
+      - "View network elements for this address"
+      - "Find splitter information:"
+      - "  • Splitter ID or name"
+      - "  • Splitter type/model"
+      - "  • Split ratio: 1:32 or 1:64"
+      - "Common splitter configurations:"
+      - "  • 1:32 - Preferred for most installations"
+      - "  • 1:64 - Used in dense areas or capacity constraints"
+      - "Higher split ratio = lower signal at customer:"
+      - "  • More customers sharing same fiber"
+      - "  • Greater optical power division"
+      - "  • May result in marginal signal levels"
+    reference_doc: "Quantum Fiber - Verify Available Splitter Ports in ODiN"
+  
+  - id: fix_fiber_bends
+    title: "Fix Tight Fiber Bends or Kinks"
+    steps:
+      - "Tight fiber bends cause signal attenuation (loss)"
+      - "Fiber should never have bend radius less than 1 inch (25mm)"
+      - "Have field tech inspect entire fiber run:"
+      - "  • From ONT to outside entry point"
+      - "  • Check for kinks, sharp bends, or compression"
+      - "  • Look for fiber pinched in doors, windows, or walls"
+      - "Common problem areas:"
+      - "  • Where fiber enters building"
+      - "  • Around corners or cable management"
+      - "  • Where secured with staples or zip ties (if too tight)"
+      - "Correct any bends:"
+      - "  • Loosen secured points if too tight"
+      - "  • Reroute fiber to eliminate sharp bends"
+      - "  • Use proper cable management with gradual curves"
+      - "After correction, recheck signal levels"
+      - "Signal should improve if bends were causing loss"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: marginal_signal_escalation
+    title: "Marginal Signal Escalation - Fiber Engineering Required"
+    steps:
+      - "Marginal signal persists after cleaning, reseating, and checking for bends"
+      - "Possible causes requiring fiber engineering:"
+      - "  • Long fiber run from OLT (excessive distance loss)"
+      - "  • High splitter ratio (1:64) combined with other factors"
+      - "  • Splitter hardware degradation"
+      - "  • Fiber splice loss in distribution network"
+      - "  • OLT transmit power low"
+      - "Create escalation ticket:"
+      - "  • Category: Marginal Fiber Signal - Engineering Review"
+      - "  • Include: Current signal levels, OLT info, splitter ratio, fiber distance"
+      - "  • Request: Fiber engineering assessment"
+      - "Possible resolutions by engineering:"
+      - "  • Relocate to different splitter with lower ratio"
+      - "  • Adjust OLT output power"
+      - "  • Re-splice fiber connections to reduce loss"
+    reference_doc: "No Light Troubleshooting Guide"
+    escalate_if: "Marginal signal after all field corrections attempted"
+  
+  - id: fiber_not_connected_fdh
+    title: "Fiber Not Connected at FDH - Field Tech Action Required"
+    steps:
+      - "Fiber is not connected at the Fiber Distribution Hub (FDH)"
+      - "This requires field tech to establish physical connection:"
+      - "  1. Locate correct FDH (verify address/GPS from ODiN)"
+      - "  2. Identify correct splitter in FDH"
+      - "  3. Locate correct splitter port/leg for this customer"
+      - "  4. Run fiber from customer location to FDH (if not present)"
+      - "  5. Splice or connect fiber to assigned splitter port"
+      - "  6. Clean all connectors before connecting"
+      - "  7. Secure fiber properly in FDH"
+      - "After connection:"
+      - "  • Wait 30-60 seconds for ONT to acquire signal"
+      - "  • Check signal levels at ONT"
+      - "  • Should see -15 to -25 dBm if properly connected"
+      - "  • Verify ONT PON light turns solid green"
+    reference_doc: "Quantum Fiber - Verify and Associate Fiber Distribution Strand in ODiN"
+    escalate_if: "FDH location unclear or cannot access FDH"
+  
+  - id: dispatch_field_supervisor
+    title: "Dispatch Field Supervisor for FDH Access"
+    steps:
+      - "Field tech cannot access FDH (locked, private property, etc.)"
+      - "Requires field supervisor or escalation:"
+      - "  1. Verify FDH location in ODiN"
+      - "  2. Check if FDH is on private property requiring access permission"
+      - "  3. Contact field supervisor to arrange access"
+      - "Possible scenarios:"
+      - "  • FDH in locked cabinet - need key/combination"
+      - "  • FDH on restricted property - need permission/escort"
+      - "  • FDH location unclear - need GPS coordinates verification"
+      - "Create dispatch request:"
+      - "  • Note FDH location and access issue"
+      - "  • Request supervisor or contractor with proper access"
+      - "  • Include customer appointment time constraints"
+      - "Coordinate with customer:"
+      - "  • May need to reschedule if immediate access not possible"
+      - "  • Inform of access delay reason"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: fiber_damage_repair
+    title: "Visible Fiber Damage - Repair Required"
+    steps:
+      - "Field tech has identified visible fiber damage"
+      - "Common damage types:"
+      - "  • Fiber cable cut or severed"
+      - "  • Connector broken or damaged"
+      - "  • Cable jacket torn exposing fiber"
+      - "  • Rodent damage or chewing"
+      - "  • Construction/dig damage"
+      - "Immediate actions:"
+      - "  1. Document damage with photos"
+      - "  2. Note location of damage"
+      - "  3. Determine if fiber can be temporarily repaired"
+      - "Temporary repair (if possible):"
+      - "  • Replace damaged connector if just connector issue"
+      - "  • Field tech may have replacement connectors"
+      - "Permanent repair required:"
+      - "  • Create urgent fiber repair ticket"
+      - "  • Category: Fiber Damage - Physical Repair Needed"
+      - "  • Include: Location, photos, damage type"
+      - "  • Priority: High if customer install in progress"
+      - "Typical resolution: Splice crew dispatch, 1-2 days"
+    reference_doc: "No Light Troubleshooting Guide"
+    escalate_if: "All fiber damage requires escalation for proper repair"
+  
+  - id: wrong_splitter_leg
+    title: "Wrong Splitter Leg - Correct Connection"
+    steps:
+      - "Fiber is connected to wrong splitter port/leg"
+      - "Verify correct splitter leg in ODiN:"
+      - "  1. Log into ODiN"
+      - "  2. Search customer address"
+      - "  3. View assigned splitter and leg number"
+      - "Communicate to field tech:"
+      - "  • FDH location"
+      - "  • Correct splitter (if multiple in same FDH)"
+      - "  • Correct port/leg number"
+      - "Field tech relocation:"
+      - "  1. Disconnect from current (wrong) port"
+      - "  2. Clean connector"
+      - "  3. Connect to correct port"
+      - "  4. Verify connection is secure"
+      - "After relocation:"
+      - "  • Wait 1-2 minutes for ONT registration"
+      - "  • Check signal levels (should be good)"
+      - "  • Verify ONT appears in Calix on correct facility"
+    reference_doc: "Quantum Fiber - Changing Splitter Leg"
+    video: "FDT - Splitter Leg Change.webm"
+  
+  - id: verify_splitter_leg_guide
+    title: "How to Verify Correct Splitter Leg"
+    steps:
+      - "In ODiN:"
+      - "  1. Navigate to customer address"
+      - "  2. View ONT/facility details"
+      - "  3. Note splitter information:"
+      - "     • FDH location (address or ID)"
+      - "     • Splitter ID/name"
+      - "     • Port/Leg number (e.g., Leg 8, Port 12)"
+      - "In Field Data Toolkit (if available):"
+      - "  • Can view visual representation of splitter"
+      - "  • Shows which ports are assigned vs available"
+      - "Communicate to field tech:"
+      - "  • Exact FDH address"
+      - "  • Splitter identifier"
+      - "  • Specific port/leg number"
+      - "Field tech should verify:"
+      - "  • Physical label on splitter matches ODiN"
+      - "  • Fiber connected to correct numbered port"
+    reference_doc: "Quantum Fiber - Verify and Associate Fiber Distribution Strand in ODiN"
+    video: "How to Associate a Physical Port (PP) to a Leg.mp4"
+  
+  - id: ont_or_fiber_hardware_issue
+    title: "ONT or Fiber Hardware Issue - Equipment Replacement"
+    steps:
+      - "ONT is powered, fiber connected, but no signal acquisition"
+      - "Likely hardware failure in ONT or fiber components"
+      - "Troubleshooting steps:"
+      - "  1. Power cycle ONT (unplug 30 seconds, reconnect)"
+      - "  2. Try different fiber port on ONT (if multi-port model)"
+      - "  3. Check for obviously damaged fiber connector"
+      - "If field tech has spare equipment:"
+      - "  • Swap ONT with known-good unit"
+      - "  • Replace fiber patch cable"
+      - "  • If service works with replacement, original equipment faulty"
+      - "If no spare equipment available:"
+      - "  • Create equipment replacement ticket"
+      - "  • Request ONT swap"
+      - "  • May require reschedule if parts not on truck"
+      - "Update ODiN with new ONT serial if replaced"
+    reference_doc: "No Light Troubleshooting Guide"
+    escalate_if: "Hardware replacement needed but not available on truck"
+  
+  - id: connect_fiber_to_ont
+    title: "Connect Fiber to ONT PON Port"
+    steps:
+      - "Fiber cable is not connected to the ONT"
+      - "Have field tech connect fiber:"
+      - "  1. Locate fiber drop cable (coming from outside/wall)"
+      - "  2. Clean fiber connector tip with alcohol wipe"
+      - "  3. Identify PON port on ONT:"
+      - "     • Usually labeled 'PON', 'Fiber', or 'Optical'"
+      - "     • May have green indicator nearby"
+      - "  4. Insert fiber connector firmly into PON port"
+      - "  5. Should hear/feel click when fully seated"
+      - "  6. Verify connector is locked in place"
+      - "After connection:"
+      - "  • Wait 30-60 seconds"
+      - "  • PON/Fiber light should turn solid green"
+      - "  • If light stays off or red, check signal levels"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: reseat_fiber_connection
+    title: "Reseat Loose Fiber Connection"
+    steps:
+      - "Fiber connection to ONT is loose"
+      - "Have field tech reseat connection:"
+      - "  1. Gently remove fiber connector from PON port"
+      - "  2. Inspect connector tip for dirt or damage"
+      - "  3. Clean with alcohol wipe if dirty"
+      - "  4. Inspect ONT PON port for debris"
+      - "  5. Firmly reinsert connector until it clicks/locks"
+      - "  6. Gently tug to verify connection is secure"
+      - "Verify after reseating:"
+      - "  • PON/Fiber light should turn solid green"
+      - "  • Check signal levels in Calix/Adtran"
+      - "  • If light still off/blinking, further troubleshooting needed"
+      - "Loose connections can cause:"
+      - "  • Intermittent service"
+      - "  • Marginal signal levels"
+      - "  • Frequent disconnections"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: ont_power_issue
+    title: "ONT Power Light Blinking - Power Supply Issue"
+    steps:
+      - "ONT power light is blinking (not solid)"
+      - "Blinking power usually indicates:"
+      - "  • Power supply failure or insufficient voltage"
+      - "  • ONT internal fault"
+      - "  • Intermittent power connection"
+      - "Troubleshooting steps:"
+      - "  1. Check power adapter connection at both ends"
+      - "  2. Verify outlet has power (test with another device)"
+      - "  3. Try different power outlet"
+      - "  4. Check power cable for damage"
+      - "If field tech has spare power adapter:"
+      - "  • Swap power adapter"
+      - "  • If ONT powers up normally with new adapter, original was faulty"
+      - "If ONT still has blinking power with known-good adapter:"
+      - "  • ONT internal failure"
+      - "  • Requires ONT replacement"
+    reference_doc: "No Light Troubleshooting Guide"
+    escalate_if: "ONT won't power up properly with known-good power source"
+  
+  # Speed Issues Solutions
+  - id: perform_qmate_speed_test
+    title: "Perform Speed Test Using QMate"
+    steps:
+      - "Log into QMate 2.0"
+      - "Search for customer by:"
+      - "  • Account number"
+      - "  • Address"
+      - "  • Phone number"
+      - "  • ONT serial number"
+      - "Navigate to customer account"
+      - "Click 'Speed Test' or 'Run Diagnostics'"
+      - "QMate will test:"
+      - "  • Download speed"
+      - "  • Upload speed"
+      - "  • Latency/ping"
+      - "  • Jitter"
+      - "Compare results to provisioned service:"
+      - "  • 100M service: Should see ~95-100 Mbps"
+      - "  • 500M service: Should see ~480-500 Mbps"
+      - "  • 1G service: Should see ~940-980 Mbps"
+      - "  • 2G service: Should see ~1900-2000 Mbps (XGS-PON)"
+      - "If speeds significantly lower, proceed with troubleshooting"
+    reference_doc: "QMate - Speed Test"
+    video: "QMate - Speed Test 2.mp4"
+  
+  - id: fix_bandwidth_profile_mismatch
+    title: "Fix Bandwidth Profile Mismatch"
+    steps:
+      - "Service profile in Calix doesn't match customer's service tier"
+      - "Example: Customer paying for 1G but profile shows 500M"
+      - "Verify customer's actual service tier:"
+      - "  • Check Salesforce order"
+      - "  • Confirm service speed on account"
+      - "Update service profile in Calix:"
+      - "  1. Log into Calix SMx"
+      - "  2. Navigate to: Subscriber → ONT Management"
+      - "  3. Search for customer"
+      - "  4. Click 'Edit' on service profile"
+      - "  5. Select correct bandwidth profile:"
+      - "     • 100M = Profile_100M_Residential"
+      - "     • 500M = Profile_500M_Residential"
+      - "     • 1G = Profile_1G_Residential"
+      - "     • 2G = Profile_2G_Residential"
+      - "  6. Save changes"
+      - "  7. Wait 30-60 seconds for provisioning"
+      - "Re-run speed test after update to verify correct speeds"
+    reference_doc: "Verify Programming - Ethernet Port & Speed"
+    video: "Verify Programming - Ethernet Port & Speed 2.mp4"
+  
+  - id: verify_bandwidth_profile_guide
+    title: "How to Verify Bandwidth Profile in Calix"
+    steps:
+      - "Log into Calix SMx"
+      - "Navigate to: Subscriber → ONT Management"
+      - "Search for customer by serial number or account"
+      - "View service profile details:"
+      - "  • Profile name should indicate speed tier"
+      - "  • Check download/upload bandwidth limits"
+      - "Standard bandwidth profiles:"
+      - "  • Profile_100M_Residential: 100 Mbps down / 100 Mbps up"
+      - "  • Profile_500M_Residential: 500 Mbps down / 500 Mbps up"
+      - "  • Profile_1G_Residential: 1000 Mbps down / 1000 Mbps up"
+      - "  • Profile_2G_Residential: 2000 Mbps down / 2000 Mbps up"
+      - "Compare to Salesforce order:"
+      - "  • Verify customer's paid service tier matches profile"
+      - "If mismatch, update profile to match order"
+    reference_doc: "Verify Programming - Ethernet Port & Speed"
+  
+  - id: fix_ethernet_port_speed
+    title: "Fix Ethernet Port Speed Configuration"
+    steps:
+      - "ONT Ethernet port not configured for correct speed"
+      - "In Calix SMx:"
+      - "  1. Navigate to: Subscriber → ONT Management"
+      - "  2. Find customer account"
+      - "  3. View 'Ethernet Port Configuration'"
+      - "  4. Check port speed setting:"
+      - "     • Should be '1G Auto' for most services"
+      - "     • Should be '2.5G Auto' or '10G' for XGS 2G service"
+      - "If set to wrong speed (e.g., 100M when should be 1G):"
+      - "  • Edit port configuration"
+      - "  • Set to correct speed/auto-negotiation"
+      - "  • Save changes"
+      - "Customer equipment must also support speed:"
+      - "  • Old router with only 100M ports can't utilize 1G service"
+      - "  • Verify customer equipment has gigabit Ethernet ports"
+    reference_doc: "Verify Programming - Ethernet Port & Speed"
+    video: "Verify Programming - Ethernet Port & Speed 2.mp4"
+  
+  - id: verify_ethernet_port_guide
+    title: "How to Verify Ethernet Port Configuration"
+    steps:
+      - "In Calix SMx:"
+      - "  1. Navigate to: Subscriber → ONT Management"
+      - "  2. View ONT details"
+      - "  3. Check 'Ethernet Ports' section"
+      - "Port configuration should show:"
+      - "  • Port speed: 1G, 2.5G, or 10G (depending on service)"
+      - "  • Link status: Up (connected) or Down (not connected)"
+      - "  • Auto-negotiation: Enabled (recommended)"
+      - "For different service tiers:"
+      - "  • 100M service: Can use 100M or 1G port"
+      - "  • 500M/1G service: Must use 1G port minimum"
+      - "  • 2G service: Requires 2.5G or 10G port (XGS-PON only)"
+      - "Verify customer equipment compatibility:"
+      - "  • Router must have matching port speed capability"
+      - "  • Cat5e or better Ethernet cable required for 1G+"
+    reference_doc: "Verify Programming - Ethernet Port & Speed"
+  
+  - id: olt_congestion_issue
+    title: "OLT Congestion Detected - Network Issue"
+    steps:
+      - "OLT (Optical Line Terminal) is experiencing congestion"
+      - "This means too much traffic for available bandwidth"
+      - "Affects multiple customers on same OLT port"
+      - "Document congestion details:"
+      - "  • OLT device name and port"
+      - "  • Current utilization percentage"
+      - "  • Time of day (peak vs off-peak)"
+      - "  • Customer impact (how many affected)"
+      - "Create escalation ticket:"
+      - "  • Category: Network Capacity - OLT Congestion"
+      - "  • Include: OLT details, utilization stats, customer complaints"
+      - "  • Request: Capacity upgrade or load balancing"
+      - "Network Engineering will:"
+      - "  • Analyze traffic patterns"
+      - "  • May split customers across multiple OLT ports"
+      - "  • May upgrade OLT capacity"
+      - "  • Typical resolution: 1-5 business days"
+    reference_doc: "Quantum Fiber - Troubleshooting Speed Issues"
+    escalate_if: "Always escalate OLT congestion - requires network engineering"
+  
+  - id: check_olt_congestion_guide
+    title: "How to Check for OLT Congestion"
+    steps:
+      - "In Poll DSLAM or network monitoring tool:"
+      - "  1. Locate customer's OLT device"
+      - "  2. Check OLT port utilization"
+      - "  3. Look for metrics:"
+      - "     • Port utilization % (should be <70%)"
+      - "     • Bandwidth usage graphs"
+      - "     • Dropped packets or errors"
+      - "Signs of congestion:"
+      - "  • Port utilization consistently >80%"
+      - "  • Speed degradation during peak hours (6-10 PM)"
+      - "  • Multiple customers reporting slow speeds"
+      - "  • Packet loss or high latency"
+      - "In Calix management system:"
+      - "  • View OLT performance metrics"
+      - "  • Check for congestion alerts or warnings"
+      - "If congestion detected, this is network-level issue requiring escalation"
+    reference_doc: "Quantum Fiber - Troubleshooting Speed Issues"
+  
+  - id: line_quality_issue
+    title: "BIP Errors Indicate Line Quality Issue"
+    steps:
+      - "BIP (Bit Interleaved Parity) errors indicate fiber signal quality problems"
+      - "High BIP errors cause:"
+      - "  • Packet loss"
+      - "  • Slow speeds"
+      - "  • Intermittent service"
+      - "BIP error thresholds:"
+      - "  • <10 errors/second: Normal background noise"
+      - "  • 10-100 errors/second: Marginal, monitor"
+      - "  • >100 errors/second: Significant issue"
+      - "Check fiber signal levels:"
+      - "  • RX power should be -15 to -25 dBm"
+      - "  • If marginal (-26 to -28 dBm), may cause BIP errors"
+      - "Troubleshooting steps:"
+      - "  1. Clean fiber connectors (reduces BIP errors)"
+      - "  2. Check for fiber bends"
+      - "  3. Reseat connections"
+      - "  4. Retest BIP error count after 5-10 minutes"
+      - "If BIP errors persist after fiber cleaning:"
+      - "  • Escalate for fiber engineering review"
+      - "  • May indicate splitter, splice, or distribution fiber issues"
+    reference_doc: "Quantum Fiber - Troubleshooting Speed Issues"
+    escalate_if: "High BIP errors (>100/sec) persist after fiber maintenance"
+  
+  - id: network_wide_speed_issue
+    title: "Network-Wide Speed Issue Detected"
+    steps:
+      - "Multiple customers in same area experiencing speed issues"
+      - "This indicates network-level problem, not customer-specific"
+      - "Possible causes:"
+      - "  • OLT congestion"
+      - "  • Core network issues"
+      - "  • Upstream provider problems"
+      - "  • Fiber distribution network degradation"
+      - "Document findings:"
+      - "  • Number of affected customers"
+      - "  • Geographic area or OLT"
+      - "  • Speed test results from multiple customers"
+      - "  • Time issue started"
+      - "Create network outage/degradation ticket:"
+      - "  • Category: Network Performance - Area-Wide Issue"
+      - "  • Priority: High (multiple customers affected)"
+      - "  • Include: OLT details, affected area, test results"
+      - "Notify field supervisor and NOC"
+      - "Customer communication:"
+      - "  • Inform of network issue affecting area"
+      - "  • Provide ETA when available from engineering"
+    reference_doc: "Outage Reporting for TSC and Structure Load"
+    escalate_if: "Always escalate area-wide performance issues"
+  
+  - id: customer_specific_speed_issue
+    title: "Customer-Specific Speed Issue"
+    steps:
+      - "Only this customer has speed issues, neighbors have good speeds"
+      - "Indicates problem with this customer's service, not network"
+      - "Continue troubleshooting customer-specific factors:"
+      - "  • Bandwidth profile (verify correct speed tier)"
+      - "  • Ethernet port configuration (1G vs 100M)"
+      - "  • Fiber signal levels (should be good, not marginal)"
+      - "  • Customer equipment (old router, bad cables)"
+      - "  • WiFi issues vs wired issues"
+      - "If all configurations correct and signal good:"
+      - "  • Test with direct connection (bypass customer router)"
+      - "  • If speed good direct, issue is customer equipment"
+      - "  • If speed still slow direct, check for:"
+      - "     • ONT firmware issues"
+      - "     • ONT hardware failure"
+      - "     • Service profile cache issues (clear and reapply)"
+    reference_doc: "Quantum Fiber - Troubleshooting Speed Issues"
+  
+  - id: test_neighbor_speed_guide
+    title: "How to Test Neighboring Customer Speed"
+    steps:
+      - "Testing neighbor helps isolate network vs customer-specific issues"
+      - "In QMate:"
+      - "  1. Search for nearby addresses"
+      - "  2. Find active customers on same street/area"
+      - "  3. Run speed test on neighbor's account"
+      - "  4. Compare results to affected customer"
+      - "Selection criteria for test customer:"
+      - "  • Active service (not disconnected)"
+      - "  • Same or similar service tier if possible"
+      - "  • Close physical proximity (same block)"
+      - "  • Ideally on same OLT/splitter"
+      - "Interpretation:"
+      - "  • Neighbor slow too = Network issue (escalate)"
+      - "  • Neighbor normal = Customer-specific issue (continue troubleshooting)"
+      - "Document test results in ticket"
+    reference_doc: "Quantum Fiber - Troubleshooting Speed Issues"
+  
+  - id: wifi_performance_issue
+    title: "WiFi Performance Issue - Customer Equipment"
+    steps:
+      - "Speed is good on wired connection but slow on WiFi"
+      - "This is a WiFi/router issue, not fiber network issue"
+      - "Common WiFi problems:"
+      - "  • Router too far from devices"
+      - "  • WiFi interference from neighbors"
+      - "  • Old 2.4 GHz only router (max ~100 Mbps)"
+      - "  • Router WiFi slower than wired capability"
+      - "  • Too many devices on WiFi"
+      - "Recommendations for customer:"
+      - "  • Upgrade to WiFi 5 or WiFi 6 router"
+      - "  • Use 5 GHz band for faster speeds (shorter range)"
+      - "  • Position router centrally in home"
+      - "  • Consider WiFi extenders or mesh system"
+      - "  • Use wired connection for stationary devices"
+      - "If customer has Quantum Fiber 360 WiFi pods:"
+      - "  • Check pod placement and connectivity"
+      - "  • Use QMate to verify pod configuration"
+      - "Fiber service is working correctly - WiFi is customer responsibility"
+    reference_doc: "Quantum Fiber - 360 WiFi"
+    video: "QMate - Adding and Removing Pods.mp4"
+  
+  - id: unusual_wired_issue
+    title: "Unusual: Wired Slow But WiFi Normal"
+    steps:
+      - "Rare scenario: Wired connection slower than WiFi"
+      - "Possible causes:"
+      - "  • Customer using bad Ethernet cable"
+      - "  • Cat5 cable instead of Cat5e/Cat6 (limits to 100M)"
+      - "  • Damaged cable"
+      - "  • Computer network adapter set to 100M instead of 1G"
+      - "  • ONT Ethernet port issue"
+      - "Troubleshooting:"
+      - "  1. Have customer try different Ethernet cable"
+      - "  2. Test with different device (different computer/laptop)"
+      - "  3. Check customer device network adapter speed settings"
+      - "  4. Verify ONT Ethernet port showing 1G link speed in Calix"
+      - "If issue persists with known-good cable and device:"
+      - "  • ONT Ethernet port may be faulty"
+      - "  • Try different Ethernet port on ONT (if multi-port)"
+      - "  • May require ONT replacement"
+    reference_doc: "Quantum Fiber - Troubleshooting Speed Issues"
+  
+  - id: marginal_signal_speed_impact
+    title: "Marginal Fiber Signal Affecting Speed"
+    steps:
+      - "Fiber signal is marginal or fluctuating, causing speed issues"
+      - "Marginal signal (-26 to -28 dBm) can cause:"
+      - "  • Reduced speeds"
+      - "  • Intermittent disconnections"
+      - "  • Packet loss"
+      - "Follow fiber troubleshooting procedures:"
+      - "  1. Clean fiber connectors (ONT and FDH)"
+      - "  2. Reseat all connections"
+      - "  3. Check for fiber bends or kinks"
+      - "  4. Verify splitter ratio (1:64 may cause issues)"
+      - "After fiber optimization:"
+      - "  • Recheck signal levels (should improve to -15 to -25 dBm)"
+      - "  • Re-run speed test"
+      - "  • Speeds should improve with better signal"
+      - "If signal remains marginal despite cleaning:"
+      - "  • Use 'No Light / Fiber Issues' troubleshooting flow"
+      - "  • May require fiber engineering for permanent fix"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: fiber_signal_issue_redirect
+    title: "Poor Fiber Signal - Use Fiber Troubleshooting Flow"
+    steps:
+      - "Fiber signal is poor (worse than -28 dBm)"
+      - "This is primarily a fiber issue, not a speed issue"
+      - "Recommend using 'No Light / Fiber Issues' troubleshooting flow"
+      - "That flow addresses:"
+      - "  • Poor fiber signal diagnostics"
+      - "  • Fiber cleaning and maintenance"
+      - "  • Physical fiber issues"
+      - "  • FDH connectivity"
+      - "  • Escalation to fiber engineering"
+      - "Once fiber signal is resolved (improved to good range):"
+      - "  • Return to speed troubleshooting if needed"
+      - "  • Re-run speed tests"
+      - "  • Verify service performance"
+    reference_doc: "No Light Troubleshooting Guide"
+  
+  - id: peak_hour_congestion
+    title: "Peak Hour Congestion Issue"
+    steps:
+      - "Speed degradation occurs primarily during peak hours (6-10 PM)"
+      - "Indicates network capacity issue during high usage times"
+      - "This is NOT a customer-specific issue"
+      - "Document pattern:"
+      - "  • Speed test results during peak vs off-peak hours"
+      - "  • Time of day when slowdowns occur"
+      - "  • Consistency of issue (daily, weekly)"
+      - "Create escalation ticket:"
+      - "  • Category: Network Capacity - Peak Hour Congestion"
+      - "  • Include: Customer location, OLT details, speed test data"
+      - "  • Request: Capacity assessment and upgrade"
+      - "Customer communication:"
+      - "  • Explain network congestion during high-usage times"
+      - "  • Inform of escalation to network engineering"
+      - "  • Set expectations: Resolution typically requires capacity upgrade (days/weeks)"
+      - "Workaround (temporary):"
+      - "  • Suggest customer use service during off-peak hours if possible"
+      - "  • Not a real solution but acknowledges the issue"
+    reference_doc: "Quantum Fiber - Troubleshooting Speed Issues"
+    escalate_if: "Always escalate peak hour congestion - requires network capacity planning"
+  
+  - id: intermittent_speed_advanced
+    title: "Intermittent Speed Issues - Advanced Troubleshooting"
+    steps:
+      - "Speed issues occur sporadically, not related to peak hours"
+      - "This is the most challenging type of speed issue to diagnose"
+      - "Possible causes:"
+      - "  • Intermittent fiber signal degradation"
+      - "  • Loose fiber connector"
+      - "  • Splitter hardware intermittent failure"
+      - "  • OLT port intermittent issues"
+      - "  • Customer equipment intermittent problems"
+      - "Diagnostic steps:"
+      - "  1. Have customer run speed tests at multiple times of day"
+      - "  2. Log results with timestamps"
+      - "  3. Check fiber signal levels during slow periods"
+      - "  4. Review historical performance graphs in Calix"
+      - "  5. Check ONT logs for disconnect/reconnect events"
+      - "Advanced checks require escalation:"
+      - "  • Long-term monitoring of OLT port performance"
+      - "  • Analysis of historical signal levels"
+      - "  • Potential hardware replacement (ONT, splitter)"
+    reference_doc: "Quantum Fiber - Troubleshooting Speed Issues"
+    escalate_if: "Intermittent issues without clear pattern after basic troubleshooting"
+  
+  # New Build Solutions
+  - id: search_address_odin_guide
+    title: "How to Search for Address in ODiN"
+    steps:
+      - "Log into ODiN system"
+      - "Navigate to: Search → Address Search"
+      - "Enter address components:"
+      - "  • Street number"
+      - "  • Street name"
+      - "  • City"
+      - "  • State"
+      - "  • ZIP code (optional but helps)"
+      - "Search tips:"
+      - "  • Try with and without directionals (N, S, E, W)"
+      - "  • Try abbreviations vs full words (St vs Street)"
+      - "  • Check for typos or variations"
+      - "  • For apartments/MDUs, include unit number"
+      - "If address found:"
+      - "  • View facility details"
+      - "  • Check if serviceable"
+      - "  • Verify network elements (FDH, splitter, etc.)"
+      - "If address not found:"
+      - "  • May need to be added to ODiN"
+      - "  • Check if bulk property"
+      - "  • Verify address is correct and exists"
+    reference_doc: "Quantum Fiber - Finding Addresses in Optius and ODiN"
+  
+  - id: add_address_to_optius
+    title: "Add Address to Optius/O2"
+    steps:
+      - "Address exists in ODiN but not in Optius (O2 provisioning system)"
+      - "Need to add address to make it orderable"
+      - "In Optius:"
+      - "  1. Navigate to: Address Management → Add New Address"
+      - "  2. Enter address details exactly as they appear in ODiN"
+      - "  3. Link to network facility data from ODiN:"
+      - "     • FDH location"
+      - "     • Service area"
+      - "     • Available facilities"
+      - "  4. Set serviceability status"
+      - "  5. Save address"
+      - "Wait 5-10 minutes for address to propagate through systems"
+      - "Verify address now appears in:"
+      - "  • Optius order entry"
+      - "  • Salesforce address validation"
+      - "If unable to add address (permissions, system errors):"
+      - "  • Escalate to Structure Load team"
+      - "  • Provide: Address, ODiN facility data, reason for add"
+    reference_doc: "Quantum Fiber - Adding An Address In Optius"
+    escalate_if: "Cannot add address due to permissions or system constraints"
+  
+  - id: correct_address_format
+    title: "Correct Address Format and Spelling"
+    steps:
+      - "Address exists but formatted incorrectly in system"
+      - "Common formatting issues:"
+      - "  • Misspelled street name"
+      - "  • Wrong directional (123 N Main vs 123 S Main)"
+      - "  • Abbreviated vs full words (St vs Street)"
+      - "  • Missing or incorrect unit number"
+      - "  • Extra spaces or characters"
+      - "Verify correct address:"
+      - "  1. Check Salesforce order for customer-provided address"
+      - "  2. Verify with customer if unclear"
+      - "  3. Cross-reference with Google Maps or USPS"
+      - "  4. Check how address appears in ODiN"
+      - "Update address in Optius/O2:"
+      - "  • Correct spelling and formatting"
+      - "  • Match exactly to ODiN format"
+      - "  • Include all required components"
+      - "Re-search after correction to verify address now found"
+    reference_doc: "Quantum Fiber - Finding Addresses in Optius and ODiN"
+  
+  - id: create_bulk_property
+    title: "Create Bulk Property for MDU/Apartment"
+    steps:
+      - "Address is multi-dwelling unit (MDU) requiring bulk property setup"
+      - "Bulk properties require special configuration for multiple units"
+      - "Verify this is bulk property:"
+      - "  • Multiple residential units at same address"
+      - "  • Apartment complex, condo building, townhomes"
+      - "  • Property has single fiber entry with internal distribution"
+      - "Creating bulk property (requires special permissions):"
+      - "  1. Gather property details:"
+      - "     • Building address"
+      - "     • Number of units"
+      - "     • Unit numbering scheme"
+      - "     • Property manager contact"
+      - "  2. Escalate to Structure Load team for bulk property creation"
+      - "  3. Provide: Address, unit count, layout info, Salesforce order"
+      - "Structure Load will:"
+      - "  • Create bulk property in ODiN"
+      - "  • Configure unit-level addressing"
+      - "  • Set up internal distribution network"
+      - "  • Enable ordering for individual units"
+    reference_doc: "Quantum Fiber - Bulk Property"
+    escalate_if: "All bulk property setups require Structure Load team involvement"
+  
+  - id: add_address_manually
+    title: "Manually Add Address to Systems"
+    steps:
+      - "Address doesn't exist in any system - needs manual addition"
+      - "This typically happens for:"
+      - "  • New construction not yet in databases"
+      - "  • Addresses in very new developments"
+      - "  • Recently annexed areas"
+      - "  • Incorrectly omitted during initial build"
+      - "Required information for manual add:"
+      - "  • Complete physical address"
+      - "  • GPS coordinates (if available)"
+      - "  • Nearest existing addresses"
+      - "  • Proof of address (utility bill, etc.)"
+      - "Process:"
+      - "  1. Escalate to Structure Load team"
+      - "  2. Provide: Address, customer contact, order details"
+      - "  3. Structure Load verifies address legitimacy"
+      - "  4. Adds to ODiN facility database"
+      - "  5. Links to appropriate network facilities"
+      - "  6. Enables in Optius for ordering"
+      - "Timeline: 1-3 business days for manual address addition"
+    reference_doc: "Quantum Fiber - Adding An Address In Optius"
+    escalate_if: "All manual address additions require Structure Load team"
+  
+  - id: bulk_property_identification_guide
+    title: "How to Identify Bulk Properties"
+    steps:
+      - "Bulk properties are multi-dwelling units requiring special setup"
+      - "Indicators of bulk property:"
+      - "  • Multiple units at same street address"
+      - "  • Apartment complex, condo building, townhomes"
+      - "  • Units have letter or number designations (Apt 2B, Unit 105)"
+      - "  • Property has single main entrance"
+      - "In ODiN, check for:"
+      - "  • Bulk property designation flag"
+      - "  • Multiple units listed under single facility"
+      - "  • Internal distribution network"
+      - "In Salesforce:"
+      - "  • Order may show 'Bulk Property' flag"
+      - "  • Unit number required for order"
+      - "If bulk property not yet set up:"
+      - "  • Individual units won't be orderable"
+      - "  • Need bulk property creation first"
+      - "  • Escalate to Structure Load with property details"
+    reference_doc: "Quantum Fiber - Bulk Property"
+  
+  - id: fiber_not_built_yet
+    title: "Fiber Not Actually Built Yet"
+    steps:
+      - "Field Data Toolkit shows no fiber at this address"
+      - "Construction may not be complete despite customer expectation"
+      - "Verify construction status:"
+      - "  1. Check SiteTracker (if available) for build schedule"
+      - "  2. Contact field operations for construction timeline"
+      - "  3. Verify if fiber buildout is in progress or scheduled"
+      - "Common scenarios:"
+      - "  • Marketing announced service before fiber complete"
+      - "  • Customer ordered during pre-launch period"
+      - "  • Construction delayed from original schedule"
+      - "  • New development with pending fiber buildout"
+      - "Customer communication:"
+      - "  • Apologize for confusion if marketed prematurely"
+      - "  • Provide realistic timeline from field operations"
+      - "  • Offer to follow up when fiber complete"
+      - "  • Process refund if customer charged prematurely"
+      - "Update Salesforce order:"
+      - "  • Note: Fiber not built, awaiting construction"
+      - "  • Set follow-up date for construction completion"
+    reference_doc: "Quantum Fiber - New Build Not Ready Escalation Process"
+    escalate_if: "Customer disputes or unclear construction timeline"
+  
+  - id: verify_fiber_built_fdt
+    title: "How to Verify Fiber Built Using Field Data Toolkit"
+    steps:
+      - "Log into Field Data Toolkit (FDT)"
+      - "Search by address or GPS coordinates"
+      - "FDT will show:"
+      - "  • Fiber distribution network in area"
+      - "  • FDH locations"
+      - "  • Splitter assignments"
+      - "  • Available vs assigned splitter ports"
+      - "  • Fiber route from OLT to customer location"
+      - "Indicators fiber IS built:"
+      - "  • Address shows available splitter port"
+      - "  • Fiber strand mapping exists"
+      - "  • FDH location assigned"
+      - "  • Shows as 'serviceable' in FDT"
+      - "Indicators fiber NOT built:"
+      - "  • No FDH in vicinity"
+      - "  • No splitter available"
+      - "  • Shows 'planned' or 'future' instead of 'built'"
+      - "  • No fiber route displayed"
+    reference_doc: "Quantum Fiber - Field Data Toolkit"
+    video: "FDT - Navigating & Searching.mp4"
+  
+  - id: olt_not_commissioned
+    title: "OLT Not in Provisioning System - Escalate to Structure Load"
+    steps:
+      - "OLT (Optical Line Terminal) exists physically but not in provisioning system"
+      - "Cannot provision services until OLT is commissioned in Calix/Adtran"
+      - "This is a Structure Load / Network Engineering issue"
+      - "Gather OLT information:"
+      - "  1. OLT location (address, site ID)"
+      - "  2. OLT serial number (if available)"
+      - "  3. Manufacturer (Calix or Adtran)"
+      - "  4. Market/region"
+      - "  5. Customer order details waiting on this OLT"
+      - "Create escalation ticket:"
+      - "  • Category: New Build - OLT Commissioning Required"
+      - "  • Priority: High (blocking customer installs)"
+      - "  • Assign to: Structure Load / Network Engineering"
+      - "  • Include: All OLT details, affected orders"
+      - "OLT commissioning process:"
+      - "  • Network Engineering configures OLT in management system"
+      - "  • Assigns IP addresses and network connectivity"
+      - "  • Tests OLT functionality"
+      - "  • Enables in provisioning systems (Optius/ODiN)"
+      - "  • Timeline: 1-3 days typically"
+    reference_doc: "Quantum Fiber - New Build OLT not in Provisioning System"
+    escalate_if: "All OLT commissioning requires Network Engineering - always escalate"
+  
+  - id: check_olt_provisioned_guide
+    title: "How to Check if OLT is Provisioned"
+    steps:
+      - "In Calix Management System:"
+      - "  1. Navigate to: Network → OLTs"
+      - "  2. Search for OLT by name or location"
+      - "  3. If OLT appears in list, it's provisioned"
+      - "  4. Check OLT status (should be 'Online' or 'Active')"
+      - "In Optius:"
+      - "  • Search network elements by area"
+      - "  • OLT should appear in available network devices"
+      - "  • Can assign customer services to OLT ports"
+      - "In ODiN:"
+      - "  • View network topology for area"
+      - "  • OLT should appear as network element"
+      - "  • Shows available capacity and port assignments"
+      - "If OLT missing from all systems:"
+      - "  • Not yet commissioned"
+      - "  • Escalate to Structure Load for commissioning"
+    reference_doc: "Quantum Fiber - New Build OLT not in Provisioning System"
+  
+  - id: ta_path_requirements_guide
+    title: "Understanding TA Path Requirements"
+    steps:
+      - "TA Path (Transport Access Path) maps customer location to network"
+      - "TA Path defines:"
+      - "  • Customer address"
+      - "  • FDH (Fiber Distribution Hub) location"
+      - "  • Splitter assignment"
+      - "  • Fiber strand mapping"
+      - "  • OLT connection (shelf/slot/port)"
+      - "  • BRAS device and port"
+      - "When is TA Path needed:"
+      - "  • All new customer installations"
+      - "  • New construction addresses"
+      - "  • Addresses not previously serviced"
+      - "When TA Path already exists:"
+      - "  • Previous customer at same address (reactivation)"
+      - "  • Address already built in system"
+      - "Check if TA Path exists:"
+      - "  • Search in Optius: Transport Access Path section"
+      - "  • Search in ODiN: View facility connectivity"
+      - "If missing, use 'Build TA Path' procedure"
+    reference_doc: "Quantum Fiber – TA Path Information"
+  
+  - id: verify_fdh_olt_connectivity
+    title: "Verify FDH to OLT Connectivity"
+    steps:
+      - "Ensure physical fiber path exists from customer FDH to OLT"
+      - "In ODiN or Field Data Toolkit:"
+      - "  1. Locate customer FDH"
+      - "  2. Trace fiber route from FDH upstream"
+      - "  3. Verify route connects to active OLT"
+      - "  4. Check for any breaks or gaps in route"
+      - "Verification points:"
+      - "  • FDH exists and is accessible"
+      - "  • Fiber strand from FDH to distribution network"
+      - "  • Distribution network connects to feeder fiber"
+      - "  • Feeder fiber terminates at OLT location"
+      - "  • OLT is powered and online"
+      - "If connectivity verified:"
+      - "  • Proceed with TA Path build"
+      - "If gap found in connectivity:"
+      - "  • Physical fiber not complete"
+      - "  • Escalate to Field Operations for fiber completion"
+      - "  • Cannot provision service until fiber route complete"
+    reference_doc: "Quantum Fiber – TA Path Information"
+  
+  - id: check_fdh_connectivity_guide
+    title: "How to Check FDH to OLT Connectivity"
+    steps:
+      - "Use Field Data Toolkit or ODiN to trace fiber route"
+      - "Starting from customer address:"
+      - "  1. Identify assigned FDH"
+      - "  2. View FDH uplink fiber"
+      - "  3. Follow fiber route through distribution network"
+      - "  4. Trace to aggregation point or remote node"
+      - "  5. Continue trace to OLT location"
+      - "Each segment should show:"
+      - "  • Fiber strand ID"
+      - "  • Splice points"
+      - "  • Intermediate nodes"
+      - "  • Termination equipment"
+      - "Complete route indicator:"
+      - "  • Continuous fiber path from FDH to OLT"
+      - "  • All segments show as 'built' or 'in-service'"
+      - "  • No gaps or 'planned' segments"
+      - "Incomplete route indicator:"
+      - "  • Missing segments showing 'planned' not 'built'"
+      - "  • Gap in fiber route"
+      - "  • Cannot proceed until fiber construction complete"
+    reference_doc: "Using Facility Check to Acquire LFACS Raw Data Information"
+  
+  - id: verify_splitter_availability_guide
+    title: "How to Verify Splitter Port Availability"
+    steps:
+      - "In ODiN:"
+      - "  1. Navigate to FDH location"
+      - "  2. View splitter inventory"
+      - "  3. Check splitter capacity:"
+      - "     • 1:32 splitter = 32 ports total"
+      - "     • 1:64 splitter = 64 ports total"
+      - "  4. View port assignments:"
+      - "     • Shows which ports are assigned vs available"
+      - "     • Available ports show as 'unassigned' or 'free'"
+      - "In Field Data Toolkit:"
+      - "  • Visual representation of splitter"
+      - "  • Color coding shows assigned vs available ports"
+      - "  • Can see exact port numbers available"
+      - "Port availability indicators:"
+      - "  • Green/Available: Port is free for assignment"
+      - "  • Red/Assigned: Port already in use"
+      - "  • Yellow/Reserved: Port reserved for specific use"
+      - "If no ports available:"
+      - "  • Splitter is at capacity"
+      - "  • Need to add splitter or use different FDH"
+      - "  • Escalate to Structure Load for capacity expansion"
+    reference_doc: "Quantum Fiber - Verify Available Splitter Ports in ODiN"
+  
+  - id: build_ta_path_qmate
+    title: "Build TA Path Using QMate"
+    steps:
+      - "QMate provides simplified TA Path building interface"
+      - "Prerequisites verified:"
+      - "  • FDH to OLT connectivity exists"
+      - "  • Splitter has available ports"
+      - "  • OLT is commissioned in system"
+      - "In QMate:"
+      - "  1. Navigate to TA Path Builder"
+      - "  2. Enter customer address"
+      - "  3. QMate auto-populates:"
+      - "     • Nearest FDH"
+      - "     • Available splitter and port"
+      - "     • OLT connection details"
+      - "     • BRAS device and port"
+      - "  4. Review auto-populated data for accuracy"
+      - "  5. Manually adjust if needed (select different splitter/port)"
+      - "  6. Click 'Build TA Path'"
+      - "  7. Wait 2-3 minutes for provisioning"
+      - "Verify TA Path created:"
+      - "  • Check Optius - should show Transport Access Path"
+      - "  • Check ODiN - facility should be mapped"
+      - "  • Customer address should now be orderable"
+    reference_doc: "Using QMate to build TA Path"
+    video: "QMate TA Path Build (referenced in docs)"
+  
+  - id: no_available_splitter_ports
+    title: "No Available Splitter Ports - Capacity Issue"
+    steps:
+      - "All splitter ports at customer FDH are assigned (at capacity)"
+      - "Cannot provision new service without additional capacity"
+      - "Options to resolve:"
+      - "Option 1: Use different FDH"
+      - "  • Check if there's another FDH in service area"
+      - "  • Customer location may be reachable from alternate FDH"
+      - "  • Requires fiber route assessment"
+      - "Option 2: Add splitter to existing FDH"
+      - "  • Install additional 1:32 or 1:64 splitter"
+      - "  • Requires field work and fiber connection"
+      - "  • Timeline: 3-7 days typically"
+      - "Option 3: Install new FDH closer to customer"
+      - "  • For areas with high demand"
+      - "  • Major construction project"
+      - "  • Timeline: 2-4 weeks"
+      - "Escalate to Structure Load team:"
+      - "  • Provide: FDH location, splitter capacity data, customer demand"
+      - "  • Request: Capacity expansion assessment"
+      - "Customer communication:"
+      - "  • Explain capacity constraint"
+      - "  • Provide timeline based on resolution option"
+      - "  • Offer to notify when capacity available"
+    reference_doc: "Quantum Fiber – Splitter Capacity Issues & 1GIG Capability"
+    escalate_if: "All splitter capacity issues require Structure Load planning - always escalate"
+  
+  - id: facility_ready_proceed
+    title: "Facility Ready - Proceed with Service Activation"
+    steps:
+      - "All facility checks complete - ready for service activation"
+      - "Verified:"
+      - "  • TA Path exists and is complete"
+      - "  • Splitter port available and assigned"
+      - "  • OLT commissioned and online"
+      - "  • Address serviceable in systems"
+      - "Next steps for activation:"
+      - "  1. Create service order in Optius (if not already created)"
+      - "  2. Complete provisioning in Calix/Adtran"
+      - "  3. Build ONT in ODiN (if field tech hasn't installed yet)"
+      - "  4. Schedule field tech installation appointment"
+      - "  5. Coordinate with customer for install date/time"
+      - "Field tech will:"
+      - "  • Install ONT at customer location"
+      - "  • Connect fiber from FDH to ONT"
+      - "  • Verify signal levels and provisioning"
+      - "  • Activate service and test"
+      - "Service should provision normally once ONT installed"
+    reference_doc: "Quantum Fiber - New Build End to End"
+  
+  - id: splitter_capacity_issue
+    title: "Splitter at Capacity - No Available Ports"
+    steps:
+      - "Similar to 'no_available_splitter_ports' - consolidated solution"
+      - "See 'No Available Splitter Ports - Capacity Issue' for full procedure"
+      - "Key action: Escalate to Structure Load for capacity planning"
+    reference_doc: "Quantum Fiber – Splitter Capacity Issues & 1GIG Capability"
+    escalate_if: "Always escalate capacity issues to Structure Load"
