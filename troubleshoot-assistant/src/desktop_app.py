@@ -52,7 +52,6 @@ class TechAssistDesktopApp:
         self.resolution_var = tk.StringVar()
         self._hovered_item = None
         self._row_tags = {}
-        self.logo_label = None
 
         self._configure_window()
         self._build_layout()
@@ -163,9 +162,9 @@ class TechAssistDesktopApp:
 
         logo_image = self._load_logo_image()
         if logo_image:
-            self.logo_label = ttk.Label(brand, image=logo_image)
-            self.logo_label.image = logo_image
-            self.logo_label.grid(row=0, column=0, sticky="w", pady=(0, 8))
+            logo_label = ttk.Label(brand, image=logo_image)
+            logo_label.image = logo_image
+            logo_label.grid(row=0, column=0, sticky="w", pady=(0, 8))
 
         branding = ttk.Frame(brand, style="Content.TFrame")
         branding.grid(row=1, column=0, sticky="w")
@@ -567,9 +566,9 @@ class TechAssistDesktopApp:
         if logo_image.width() <= target_width:
             return logo_image
         scale = max(1, round(logo_image.width() / target_width))
-        if scale > 1:
-            return logo_image.subsample(scale, scale)
-        return logo_image
+        if scale == 1:
+            return logo_image
+        return logo_image.subsample(scale, scale)
 
     def _complete_session(self) -> None:
         resolved_value = self.resolution_var.get()
