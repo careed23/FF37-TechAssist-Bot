@@ -10,9 +10,16 @@ import webbrowser
 from flow_engine import TroubleshootingEngine
 from logger import TroubleshootingLogger
 
-BASE_DIR = Path(__file__).resolve().parent
-DATA_PATH = BASE_DIR.parent / "data" / "troubleshooting_flows.yaml"
-LOG_PATH = BASE_DIR.parent / "logs" / "troubleshooting_log.csv"
+
+def _resolve_app_root() -> Path:
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS)
+    return Path(__file__).resolve().parent.parent
+
+
+APP_ROOT = _resolve_app_root()
+DATA_PATH = APP_ROOT / "data" / "troubleshooting_flows.yaml"
+LOG_PATH = APP_ROOT / "logs" / "troubleshooting_log.csv"
 
 
 class TechAssistDesktopApp:
@@ -392,7 +399,7 @@ class TechAssistDesktopApp:
     def _open_resource(self, label: str, resource: str) -> None:
         resource_path = Path(resource).expanduser()
         if not resource_path.is_absolute():
-            resource_path = BASE_DIR.parent / resource_path
+            resource_path = APP_ROOT / resource_path
         if resource_path.exists():
             webbrowser.open_new_tab(resource_path.resolve().as_uri())
             return
