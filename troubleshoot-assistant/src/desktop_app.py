@@ -36,6 +36,10 @@ LOG_PATH = LOG_ROOT / "troubleshooting_log.csv"
 
 
 class TechAssistDesktopApp:
+    HEADER_ROWS_WITH_LOGO = 4
+    HEADER_ROWS_WITHOUT_LOGO = 3
+    TARGET_LOGO_WIDTH = 260
+
     def __init__(self, root: tk.Tk, flows_path: Path, log_path: Path):
         self.root = root
         self.engine = TroubleshootingEngine(str(flows_path))
@@ -156,26 +160,39 @@ class TechAssistDesktopApp:
         brand = ttk.Frame(header, style="Content.TFrame")
         brand.grid(row=0, column=0, sticky="w")
 
-        logo = ttk.Frame(brand, style="Content.TFrame")
-        logo.grid(row=0, column=0, sticky="w")
-        ttk.Label(logo, text="FORGED FIBER", style="Logo.TLabel").grid(row=0, column=0, sticky="w")
-        ttk.Label(logo, text="37", style="LogoAccent.TLabel").grid(
+        logo_image = self._load_logo_image()
+        if logo_image:
+            logo_label = ttk.Label(brand, image=logo_image)
+            logo_label.image = logo_image
+            logo_label.grid(row=0, column=0, sticky="w", pady=(0, 8))
+
+        branding = ttk.Frame(brand, style="Content.TFrame")
+        branding.grid(row=1, column=0, sticky="w")
+        ttk.Label(branding, text="FORGED FIBER", style="Logo.TLabel").grid(
+            row=0, column=0, sticky="w"
+        )
+        ttk.Label(branding, text="37", style="LogoAccent.TLabel").grid(
             row=0, column=1, sticky="w", padx=(6, 0)
         )
 
         title = ttk.Label(brand, text="FF37 TechAssist Bot", style="Header.TLabel")
-        title.grid(row=1, column=0, sticky="w", pady=(6, 0))
+        title.grid(row=2, column=0, sticky="w", pady=(6, 0))
         subtitle = ttk.Label(
             brand,
             text="Interactive Troubleshooting Assistant",
             style="Subheader.TLabel",
         )
-        subtitle.grid(row=2, column=0, sticky="w", pady=(4, 0))
+        subtitle.grid(row=3, column=0, sticky="w", pady=(4, 0))
 
         self.home_button = ttk.Button(
             header, text="All Issues", command=self.show_flow_list, style="Glass.TButton"
         )
-        self.home_button.grid(row=0, column=1, rowspan=3, sticky="e")
+        self.home_button.grid(
+            row=0,
+            column=1,
+            rowspan=self.HEADER_ROWS_WITH_LOGO if logo_image else self.HEADER_ROWS_WITHOUT_LOGO,
+            sticky="e",
+        )
 
         self.content = ttk.Frame(self.root, padding=(32, 24), style="Content.TFrame")
         self.content.grid(row=1, column=0, sticky="nsew")
@@ -536,6 +553,20 @@ class TechAssistDesktopApp:
         if isinstance(solution, dict):
             return solution.get(key, default)
         return default
+
+    def _load_logo_image(self):
+        logo_path = APP_ROOT / "logo.png"
+        if not logo_path.exists():
+            return None
+        try:
+            logo_image = tk.PhotoImage(file=str(logo_path))
+        except tk.TclError:
+            return None
+        target_width = self.TARGET_LOGO_WIDTH
+        scale = max(1, round(logo_image.width() / target_width))
+        if scale == 1:
+            return logo_image
+        return logo_image.subsample(scale, scale)
 
     def _complete_session(self) -> None:
         resolved_value = self.resolution_var.get()
