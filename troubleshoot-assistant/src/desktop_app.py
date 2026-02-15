@@ -1,6 +1,5 @@
 import argparse
 from datetime import datetime
-import math
 import os
 from pathlib import Path
 import sys
@@ -157,9 +156,11 @@ class TechAssistDesktopApp:
         brand = ttk.Frame(header, style="Content.TFrame")
         brand.grid(row=0, column=0, sticky="w")
 
-        self.logo_image = self._load_logo_image()
-        if self.logo_image:
-            ttk.Label(brand, image=self.logo_image).grid(row=0, column=0, sticky="w", pady=(0, 8))
+        logo_image = self._load_logo_image()
+        if logo_image:
+            self.logo_label = ttk.Label(brand, image=logo_image)
+            self.logo_label.image = logo_image
+            self.logo_label.grid(row=0, column=0, sticky="w", pady=(0, 8))
 
         logo = ttk.Frame(brand, style="Content.TFrame")
         logo.grid(row=1, column=0, sticky="w")
@@ -551,8 +552,8 @@ class TechAssistDesktopApp:
         except tk.TclError:
             return None
         target_width = 260
-        scale = max(1, math.ceil(image.width() / target_width))
-        if scale > 1:
+        if image.width() > target_width:
+            scale = (image.width() + target_width - 1) // target_width
             image = image.subsample(scale, scale)
         return image
 
