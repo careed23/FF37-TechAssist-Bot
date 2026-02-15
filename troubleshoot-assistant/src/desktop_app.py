@@ -52,6 +52,7 @@ class TechAssistDesktopApp:
         self.resolution_var = tk.StringVar()
         self._hovered_item = None
         self._row_tags = {}
+        self.logo_label = None
 
         self._configure_window()
         self._build_layout()
@@ -563,7 +564,9 @@ class TechAssistDesktopApp:
         except tk.TclError:
             return None
         target_width = self.TARGET_LOGO_WIDTH
-        scale = max(1, logo_image.width() // target_width)
+        if logo_image.width() <= target_width:
+            return logo_image
+        scale = max(1, round(logo_image.width() / target_width))
         if scale > 1:
             return logo_image.subsample(scale, scale)
         return logo_image
