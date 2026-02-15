@@ -157,12 +157,11 @@ class TechAssistDesktopApp:
         brand.grid(row=0, column=0, sticky="w")
 
         logo_image = self._load_logo_image()
-        header_rows = 3
+        header_rows = 4 if logo_image else 3
         if logo_image:
             self.logo_label = ttk.Label(brand, image=logo_image)
             self.logo_label.image = logo_image
             self.logo_label.grid(row=0, column=0, sticky="w", pady=(0, 8))
-            header_rows = 4
 
         logo = ttk.Frame(brand, style="Content.TFrame")
         logo.grid(row=1, column=0, sticky="w")
@@ -554,10 +553,9 @@ class TechAssistDesktopApp:
         except tk.TclError:
             return None
         target_width = 260
-        if image.width() > target_width:
-            scale = image.width() // target_width
-            if scale > 1:
-                image = image.subsample(scale, scale)
+        scale = max(1, round(image.width() / target_width))
+        if scale > 1:
+            image = image.subsample(scale, scale)
         return image
 
     def _complete_session(self) -> None:
