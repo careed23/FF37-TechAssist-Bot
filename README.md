@@ -1,8 +1,19 @@
+<div align="center">
+
 # FF37 TechAssist Bot
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D6?logo=windows&logoColor=white)](https://www.microsoft.com/windows)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![GUI](https://img.shields.io/badge/GUI-CustomTkinter-00ADD8?logo=python&logoColor=white)](https://github.com/TomSchimansky/CustomTkinter)
+[![Release](https://img.shields.io/badge/Release-v1.0-blue)](https://github.com/careed23/FF37-TechAssist-Bot/releases)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/careed23/FF37-TechAssist-Bot/pulls)
 
 **Professional troubleshooting assistant for Forged Fiber 37 field technician support**
 
 A Windows desktop application that provides step-by-step troubleshooting guidance for common fiber optic installation and service issues. Built to streamline technical support workflows and reduce resolution time in the field.
+
+</div>
 
 ---
 
