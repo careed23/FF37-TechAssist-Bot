@@ -454,7 +454,6 @@ def create_app() -> Flask:
                     try:
                         duration = (end_time - datetime.fromisoformat(start_time)).total_seconds()
                     except Exception as exc:
-                        duration = 0
                         app.logger.warning("Could not parse session start time: %s", exc)
 
                 session_data["duration"] = duration
