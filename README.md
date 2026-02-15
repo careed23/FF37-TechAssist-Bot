@@ -67,7 +67,7 @@ This tool was built to **demonstrate the viability** of a guided troubleshooting
 - New hire productivity: **2-3 weeks faster** to full competency on covered issues
 - First call resolution: **35-40% improvement** on ONT and authentication issues
 - Unnecessary escalations: **50-60% reduction** for the top 5 issue categories
-- Training material access time: **Reduced from 2-3 minutes to 10-15 seconds** per lookup
+- Training material access time: **Reduced from 5-10 minutes to 10-15 seconds** per lookup
 
 *These metrics from the POC period demonstrate what's possible when expanded to full coverage.*
 
