@@ -12,6 +12,13 @@ pip install -r requirements.txt
 python src/assistant.py
 ```
 
+### Desktop GUI (Windows 11)
+Run the native desktop interface from the `troubleshoot-assistant` directory:
+```bash
+python src/desktop_app.py
+```
+The Windows 11 Python installer bundles Tkinter, so no additional setup is required.
+
 ### Web Interface
 Run the web UI from the `troubleshoot-assistant` directory:
 ```bash
