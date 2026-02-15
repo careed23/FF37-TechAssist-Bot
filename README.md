@@ -17,7 +17,8 @@ Run the native desktop interface from the `troubleshoot-assistant` directory:
 ```bash
 python src/desktop_app.py
 ```
-The Windows 11 Python installer bundles Tkinter, so no additional setup is required.
+The Windows 11 Python installer bundles Tkinter, so no additional setup is required. The
+desktop UI uses the native Windows theme with Segoe UI styling for a Windows 11 look.
 
 ### Web Interface
 Run the web UI from the `troubleshoot-assistant` directory:
