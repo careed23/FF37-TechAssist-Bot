@@ -281,7 +281,7 @@ class TechAssistDesktopApp:
         self.current_solution = solution
 
         title = self._get_solution_value(solution, "title", "")
-        steps = self._get_solution_value(solution, "steps", []) or []
+        steps = self._get_solution_value(solution, "steps", [])
         reference_doc = self._get_solution_value(solution, "reference_doc")
         video = self._get_solution_value(solution, "video")
         escalate_if = self._get_solution_value(solution, "escalate_if")
@@ -358,11 +358,7 @@ class TechAssistDesktopApp:
         ttk.Button(actions, text="Start Over", command=self.show_flow_list).grid(row=0, column=1)
 
     def _extract_solution_id(self, solution) -> str:
-        if hasattr(solution, "id"):
-            return solution.id
-        if isinstance(solution, dict):
-            return solution.get("id", "")
-        return ""
+        return self._get_solution_value(solution, "id", "")
 
     def _get_solution_value(self, solution, key: str, default=None):
         if hasattr(solution, key):
