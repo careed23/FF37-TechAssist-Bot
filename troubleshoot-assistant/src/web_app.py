@@ -2,7 +2,8 @@ from datetime import datetime
 from pathlib import Path
 import os
 
-from flask import Flask, abort, redirect, render_template_string, request, session, url_for
+from flask import Flask, abort, redirect, render_template, request, session, url_for
+from jinja2 import DictLoader
 
 from flow_engine import TroubleshootingEngine
 from logger import TroubleshootingLogger
@@ -12,7 +13,7 @@ DATA_PATH = BASE_DIR.parent / "data" / "troubleshooting_flows.yaml"
 LOG_PATH = BASE_DIR.parent / "logs" / "troubleshooting_log.csv"
 SECRET_KEY_PATH = BASE_DIR.parent / "logs" / ".secret_key"
 
-PAGE_TEMPLATE = """
+BASE_TEMPLATE = """
 <!doctype html>
 <html lang="en">
 <head>
@@ -164,13 +165,15 @@ PAGE_TEMPLATE = """
       </div>
       <a class="button secondary" href="{{ url_for('index') }}">All Issues</a>
     </header>
-    {{ content | safe }}
+    {% block content %}{% endblock %}
   </div>
 </body>
 </html>
 """
 
 INDEX_TEMPLATE = """
+{% extends "base.html" %}
+{% block content %}
 <h2>Select a troubleshooting scenario</h2>
 {% if flows %}
 <ul class="flow-list">
@@ -187,9 +190,12 @@ INDEX_TEMPLATE = """
 {% else %}
 <p>No troubleshooting flows are available.</p>
 {% endif %}
+{% endblock %}
 """
 
 STEP_TEMPLATE = """
+{% extends "base.html" %}
+{% block content %}
 <h2>{{ flow.name }}</h2>
 <p class="subheading">{{ flow.description }}</p>
 <h3>{{ step.question }}</h3>
@@ -213,9 +219,12 @@ STEP_TEMPLATE = """
     <a class="button secondary" href="{{ url_for('index') }}">Cancel</a>
   </div>
 </form>
+{% endblock %}
 """
 
 SOLUTION_TEMPLATE = """
+{% extends "base.html" %}
+{% block content %}
 <h2>Resolution: {{ solution.title }}</h2>
 <p class="subheading">{{ flow.name }}</p>
 <ol>
@@ -249,9 +258,12 @@ SOLUTION_TEMPLATE = """
     <a class="button secondary" href="{{ url_for('index') }}">Start Over</a>
   </div>
 </form>
+{% endblock %}
 """
 
 COMPLETE_TEMPLATE = """
+{% extends "base.html" %}
+{% block content %}
 <h2>Session logged</h2>
 <p>
   {% if resolved %}
@@ -263,6 +275,7 @@ COMPLETE_TEMPLATE = """
 <div class="footer-actions">
   <a class="button" href="{{ url_for('index') }}">Troubleshoot another issue</a>
 </div>
+{% endblock %}
 """
 
 
@@ -283,10 +296,6 @@ def load_secret_key() -> str:
         if stored and len(stored) >= 32:
             return stored
         return None
-
-    stored_key = read_stored_key()
-    if stored_key:
-        return stored_key
 
     SECRET_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
     generated_key = os.urandom(32).hex()
@@ -314,9 +323,18 @@ def create_app() -> Flask:
     engine = TroubleshootingEngine(str(DATA_PATH))
     logger = TroubleshootingLogger(str(LOG_PATH))
 
-    def render_page(title: str, content_template: str, **context):
-        content = render_template_string(content_template, **context)
-        return render_template_string(PAGE_TEMPLATE, title=title, content=content)
+    app.jinja_loader = DictLoader(
+        {
+            "base.html": BASE_TEMPLATE,
+            "index.html": INDEX_TEMPLATE,
+            "step.html": STEP_TEMPLATE,
+            "solution.html": SOLUTION_TEMPLATE,
+            "complete.html": COMPLETE_TEMPLATE,
+        }
+    )
+
+    def render_page(template_name: str, **context):
+        return render_template(template_name, **context)
 
     def set_initial_session_data(flow: dict):
         session["session_data"] = {
@@ -346,7 +364,7 @@ def create_app() -> Flask:
     @app.route("/")
     def index():
         flows = engine.list_flows()
-        return render_page("FF37 TechAssist Bot", INDEX_TEMPLATE, flows=flows)
+        return render_page("index.html", title="FF37 TechAssist Bot", flows=flows)
 
     @app.route("/flow/<flow_id>/start")
     def start_flow(flow_id):
@@ -432,8 +450,8 @@ def create_app() -> Flask:
                     error = "Configuration error: Unexpected flow action type. Please contact support."
 
         return render_page(
-            f"{flow['name']} | FF37 TechAssist Bot",
-            STEP_TEMPLATE,
+            "step.html",
+            title=f"{flow['name']} | FF37 TechAssist Bot",
             flow=flow,
             step=step,
             error=error,
@@ -481,15 +499,15 @@ def create_app() -> Flask:
                 session.pop("session_data", None)
 
                 return render_page(
-                    "Session Complete | FF37 TechAssist Bot",
-                    COMPLETE_TEMPLATE,
+                    "complete.html",
+                    title="Session Complete | FF37 TechAssist Bot",
                     resolved=resolved,
                     flow_name=flow.get("name", "this"),
                 )
 
         return render_page(
-            f"Resolution | {flow['name']}",
-            SOLUTION_TEMPLATE,
+            "solution.html",
+            title=f"Resolution | {flow['name']}",
             solution=solution,
             flow=flow,
             error=error,
@@ -501,5 +519,7 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
-    app.logger.warning("Use a production WSGI server for deployments.")
+    app.logger.warning(
+        "Development server active on 127.0.0.1. Use a production WSGI server for deployments."
+    )
     app.run(host="127.0.0.1", port=5000, debug=False)
