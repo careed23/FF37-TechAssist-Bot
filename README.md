@@ -17,6 +17,16 @@ A Windows desktop application that provides step-by-step troubleshooting guidanc
 
 ---
 
+<div align="center">
+
+![FF37 TechAssist Bot Screenshot](QuantumFiber.png)
+
+*Clean, intuitive interface with Quantum Fiber branding*
+
+</div>
+
+---
+
 ## 💡 Why This Tool Exists
 
 ### The Problem
