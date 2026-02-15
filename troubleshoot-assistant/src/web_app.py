@@ -279,6 +279,17 @@ def load_secret_key() -> str:
 
     SECRET_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
     generated_key = os.urandom(32).hex()
+    try:
+        fd = os.open(SECRET_KEY_PATH, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        stored_key = SECRET_KEY_PATH.read_text(encoding="utf-8").strip()
+        if stored_key:
+            return stored_key
+    else:
+        with os.fdopen(fd, "w", encoding="utf-8") as secret_file:
+            secret_file.write(generated_key)
+        return generated_key
+
     SECRET_KEY_PATH.write_text(generated_key, encoding="utf-8")
     try:
         SECRET_KEY_PATH.chmod(0o600)
@@ -313,14 +324,14 @@ def create_app() -> Flask:
             "end_time": None,
         }
 
-    def get_session_data(flow_id: str):
+    def get_validated_session_data(flow_id: str):
         session_data = session.get("session_data")
         if not session_data or session_data.get("flow_id") != flow_id:
             return None
         return session_data
 
 
-    def _get_solution_id(solution_data):
+    def get_solution_id(solution_data):
         if hasattr(solution_data, "id"):
             return solution_data.id
         if isinstance(solution_data, dict):
@@ -353,7 +364,7 @@ def create_app() -> Flask:
         if not flow:
             abort(404)
 
-        session_data = get_session_data(flow_id)
+        session_data = get_validated_session_data(flow_id)
         if not session_data:
             return redirect(url_for("start_flow", flow_id=flow_id))
 
@@ -389,7 +400,7 @@ def create_app() -> Flask:
                 if not next_action:
                     error = "No next action found for that selection."
                 elif next_action["type"] == "solution":
-                    solution_id = _get_solution_id(next_action["data"])
+                    solution_id = get_solution_id(next_action["data"])
                     if not solution_id:
                         error = "Solution data is missing an identifier."
                     else:
@@ -425,7 +436,7 @@ def create_app() -> Flask:
         if not flow:
             abort(404)
 
-        session_data = get_session_data(flow_id)
+        session_data = get_validated_session_data(flow_id)
         if not session_data:
             return redirect(url_for("start_flow", flow_id=flow_id))
 
@@ -442,7 +453,7 @@ def create_app() -> Flask:
             else:
                 resolved = resolved_value == "yes"
                 end_time = datetime.now()
-                solution_id = _get_solution_id(solution)
+                solution_id = get_solution_id(solution)
 
                 session_data["solution_id"] = solution_id or ""
                 session_data["resolved"] = resolved
@@ -453,7 +464,7 @@ def create_app() -> Flask:
                 if start_time:
                     try:
                         duration = (end_time - datetime.fromisoformat(start_time)).total_seconds()
-                    except Exception as exc:
+                    except ValueError as exc:
                         app.logger.warning("Could not parse session start time: %s", exc)
 
                 session_data["duration"] = duration
