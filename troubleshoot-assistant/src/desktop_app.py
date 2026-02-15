@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import tkinter as tk
 from tkinter import messagebox, ttk
+from urllib.parse import urlparse
 import webbrowser
 
 from flow_engine import TroubleshootingEngine
@@ -35,6 +36,7 @@ class TechAssistDesktopApp:
         self.root.geometry("980x680")
         self.root.minsize(860, 600)
         self.root.configure(background="#f5f7fb")
+        self.root.option_add("*Font", ("Segoe UI", 10))
 
         style = ttk.Style(self.root)
         theme_names = {name.lower() for name in style.theme_names()}
@@ -42,11 +44,33 @@ class TechAssistDesktopApp:
             style.theme_use("vista")
         elif "clam" in theme_names:
             style.theme_use("clam")
-        style.configure("Header.TLabel", font=("Segoe UI", 18, "bold"))
-        style.configure("Subheader.TLabel", font=("Segoe UI", 10))
-        style.configure("Section.TLabel", font=("Segoe UI", 14, "bold"))
-        style.configure("Question.TLabel", font=("Segoe UI", 12, "bold"))
-        style.configure("Option.TRadiobutton", font=("Segoe UI", 11))
+        style.configure("TFrame", background="#f5f7fb")
+        style.configure("TLabel", background="#f5f7fb", foreground="#1f2937")
+        style.configure("TButton", font=("Segoe UI", 10), padding=(14, 6))
+        style.configure(
+            "Treeview",
+            font=("Segoe UI", 10),
+            rowheight=30,
+            background="#ffffff",
+            fieldbackground="#ffffff",
+            borderwidth=0,
+        )
+        style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"))
+        style.map(
+            "Treeview",
+            background=[("selected", "#dbeafe")],
+            foreground=[("selected", "#1d4ed8")],
+        )
+        style.configure("Header.TLabel", font=("Segoe UI", 18, "bold"), foreground="#1d4ed8")
+        style.configure("Subheader.TLabel", font=("Segoe UI", 10), foreground="#4b5563")
+        style.configure("Section.TLabel", font=("Segoe UI", 14, "bold"), foreground="#111827")
+        style.configure("Question.TLabel", font=("Segoe UI", 12, "bold"), foreground="#111827")
+        style.configure(
+            "Option.TRadiobutton",
+            font=("Segoe UI", 11),
+            background="#f5f7fb",
+            foreground="#111827",
+        )
 
     def _build_layout(self) -> None:
         self.root.columnconfigure(0, weight=1)
@@ -120,6 +144,8 @@ class TechAssistDesktopApp:
         self.flow_tree.heading("Description", text="Description")
         self.flow_tree.column("Issue", width=240, anchor="w")
         self.flow_tree.column("Description", width=600, anchor="w")
+        self.flow_tree.tag_configure("even", background="#f9fafb")
+        self.flow_tree.tag_configure("odd", background="#ffffff")
 
         scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.flow_tree.yview)
         self.flow_tree.configure(yscrollcommand=scrollbar.set)
@@ -128,8 +154,11 @@ class TechAssistDesktopApp:
         scrollbar.grid(row=0, column=1, sticky="ns")
 
         self._flow_lookup = {}
-        for flow in flows:
-            item = self.flow_tree.insert("", "end", values=(flow["name"], flow["description"]))
+        for idx, flow in enumerate(flows):
+            tag = "even" if idx % 2 == 0 else "odd"
+            item = self.flow_tree.insert(
+                "", "end", values=(flow["name"], flow["description"]), tags=(tag,)
+            )
             self._flow_lookup[item] = flow["id"]
 
         self.flow_tree.bind("<Double-1>", lambda event: self._start_selected_flow())
@@ -317,7 +346,7 @@ class TechAssistDesktopApp:
             ttk.Button(
                 metadata,
                 text="Open Reference",
-                command=lambda: webbrowser.open_new_tab(reference_doc),
+                command=lambda: self._open_resource("Reference", reference_doc),
             ).grid(row=0, column=1, padx=(8, 0))
 
         if video:
@@ -325,7 +354,7 @@ class TechAssistDesktopApp:
             ttk.Button(
                 metadata,
                 text="Open Video",
-                command=lambda: webbrowser.open_new_tab(video),
+                command=lambda: self._open_resource("Video", video),
             ).grid(row=1, column=1, padx=(8, 0))
 
         if escalate_if:
@@ -359,6 +388,22 @@ class TechAssistDesktopApp:
 
     def _extract_solution_id(self, solution) -> str:
         return self._get_solution_value(solution, "id", "")
+
+    def _open_resource(self, label: str, resource: str) -> None:
+        resource_path = Path(resource).expanduser()
+        if not resource_path.is_absolute():
+            resource_path = BASE_DIR.parent / resource_path
+        if resource_path.exists():
+            webbrowser.open_new_tab(resource_path.resolve().as_uri())
+            return
+        parsed = urlparse(resource)
+        if parsed.scheme in {"http", "https"}:
+            webbrowser.open_new_tab(resource)
+            return
+        messagebox.showinfo(
+            f"{label} unavailable",
+            f"{label} '{resource}' was not found as a local file or URL.",
+        )
 
     def _get_solution_value(self, solution, key: str, default=None):
         if hasattr(solution, key):

@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 troubleshoot-assistant/logs/
+troubleshoot-assistant/build/
+troubleshoot-assistant/dist/
+troubleshoot-assistant/*.spec

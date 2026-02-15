@@ -20,6 +20,14 @@ python src/desktop_app.py
 The Windows 11 Python installer bundles Tkinter, so no additional setup is required. The
 desktop UI uses the native Windows theme with Segoe UI styling for a Windows 11 look.
 
+### Build Windows executable
+From the `troubleshoot-assistant` directory on Windows:
+```bash
+python -m pip install -r requirements.txt -r requirements-dev.txt
+pyinstaller --name "FF37-TechAssist-Bot" --onefile --windowed --add-data "data\\troubleshooting_flows.yaml;data" --add-data "logs;logs" src\\desktop_app.py
+```
+The executable is created at `troubleshoot-assistant/dist/FF37-TechAssist-Bot.exe`.
+
 ### Web Interface
 Run the web UI from the `troubleshoot-assistant` directory:
 ```bash
