@@ -15,6 +15,7 @@ python src/assistant.py
 ### Web Interface
 Run the web UI from the `troubleshoot-assistant` directory:
 ```bash
+export TECHASSIST_SECRET_KEY="change-me-for-production"
 python src/web_app.py
 ```
 Then open http://localhost:5000 to select an issue and step through the flow.

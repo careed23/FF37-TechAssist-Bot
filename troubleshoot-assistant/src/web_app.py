@@ -11,6 +11,7 @@ from logger import TroubleshootingLogger
 BASE_DIR = Path(__file__).resolve().parent
 DATA_PATH = BASE_DIR.parent / "data" / "troubleshooting_flows.yaml"
 LOG_PATH = BASE_DIR.parent / "logs" / "troubleshooting_log.csv"
+DEFAULT_SECRET_KEY = "ff37-techassist-dev-key"
 
 PAGE_TEMPLATE = """
 <!doctype html>
@@ -268,7 +269,7 @@ COMPLETE_TEMPLATE = """
 
 def create_app() -> Flask:
     app = Flask(__name__)
-    app.secret_key = os.environ.get("TECHASSIST_SECRET_KEY", os.urandom(24))
+    app.secret_key = os.environ.get("TECHASSIST_SECRET_KEY", DEFAULT_SECRET_KEY)
 
     engine = TroubleshootingEngine(str(DATA_PATH))
     logger = TroubleshootingLogger(str(LOG_PATH))
@@ -297,6 +298,13 @@ def create_app() -> Flask:
         if not session_data or session_data.get("flow_id") != flow_id:
             return None
         return session_data
+
+    def get_solution_id(solution_data):
+        if hasattr(solution_data, "id"):
+            return solution_data.id
+        if isinstance(solution_data, dict):
+            return solution_data.get("id")
+        return None
 
     @app.route("/")
     def index():
@@ -360,13 +368,17 @@ def create_app() -> Flask:
                 if not next_action:
                     error = "No next action found for that selection."
                 elif next_action["type"] == "solution":
-                    return redirect(
-                        url_for(
-                            "solution_view",
-                            flow_id=flow_id,
-                            solution_id=next_action["data"].id,
+                    solution_id = get_solution_id(next_action["data"])
+                    if not solution_id:
+                        error = "Solution data is missing an identifier."
+                    else:
+                        return redirect(
+                            url_for(
+                                "solution_view",
+                                flow_id=flow_id,
+                                solution_id=solution_id,
+                            )
                         )
-                    )
                 elif next_action["type"] == "step":
                     return redirect(
                         url_for(
@@ -409,8 +421,9 @@ def create_app() -> Flask:
             else:
                 resolved = resolved_value == "yes"
                 end_time = datetime.now()
+                solution_id = get_solution_id(solution)
 
-                session_data["solution_id"] = solution.id
+                session_data["solution_id"] = solution_id or ""
                 session_data["resolved"] = resolved
                 session_data["end_time"] = end_time.isoformat()
 
@@ -447,4 +460,4 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="127.0.0.1", port=5000)
