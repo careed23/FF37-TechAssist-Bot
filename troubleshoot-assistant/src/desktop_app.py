@@ -12,8 +12,9 @@ from logger import TroubleshootingLogger
 
 
 def _resolve_app_root() -> Path:
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        return Path(sys._MEIPASS)
+    meipass = getattr(sys, "_MEIPASS", None)
+    if getattr(sys, "frozen", False) and meipass:
+        return Path(meipass)
     return Path(__file__).resolve().parent.parent
 
 
