@@ -275,27 +275,35 @@ def load_secret_key() -> str:
             )
         return env_key
 
-    if SECRET_KEY_PATH.exists():
-        stored_key = SECRET_KEY_PATH.read_text(encoding="utf-8").strip()
-        if stored_key and len(stored_key) >= 32:
-            return stored_key
+    def read_stored_key():
+        try:
+            stored = SECRET_KEY_PATH.read_text(encoding="utf-8").strip()
+        except FileNotFoundError:
+            return None
+        if stored and len(stored) >= 32:
+            return stored
+        return None
+
+    stored_key = read_stored_key()
+    if stored_key:
+        return stored_key
 
     SECRET_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
     generated_key = os.urandom(32).hex()
     try:
         fd = os.open(SECRET_KEY_PATH, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     except FileExistsError:
-        stored_key = SECRET_KEY_PATH.read_text(encoding="utf-8").strip()
-        if stored_key and len(stored_key) >= 32:
+        stored_key = read_stored_key()
+        if stored_key:
             return stored_key
-        fd = os.open(SECRET_KEY_PATH, os.O_WRONLY | os.O_TRUNC)
+        fd = os.open(SECRET_KEY_PATH, os.O_WRONLY | os.O_TRUNC, 0o600)
 
     with os.fdopen(fd, "w", encoding="utf-8") as secret_file:
+        try:
+            os.fchmod(secret_file.fileno(), 0o600)
+        except OSError:
+            pass
         secret_file.write(generated_key)
-    try:
-        SECRET_KEY_PATH.chmod(0o600)
-    except OSError:
-        pass
     return generated_key
 
 
