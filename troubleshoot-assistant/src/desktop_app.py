@@ -169,10 +169,12 @@ class TechAssistDesktopApp:
             self.logo_label.image = logo_image
             self.logo_label.grid(row=0, column=0, sticky="w", pady=(0, 8))
 
-        logo = ttk.Frame(brand, style="Content.TFrame")
-        logo.grid(row=1, column=0, sticky="w")
-        ttk.Label(logo, text="FORGED FIBER", style="Logo.TLabel").grid(row=0, column=0, sticky="w")
-        ttk.Label(logo, text="37", style="LogoAccent.TLabel").grid(
+        branding = ttk.Frame(brand, style="Content.TFrame")
+        branding.grid(row=1, column=0, sticky="w")
+        ttk.Label(branding, text="FORGED FIBER", style="Logo.TLabel").grid(
+            row=0, column=0, sticky="w"
+        )
+        ttk.Label(branding, text="37", style="LogoAccent.TLabel").grid(
             row=0, column=1, sticky="w", padx=(6, 0)
         )
 
@@ -559,6 +561,8 @@ class TechAssistDesktopApp:
         except tk.TclError:
             return None
         target_width = self.TARGET_LOGO_WIDTH
+        if target_width <= 0:
+            return image
         scale = max(1, round(image.width() / target_width))
         if scale > 1:
             image = image.subsample(scale, scale)
