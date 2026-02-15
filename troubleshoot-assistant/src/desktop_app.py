@@ -280,9 +280,15 @@ class TechAssistDesktopApp:
         self.resolution_var.set("")
         self.current_solution = solution
 
+        title = self._get_solution_value(solution, "title", "")
+        steps = self._get_solution_value(solution, "steps", []) or []
+        reference_doc = self._get_solution_value(solution, "reference_doc")
+        video = self._get_solution_value(solution, "video")
+        escalate_if = self._get_solution_value(solution, "escalate_if")
+
         ttk.Label(
             self.content,
-            text=f"Resolution: {solution.title}",
+            text=f"Resolution: {title}",
             style="Section.TLabel",
         ).grid(row=0, column=0, sticky="w")
         ttk.Label(self.content, text=self.current_flow["name"]).grid(
@@ -293,7 +299,7 @@ class TechAssistDesktopApp:
         steps_frame.grid(row=2, column=0, sticky="ew")
         steps_frame.columnconfigure(0, weight=1)
 
-        for idx, step in enumerate(solution.steps, 1):
+        for idx, step in enumerate(steps, 1):
             ttk.Label(
                 steps_frame,
                 text=f"{idx}. {step}",
@@ -304,28 +310,28 @@ class TechAssistDesktopApp:
         metadata = ttk.Frame(self.content)
         metadata.grid(row=3, column=0, sticky="w", pady=(12, 0))
 
-        if solution.reference_doc:
-            ttk.Label(metadata, text=f"Reference: {solution.reference_doc}").grid(
+        if reference_doc:
+            ttk.Label(metadata, text=f"Reference: {reference_doc}").grid(
                 row=0, column=0, sticky="w"
             )
             ttk.Button(
                 metadata,
                 text="Open Reference",
-                command=lambda: webbrowser.open_new_tab(solution.reference_doc),
+                command=lambda: webbrowser.open_new_tab(reference_doc),
             ).grid(row=0, column=1, padx=(8, 0))
 
-        if solution.video:
-            ttk.Label(metadata, text=f"Video: {solution.video}").grid(row=1, column=0, sticky="w")
+        if video:
+            ttk.Label(metadata, text=f"Video: {video}").grid(row=1, column=0, sticky="w")
             ttk.Button(
                 metadata,
                 text="Open Video",
-                command=lambda: webbrowser.open_new_tab(solution.video),
+                command=lambda: webbrowser.open_new_tab(video),
             ).grid(row=1, column=1, padx=(8, 0))
 
-        if solution.escalate_if:
+        if escalate_if:
             ttk.Label(
                 self.content,
-                text=f"Escalate if: {solution.escalate_if}",
+                text=f"Escalate if: {escalate_if}",
                 wraplength=820,
             ).grid(row=4, column=0, sticky="w", pady=(12, 0))
 
@@ -357,6 +363,13 @@ class TechAssistDesktopApp:
         if isinstance(solution, dict):
             return solution.get("id", "")
         return ""
+
+    def _get_solution_value(self, solution, key: str, default=None):
+        if hasattr(solution, key):
+            return getattr(solution, key)
+        if isinstance(solution, dict):
+            return solution.get(key, default)
+        return default
 
     def _complete_session(self) -> None:
         resolved_value = self.resolution_var.get()
