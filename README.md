@@ -18,7 +18,10 @@ Run the web UI from the `troubleshoot-assistant` directory:
 export TECHASSIST_SECRET_KEY="change-me-for-production"
 python src/web_app.py
 ```
-Then open http://localhost:5000 to select an issue and step through the flow.
+Then open http://localhost:5000 to select an issue and step through the flow. If the
+secret key environment variable is not set, the app creates a local key in
+`troubleshoot-assistant/logs/.secret_key` for development use. Use a production WSGI
+server (for example Gunicorn) and set `TECHASSIST_SECRET_KEY` in production.
 
 ## Features
 

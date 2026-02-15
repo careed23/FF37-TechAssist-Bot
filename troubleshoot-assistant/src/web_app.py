@@ -11,7 +11,7 @@ from logger import TroubleshootingLogger
 BASE_DIR = Path(__file__).resolve().parent
 DATA_PATH = BASE_DIR.parent / "data" / "troubleshooting_flows.yaml"
 LOG_PATH = BASE_DIR.parent / "logs" / "troubleshooting_log.csv"
-DEFAULT_SECRET_KEY = "ff37-techassist-dev-key"
+SECRET_KEY_PATH = BASE_DIR.parent / "logs" / ".secret_key"
 
 PAGE_TEMPLATE = """
 <!doctype html>
@@ -267,9 +267,25 @@ COMPLETE_TEMPLATE = """
 """
 
 
+def load_secret_key() -> str:
+    env_key = os.environ.get("TECHASSIST_SECRET_KEY")
+    if env_key:
+        return env_key
+
+    if SECRET_KEY_PATH.exists():
+        stored_key = SECRET_KEY_PATH.read_text(encoding="utf-8").strip()
+        if stored_key:
+            return stored_key
+
+    SECRET_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    generated_key = os.urandom(32).hex()
+    SECRET_KEY_PATH.write_text(generated_key, encoding="utf-8")
+    return generated_key
+
+
 def create_app() -> Flask:
     app = Flask(__name__)
-    app.secret_key = os.environ.get("TECHASSIST_SECRET_KEY", DEFAULT_SECRET_KEY)
+    app.secret_key = load_secret_key()
 
     engine = TroubleshootingEngine(str(DATA_PATH))
     logger = TroubleshootingLogger(str(LOG_PATH))
@@ -298,6 +314,9 @@ def create_app() -> Flask:
         if not session_data or session_data.get("flow_id") != flow_id:
             return None
         return session_data
+
+    def get_allowed_choices(step_data):
+        return {option["value"] for option in step_data.get("options", [])}
 
     def get_solution_id(solution_data):
         if hasattr(solution_data, "id"):
@@ -344,12 +363,13 @@ def create_app() -> Flask:
         error = None
 
         if request.method == "POST":
-            choice = request.form.get("choice")
+            choice = request.form.get("choice", "").strip()
+            allowed_choices = get_allowed_choices(step)
             selected_option = next(
                 (option for option in step.get("options", []) if option["value"] == choice),
                 None,
             )
-            if not selected_option:
+            if not selected_option or choice not in allowed_choices:
                 error = "Please select an option to continue."
             else:
                 session_data["steps_taken"].append(
@@ -460,4 +480,5 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
+    print("Warning: Use a production WSGI server for deployments.")
     app.run(host="127.0.0.1", port=5000)
