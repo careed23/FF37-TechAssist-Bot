@@ -270,7 +270,9 @@ def load_secret_key() -> str:
     env_key = os.environ.get("TECHASSIST_SECRET_KEY")
     if env_key:
         if len(env_key) < 32:
-            raise ValueError("TECHASSIST_SECRET_KEY must be at least 32 characters long.")
+            raise ValueError(
+                "TECHASSIST_SECRET_KEY must be at least 32 characters long for secure session encryption."
+            )
         return env_key
 
     if SECRET_KEY_PATH.exists():
@@ -375,7 +377,7 @@ def create_app() -> Flask:
             options_by_value = {option["value"]: option for option in step.get("options", [])}
             selected_option = options_by_value.get(choice)
             if not selected_option:
-                error = "Please select an option to continue."
+                error = "Please select an option to continue. If this persists, refresh the page."
             else:
                 session_data["steps_taken"].append(
                     {
@@ -391,11 +393,17 @@ def create_app() -> Flask:
                     flow_id, step.get("id"), selected_option["value"]
                 )
                 if not next_action:
-                    error = "No next action found for that selection."
+                    error = (
+                        "Configuration error: No next action defined for the selected option. "
+                        "Please contact support."
+                    )
                 elif next_action["type"] == "solution":
                     solution_id = extract_solution_id(next_action["data"])
                     if not solution_id:
-                        error = "Solution data is missing an identifier."
+                        error = (
+                            "Configuration error: Solution is missing an identifier. "
+                            "Please contact support."
+                        )
                     else:
                         return redirect(
                             url_for(
@@ -413,7 +421,7 @@ def create_app() -> Flask:
                         )
                     )
                 else:
-                    error = "Unknown flow configuration."
+                    error = "Configuration error: Unexpected flow action type. Please contact support."
 
         return render_page(
             f"{flow['name']} | FF37 TechAssist Bot",
@@ -442,7 +450,7 @@ def create_app() -> Flask:
         if request.method == "POST":
             resolved_value = request.form.get("resolved")
             if resolved_value not in {"yes", "no"}:
-                error = "Please confirm if the issue was resolved."
+                error = "Please confirm the outcome to complete this session."
             else:
                 resolved = resolved_value == "yes"
                 end_time = datetime.now()
