@@ -164,7 +164,7 @@ PAGE_TEMPLATE = """
       </div>
       <a class="button secondary" href="{{ url_for('index') }}">All Issues</a>
     </header>
-    {{ content }}
+    {{ content | safe }}
   </div>
 </body>
 </html>
@@ -275,7 +275,7 @@ def load_secret_key() -> str:
 
     if SECRET_KEY_PATH.exists():
         stored_key = SECRET_KEY_PATH.read_text(encoding="utf-8").strip()
-        if stored_key:
+        if stored_key and len(stored_key) >= 32:
             return stored_key
 
     SECRET_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -284,7 +284,7 @@ def load_secret_key() -> str:
         fd = os.open(SECRET_KEY_PATH, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     except FileExistsError:
         stored_key = SECRET_KEY_PATH.read_text(encoding="utf-8").strip()
-        if stored_key:
+        if stored_key and len(stored_key) >= 32:
             return stored_key
         fd = os.open(SECRET_KEY_PATH, os.O_WRONLY | os.O_TRUNC)
 
@@ -305,8 +305,8 @@ def create_app() -> Flask:
     logger = TroubleshootingLogger(str(LOG_PATH))
 
     def render_page(title: str, content_template: str, **context):
-        template = PAGE_TEMPLATE.replace("{{ content }}", content_template)
-        return render_template_string(template, title=title, **context)
+        content = render_template_string(content_template, **context)
+        return render_template_string(PAGE_TEMPLATE, title=title, content=content)
 
     def set_initial_session_data(flow: dict):
         session["session_data"] = {
@@ -485,5 +485,5 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
-    print("Warning: Use a production WSGI server for deployments.")
+    app.logger.warning("Use a production WSGI server for deployments.")
     app.run(host="127.0.0.1", port=5000, debug=False)
