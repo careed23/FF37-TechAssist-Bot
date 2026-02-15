@@ -1,5 +1,6 @@
 import argparse
 from datetime import datetime
+import math
 import os
 from pathlib import Path
 import sys
@@ -156,26 +157,30 @@ class TechAssistDesktopApp:
         brand = ttk.Frame(header, style="Content.TFrame")
         brand.grid(row=0, column=0, sticky="w")
 
+        self.logo_image = self._load_logo_image()
+        if self.logo_image:
+            ttk.Label(brand, image=self.logo_image).grid(row=0, column=0, sticky="w", pady=(0, 8))
+
         logo = ttk.Frame(brand, style="Content.TFrame")
-        logo.grid(row=0, column=0, sticky="w")
+        logo.grid(row=1, column=0, sticky="w")
         ttk.Label(logo, text="FORGED FIBER", style="Logo.TLabel").grid(row=0, column=0, sticky="w")
         ttk.Label(logo, text="37", style="LogoAccent.TLabel").grid(
             row=0, column=1, sticky="w", padx=(6, 0)
         )
 
         title = ttk.Label(brand, text="FF37 TechAssist Bot", style="Header.TLabel")
-        title.grid(row=1, column=0, sticky="w", pady=(6, 0))
+        title.grid(row=2, column=0, sticky="w", pady=(6, 0))
         subtitle = ttk.Label(
             brand,
             text="Interactive Troubleshooting Assistant",
             style="Subheader.TLabel",
         )
-        subtitle.grid(row=2, column=0, sticky="w", pady=(4, 0))
+        subtitle.grid(row=3, column=0, sticky="w", pady=(4, 0))
 
         self.home_button = ttk.Button(
             header, text="All Issues", command=self.show_flow_list, style="Glass.TButton"
         )
-        self.home_button.grid(row=0, column=1, rowspan=3, sticky="e")
+        self.home_button.grid(row=0, column=1, rowspan=4, sticky="e")
 
         self.content = ttk.Frame(self.root, padding=(32, 24), style="Content.TFrame")
         self.content.grid(row=1, column=0, sticky="nsew")
@@ -536,6 +541,20 @@ class TechAssistDesktopApp:
         if isinstance(solution, dict):
             return solution.get(key, default)
         return default
+
+    def _load_logo_image(self):
+        logo_path = APP_ROOT / "logo.png"
+        if not logo_path.exists():
+            return None
+        try:
+            image = tk.PhotoImage(file=str(logo_path))
+        except tk.TclError:
+            return None
+        target_width = 260
+        scale = max(1, math.ceil(image.width() / target_width))
+        if scale > 1:
+            image = image.subsample(scale, scale)
+        return image
 
     def _complete_session(self) -> None:
         resolved_value = self.resolution_var.get()
