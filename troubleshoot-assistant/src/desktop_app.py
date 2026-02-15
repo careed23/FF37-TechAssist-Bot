@@ -161,9 +161,6 @@ class TechAssistDesktopApp:
         brand.grid(row=0, column=0, sticky="w")
 
         logo_image = self._load_logo_image()
-        header_rows = (
-            self.HEADER_ROWS_WITH_LOGO if logo_image else self.HEADER_ROWS_WITHOUT_LOGO
-        )
         if logo_image:
             self.logo_label = ttk.Label(brand, image=logo_image)
             self.logo_label.image = logo_image
@@ -190,7 +187,12 @@ class TechAssistDesktopApp:
         self.home_button = ttk.Button(
             header, text="All Issues", command=self.show_flow_list, style="Glass.TButton"
         )
-        self.home_button.grid(row=0, column=1, rowspan=header_rows, sticky="e")
+        self.home_button.grid(
+            row=0,
+            column=1,
+            rowspan=self.HEADER_ROWS_WITH_LOGO if logo_image else self.HEADER_ROWS_WITHOUT_LOGO,
+            sticky="e",
+        )
 
         self.content = ttk.Frame(self.root, padding=(32, 24), style="Content.TFrame")
         self.content.grid(row=1, column=0, sticky="nsew")
@@ -557,16 +559,15 @@ class TechAssistDesktopApp:
         if not logo_path.exists():
             return None
         try:
-            image = tk.PhotoImage(file=str(logo_path))
+            logo_image = tk.PhotoImage(file=str(logo_path))
         except tk.TclError:
             return None
-        target_width = self.TARGET_LOGO_WIDTH
-        if target_width <= 0:
-            return image
-        scale = max(1, round(image.width() / target_width))
+        target_width = max(1, self.TARGET_LOGO_WIDTH)
+        scale = max(1, round(logo_image.width() / target_width))
+        scaled_image = logo_image
         if scale > 1:
-            image = image.subsample(scale, scale)
-        return image
+            scaled_image = logo_image.subsample(scale, scale)
+        return scaled_image
 
     def _complete_session(self) -> None:
         resolved_value = self.resolution_var.get()
