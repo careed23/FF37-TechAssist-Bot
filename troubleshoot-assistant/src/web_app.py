@@ -280,7 +280,10 @@ def load_secret_key() -> str:
     SECRET_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
     generated_key = os.urandom(32).hex()
     SECRET_KEY_PATH.write_text(generated_key, encoding="utf-8")
-    SECRET_KEY_PATH.chmod(0o600)
+    try:
+        SECRET_KEY_PATH.chmod(0o600)
+    except OSError:
+        pass
     return generated_key
 
 
@@ -299,7 +302,7 @@ def create_app() -> Flask:
             content=Markup(content),
         )
 
-    def initialize_session(flow: dict):
+    def set_initial_session_data(flow: dict):
         session["session_data"] = {
             "flow_id": flow["id"],
             "flow_name": flow["name"],
@@ -317,7 +320,7 @@ def create_app() -> Flask:
         return session_data
 
 
-    def get_solution_id(solution_data):
+    def _get_solution_id(solution_data):
         if hasattr(solution_data, "id"):
             return solution_data.id
         if isinstance(solution_data, dict):
@@ -335,7 +338,7 @@ def create_app() -> Flask:
         if not flow:
             abort(404)
 
-        initialize_session(flow)
+        set_initial_session_data(flow)
         first_step = engine.get_first_step(flow_id)
         if not first_step or first_step.get("type") != "step":
             abort(404)
@@ -386,7 +389,7 @@ def create_app() -> Flask:
                 if not next_action:
                     error = "No next action found for that selection."
                 elif next_action["type"] == "solution":
-                    solution_id = get_solution_id(next_action["data"])
+                    solution_id = _get_solution_id(next_action["data"])
                     if not solution_id:
                         error = "Solution data is missing an identifier."
                     else:
@@ -439,7 +442,7 @@ def create_app() -> Flask:
             else:
                 resolved = resolved_value == "yes"
                 end_time = datetime.now()
-                solution_id = get_solution_id(solution)
+                solution_id = _get_solution_id(solution)
 
                 session_data["solution_id"] = solution_id or ""
                 session_data["resolved"] = resolved
@@ -450,8 +453,9 @@ def create_app() -> Flask:
                 if start_time:
                     try:
                         duration = (end_time - datetime.fromisoformat(start_time)).total_seconds()
-                    except ValueError:
+                    except Exception as exc:
                         duration = 0
+                        app.logger.warning("Could not parse session start time: %s", exc)
 
                 session_data["duration"] = duration
                 logger.log_session(session_data)
