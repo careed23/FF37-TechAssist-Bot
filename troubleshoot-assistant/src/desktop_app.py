@@ -36,6 +36,10 @@ LOG_PATH = LOG_ROOT / "troubleshooting_log.csv"
 
 
 class TechAssistDesktopApp:
+    HEADER_ROWS_WITH_LOGO = 4
+    HEADER_ROWS_WITHOUT_LOGO = 3
+    TARGET_LOGO_WIDTH = 260
+
     def __init__(self, root: tk.Tk, flows_path: Path, log_path: Path):
         self.root = root
         self.engine = TroubleshootingEngine(str(flows_path))
@@ -157,9 +161,9 @@ class TechAssistDesktopApp:
         brand.grid(row=0, column=0, sticky="w")
 
         logo_image = self._load_logo_image()
-        rows_with_logo = 4
-        rows_without_logo = 3
-        header_rows = rows_with_logo if logo_image else rows_without_logo
+        header_rows = (
+            self.HEADER_ROWS_WITH_LOGO if logo_image else self.HEADER_ROWS_WITHOUT_LOGO
+        )
         if logo_image:
             self.logo_label = ttk.Label(brand, image=logo_image)
             self.logo_label.image = logo_image
@@ -554,7 +558,7 @@ class TechAssistDesktopApp:
             image = tk.PhotoImage(file=str(logo_path))
         except tk.TclError:
             return None
-        target_width = 260
+        target_width = self.TARGET_LOGO_WIDTH
         scale = max(1, round(image.width() / target_width))
         if scale > 1:
             image = image.subsample(scale, scale)
