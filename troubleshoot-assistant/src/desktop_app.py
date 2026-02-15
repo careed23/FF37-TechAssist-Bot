@@ -567,11 +567,10 @@ class TechAssistDesktopApp:
             raise ValueError("TARGET_LOGO_WIDTH must be a positive integer.")
         if logo_image.width() <= target_width:
             return logo_image
-        scale = round(logo_image.width() / target_width)
-        scaled_image = logo_image
+        scale = max(1, round(logo_image.width() / target_width))
         if scale > 1:
-            scaled_image = logo_image.subsample(scale, scale)
-        return scaled_image
+            return logo_image.subsample(scale, scale)
+        return logo_image
 
     def _complete_session(self) -> None:
         resolved_value = self.resolution_var.get()
