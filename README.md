@@ -24,9 +24,10 @@ desktop UI uses the native Windows theme with Segoe UI styling for a Windows 11 
 From the `troubleshoot-assistant` directory on Windows:
 ```bash
 python -m pip install -r requirements.txt -r requirements-dev.txt
-pyinstaller --name "FF37-TechAssist-Bot" --onefile --windowed --add-data "data\\troubleshooting_flows.yaml;data" --add-data "logs;logs" src\\desktop_app.py
+python build_exe.py
 ```
 The executable is created at `troubleshoot-assistant/dist/FF37-TechAssist-Bot.exe`.
+Logs for the packaged app are written to `%APPDATA%\FF37-TechAssist-Bot\logs`.
 
 ### Web Interface
 Run the web UI from the `troubleshoot-assistant` directory:
