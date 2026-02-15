@@ -280,6 +280,7 @@ def load_secret_key() -> str:
     SECRET_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
     generated_key = os.urandom(32).hex()
     SECRET_KEY_PATH.write_text(generated_key, encoding="utf-8")
+    SECRET_KEY_PATH.chmod(0o600)
     return generated_key
 
 
@@ -315,8 +316,6 @@ def create_app() -> Flask:
             return None
         return session_data
 
-    def get_allowed_choices(step_data):
-        return {option["value"] for option in step_data.get("options", [])}
 
     def get_solution_id(solution_data):
         if hasattr(solution_data, "id"):
@@ -364,12 +363,11 @@ def create_app() -> Flask:
 
         if request.method == "POST":
             choice = request.form.get("choice", "").strip()
-            allowed_choices = get_allowed_choices(step)
             selected_option = next(
                 (option for option in step.get("options", []) if option["value"] == choice),
                 None,
             )
-            if not selected_option or choice not in allowed_choices:
+            if not selected_option:
                 error = "Please select an option to continue."
             else:
                 session_data["steps_taken"].append(
@@ -481,4 +479,4 @@ app = create_app()
 
 if __name__ == "__main__":
     print("Warning: Use a production WSGI server for deployments.")
-    app.run(host="127.0.0.1", port=5000)
+    app.run(host="127.0.0.1", port=5000, debug=False)
