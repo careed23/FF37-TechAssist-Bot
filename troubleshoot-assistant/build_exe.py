@@ -6,7 +6,6 @@ import sys
 APP_NAME = "FF37-TechAssist-Bot"
 BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "data" / "troubleshooting_flows.yaml"
-LOGS_DIR = BASE_DIR / "logs"
 ENTRYPOINT = BASE_DIR / "src" / "desktop_app.py"
 
 
@@ -14,11 +13,7 @@ def build_executable() -> None:
     if not DATA_FILE.exists():
         raise FileNotFoundError(f"Flows file not found at {DATA_FILE}")
 
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    add_data = [
-        f"{DATA_FILE}{os.pathsep}data",
-        f"{LOGS_DIR}{os.pathsep}logs",
-    ]
+    add_data = [f"{DATA_FILE}{os.pathsep}data"]
 
     command = [
         sys.executable,

@@ -27,6 +27,7 @@ python -m pip install -r requirements.txt -r requirements-dev.txt
 python build_exe.py
 ```
 The executable is created at `troubleshoot-assistant/dist/FF37-TechAssist-Bot.exe`.
+Logs for the packaged app are written to `%APPDATA%\FF37-TechAssist-Bot\logs`.
 
 ### Web Interface
 Run the web UI from the `troubleshoot-assistant` directory:

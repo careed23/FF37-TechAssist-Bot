@@ -1,5 +1,6 @@
 import argparse
 from datetime import datetime
+import os
 from pathlib import Path
 import sys
 import tkinter as tk
@@ -18,9 +19,18 @@ def _resolve_app_root() -> Path:
     return project_root
 
 
+def _resolve_log_root(app_root: Path) -> Path:
+    if getattr(sys, "frozen", False):
+        app_data = os.environ.get("APPDATA")
+        base_dir = Path(app_data) if app_data else Path.home()
+        return base_dir / "FF37-TechAssist-Bot" / "logs"
+    return app_root / "logs"
+
+
 APP_ROOT = _resolve_app_root()
 DATA_PATH = APP_ROOT / "data" / "troubleshooting_flows.yaml"
-LOG_PATH = APP_ROOT / "logs" / "troubleshooting_log.csv"
+LOG_ROOT = _resolve_log_root(APP_ROOT)
+LOG_PATH = LOG_ROOT / "troubleshooting_log.csv"
 
 
 class TechAssistDesktopApp:
