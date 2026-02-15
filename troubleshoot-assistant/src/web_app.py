@@ -285,12 +285,10 @@ def load_secret_key() -> str:
         stored_key = SECRET_KEY_PATH.read_text(encoding="utf-8").strip()
         if stored_key:
             return stored_key
-    else:
-        with os.fdopen(fd, "w", encoding="utf-8") as secret_file:
-            secret_file.write(generated_key)
-        return generated_key
+        fd = os.open(SECRET_KEY_PATH, os.O_WRONLY | os.O_TRUNC)
 
-    SECRET_KEY_PATH.write_text(generated_key, encoding="utf-8")
+    with os.fdopen(fd, "w", encoding="utf-8") as secret_file:
+        secret_file.write(generated_key)
     try:
         SECRET_KEY_PATH.chmod(0o600)
     except OSError:
