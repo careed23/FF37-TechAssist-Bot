@@ -157,9 +157,9 @@ class TechAssistDesktopApp:
         brand.grid(row=0, column=0, sticky="w")
 
         logo_image = self._load_logo_image()
-        header_rows_with_logo = 4
-        header_rows_without_logo = 3
-        header_rows = header_rows_with_logo if logo_image else header_rows_without_logo
+        rows_with_logo = 4
+        rows_without_logo = 3
+        header_rows = rows_with_logo if logo_image else rows_without_logo
         if logo_image:
             self.logo_label = ttk.Label(brand, image=logo_image)
             self.logo_label.image = logo_image
@@ -555,8 +555,6 @@ class TechAssistDesktopApp:
         except tk.TclError:
             return None
         target_width = 260
-        if target_width <= 0:
-            return image
         scale = max(1, round(image.width() / target_width))
         if scale > 1:
             image = image.subsample(scale, scale)
