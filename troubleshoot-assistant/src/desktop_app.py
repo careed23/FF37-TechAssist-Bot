@@ -11,6 +11,8 @@ import webbrowser
 from flow_engine import TroubleshootingEngine
 from logger import TroubleshootingLogger
 
+APP_NAME = "FF37-TechAssist-Bot"
+
 
 def _resolve_app_root() -> Path:
     project_root = Path(__file__).resolve().parent.parent
@@ -23,7 +25,7 @@ def _resolve_log_root(app_root: Path) -> Path:
     if getattr(sys, "frozen", False):
         app_data = os.environ.get("APPDATA")
         base_dir = Path(app_data) if app_data else Path.home()
-        return base_dir / "FF37-TechAssist-Bot" / "logs"
+        return base_dir / APP_NAME / "logs"
     return app_root / "logs"
 
 
