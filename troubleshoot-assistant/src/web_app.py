@@ -3,7 +3,6 @@ from pathlib import Path
 import os
 
 from flask import Flask, abort, redirect, render_template_string, request, session, url_for
-from markupsafe import Markup
 
 from flow_engine import TroubleshootingEngine
 from logger import TroubleshootingLogger
@@ -165,7 +164,7 @@ PAGE_TEMPLATE = """
       </div>
       <a class="button secondary" href="{{ url_for('index') }}">All Issues</a>
     </header>
-    {{ content | safe }}
+    {{ content }}
   </div>
 </body>
 </html>
@@ -270,6 +269,8 @@ COMPLETE_TEMPLATE = """
 def load_secret_key() -> str:
     env_key = os.environ.get("TECHASSIST_SECRET_KEY")
     if env_key:
+        if len(env_key) < 32:
+            raise ValueError("TECHASSIST_SECRET_KEY must be at least 32 characters long.")
         return env_key
 
     if SECRET_KEY_PATH.exists():
@@ -304,12 +305,8 @@ def create_app() -> Flask:
     logger = TroubleshootingLogger(str(LOG_PATH))
 
     def render_page(title: str, content_template: str, **context):
-        content = render_template_string(content_template, **context)
-        return render_template_string(
-            PAGE_TEMPLATE,
-            title=title,
-            content=Markup(content),
-        )
+        template = PAGE_TEMPLATE.replace("{{ content }}", content_template)
+        return render_template_string(template, title=title, **context)
 
     def set_initial_session_data(flow: dict):
         session["session_data"] = {
@@ -329,7 +326,7 @@ def create_app() -> Flask:
         return session_data
 
 
-    def get_solution_id(solution_data):
+    def extract_solution_id(solution_data):
         if hasattr(solution_data, "id"):
             return solution_data.id
         if isinstance(solution_data, dict):
@@ -375,10 +372,8 @@ def create_app() -> Flask:
 
         if request.method == "POST":
             choice = request.form.get("choice", "").strip()
-            selected_option = next(
-                (option for option in step.get("options", []) if option["value"] == choice),
-                None,
-            )
+            options_by_value = {option["value"]: option for option in step.get("options", [])}
+            selected_option = options_by_value.get(choice)
             if not selected_option:
                 error = "Please select an option to continue."
             else:
@@ -398,7 +393,7 @@ def create_app() -> Flask:
                 if not next_action:
                     error = "No next action found for that selection."
                 elif next_action["type"] == "solution":
-                    solution_id = get_solution_id(next_action["data"])
+                    solution_id = extract_solution_id(next_action["data"])
                     if not solution_id:
                         error = "Solution data is missing an identifier."
                     else:
@@ -451,7 +446,7 @@ def create_app() -> Flask:
             else:
                 resolved = resolved_value == "yes"
                 end_time = datetime.now()
-                solution_id = get_solution_id(solution)
+                solution_id = extract_solution_id(solution)
 
                 session_data["solution_id"] = solution_id or ""
                 session_data["resolved"] = resolved
