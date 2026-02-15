@@ -562,7 +562,8 @@ class TechAssistDesktopApp:
             logo_image = tk.PhotoImage(file=str(logo_path))
         except tk.TclError:
             return None
-        target_width = max(1, self.TARGET_LOGO_WIDTH)
+        target_width = self.TARGET_LOGO_WIDTH
+        assert target_width > 0
         scale = max(1, round(logo_image.width() / target_width))
         scaled_image = logo_image
         if scale > 1:
