@@ -563,11 +563,9 @@ class TechAssistDesktopApp:
         except tk.TclError:
             return None
         target_width = self.TARGET_LOGO_WIDTH
-        if target_width <= 0:
-            raise ValueError("TARGET_LOGO_WIDTH must be a positive integer.")
         if logo_image.width() <= target_width:
             return logo_image
-        scale = max(1, round(logo_image.width() / target_width))
+        scale = round(logo_image.width() / target_width)
         if scale > 1:
             return logo_image.subsample(scale, scale)
         return logo_image
