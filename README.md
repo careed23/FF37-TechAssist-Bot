@@ -1,6 +1,6 @@
 <div align="center">
 
-# FF37 TechAssist Bot - **Proof of Concept**
+# Proof of Concept for a FF37 TechAssist Bot
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D6?logo=windows&logoColor=white)](https://www.microsoft.com/windows)
