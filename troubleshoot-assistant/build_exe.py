@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 
+APP_NAME = "FF37-TechAssist-Bot"
 BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "data" / "troubleshooting_flows.yaml"
 LOGS_DIR = BASE_DIR / "logs"
@@ -24,7 +25,7 @@ def build_executable() -> None:
         "-m",
         "pyinstaller",
         "--name",
-        "FF37-TechAssist-Bot",
+        APP_NAME,
         "--onefile",
         "--windowed",
         "--noconfirm",

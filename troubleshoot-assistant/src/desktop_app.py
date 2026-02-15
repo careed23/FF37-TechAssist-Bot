@@ -12,10 +12,10 @@ from logger import TroubleshootingLogger
 
 
 def _resolve_app_root() -> Path:
-    meipass = getattr(sys, "_MEIPASS", None)
-    if getattr(sys, "frozen", False) and meipass:
-        return Path(meipass)
-    return Path(__file__).resolve().parent.parent
+    project_root = Path(__file__).resolve().parent.parent
+    if getattr(sys, "frozen", False):
+        return Path(getattr(sys, "_MEIPASS", project_root))
+    return project_root
 
 
 APP_ROOT = _resolve_app_root()
