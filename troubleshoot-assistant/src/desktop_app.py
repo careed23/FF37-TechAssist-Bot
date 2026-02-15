@@ -105,7 +105,7 @@ class TechAssistDesktopApp:
         style.configure(
             "DataGrid.Treeview",
             font=("Segoe UI Variable", 10),
-            rowheight=34,
+            rowheight=36,
             background=card_background,
             fieldbackground=card_background,
             borderwidth=0,
@@ -202,7 +202,6 @@ class TechAssistDesktopApp:
         self.current_flow = None
         self.current_step = None
         self.current_solution = None
-        self._hovered_item = None
         self.home_button.state(["disabled"])
 
         heading = ttk.Label(

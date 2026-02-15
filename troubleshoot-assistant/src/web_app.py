@@ -64,7 +64,7 @@ BASE_TEMPLATE = """
       align-items: center;
       gap: 8px;
       font-weight: 600;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--accent);
       font-size: 0.85rem;
