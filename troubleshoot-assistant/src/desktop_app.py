@@ -46,6 +46,8 @@ class TechAssistDesktopApp:
         self.session_data = {}
         self.choice_var = tk.StringVar()
         self.resolution_var = tk.StringVar()
+        self._hovered_item = None
+        self._row_tags = {}
 
         self._configure_window()
         self._build_layout()
@@ -55,8 +57,14 @@ class TechAssistDesktopApp:
         self.root.title("FF37 TechAssist Bot")
         self.root.geometry("980x680")
         self.root.minsize(860, 600)
-        self.root.configure(background="#f5f7fb")
-        self.root.option_add("*Font", ("Segoe UI", 10))
+        mica_background = "#eef2f8"
+        card_background = "#ffffff"
+        text_primary = "#0f172a"
+        text_secondary = "#5b6b82"
+        accent_color = "#00bfa5"
+
+        self.root.configure(background=mica_background)
+        self.root.option_add("*Font", ("Segoe UI Variable", 10))
 
         style = ttk.Style(self.root)
         theme_names = {name.lower() for name in style.theme_names()}
@@ -64,55 +72,112 @@ class TechAssistDesktopApp:
             style.theme_use("vista")
         elif "clam" in theme_names:
             style.theme_use("clam")
-        style.configure("TFrame", background="#f5f7fb")
-        style.configure("TLabel", background="#f5f7fb", foreground="#1f2937")
-        style.configure("TButton", font=("Segoe UI", 10), padding=(14, 6))
+        style.configure("TFrame", background=mica_background)
+        style.configure("Content.TFrame", background=mica_background)
+        style.configure("Card.TFrame", background=card_background, borderwidth=1, relief="solid")
+        style.configure("TLabel", background=mica_background, foreground=text_primary)
+        style.configure("TButton", font=("Segoe UI Variable", 10), padding=(16, 8))
         style.configure(
-            "Treeview",
-            font=("Segoe UI", 10),
-            rowheight=30,
-            background="#ffffff",
-            fieldbackground="#ffffff",
+            "Primary.TButton",
+            font=("Segoe UI Variable", 10, "semibold"),
+            foreground="#ffffff",
+            background="#0ea5e9",
             borderwidth=0,
+            padding=(20, 8),
         )
-        style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"))
         style.map(
-            "Treeview",
-            background=[("selected", "#dbeafe")],
-            foreground=[("selected", "#1d4ed8")],
+            "Primary.TButton",
+            background=[("active", "#22d3ee"), ("pressed", "#0284c7")],
         )
-        style.configure("Header.TLabel", font=("Segoe UI", 18, "bold"), foreground="#1d4ed8")
-        style.configure("Subheader.TLabel", font=("Segoe UI", 10), foreground="#4b5563")
-        style.configure("Section.TLabel", font=("Segoe UI", 14, "bold"), foreground="#111827")
-        style.configure("Question.TLabel", font=("Segoe UI", 12, "bold"), foreground="#111827")
+        style.configure(
+            "Glass.TButton",
+            font=("Segoe UI Variable", 10),
+            foreground=text_primary,
+            background="#f8fafc",
+            borderwidth=1,
+            relief="solid",
+            padding=(16, 8),
+        )
+        style.map(
+            "Glass.TButton",
+            background=[("active", "#ffffff"), ("pressed", "#e2e8f0")],
+        )
+        style.configure(
+            "DataGrid.Treeview",
+            font=("Segoe UI Variable", 10),
+            rowheight=34,
+            background=card_background,
+            fieldbackground=card_background,
+            borderwidth=0,
+            relief="flat",
+        )
+        style.configure(
+            "DataGrid.Treeview.Heading",
+            font=("Segoe UI Variable", 10, "semibold"),
+            background="#e2e8f0",
+            foreground=text_primary,
+        )
+        style.map(
+            "DataGrid.Treeview",
+            background=[("selected", "#dbeafe")],
+            foreground=[("selected", text_primary)],
+        )
+        style.configure("Header.TLabel", font=("Segoe UI Variable", 20, "semibold"), foreground=text_primary)
+        style.configure("Subheader.TLabel", font=("Segoe UI Variable", 10), foreground=text_secondary)
+        style.configure("Section.TLabel", font=("Segoe UI Variable", 14, "semibold"), foreground=text_primary)
+        style.configure("Question.TLabel", font=("Segoe UI Variable", 12, "semibold"), foreground=text_primary)
         style.configure(
             "Option.TRadiobutton",
-            font=("Segoe UI", 11),
-            background="#f5f7fb",
-            foreground="#111827",
+            font=("Segoe UI Variable", 11),
+            background=mica_background,
+            foreground=text_primary,
+        )
+        style.configure(
+            "Logo.TLabel",
+            font=("Segoe UI Variable", 11, "semibold"),
+            foreground=accent_color,
+            background=mica_background,
+        )
+        style.configure(
+            "LogoAccent.TLabel",
+            font=("Segoe UI Variable", 11, "bold"),
+            foreground=accent_color,
+            background=mica_background,
         )
 
     def _build_layout(self) -> None:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(1, weight=1)
 
-        header = ttk.Frame(self.root, padding=(24, 18))
+        header = ttk.Frame(self.root, padding=(32, 22), style="Content.TFrame")
         header.grid(row=0, column=0, sticky="ew")
         header.columnconfigure(0, weight=1)
 
-        title = ttk.Label(header, text="FF37 TechAssist Bot", style="Header.TLabel")
-        title.grid(row=0, column=0, sticky="w")
+        brand = ttk.Frame(header, style="Content.TFrame")
+        brand.grid(row=0, column=0, sticky="w")
+
+        logo = ttk.Frame(brand, style="Content.TFrame")
+        logo.grid(row=0, column=0, sticky="w")
+        ttk.Label(logo, text="FORGED FIBER", style="Logo.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(logo, text="37", style="LogoAccent.TLabel").grid(
+            row=0, column=1, sticky="w", padx=(6, 0)
+        )
+
+        title = ttk.Label(brand, text="FF37 TechAssist Bot", style="Header.TLabel")
+        title.grid(row=1, column=0, sticky="w", pady=(6, 0))
         subtitle = ttk.Label(
-            header,
+            brand,
             text="Interactive Troubleshooting Assistant",
             style="Subheader.TLabel",
         )
-        subtitle.grid(row=1, column=0, sticky="w", pady=(4, 0))
+        subtitle.grid(row=2, column=0, sticky="w", pady=(4, 0))
 
-        self.home_button = ttk.Button(header, text="All Issues", command=self.show_flow_list)
-        self.home_button.grid(row=0, column=1, rowspan=2, sticky="e")
+        self.home_button = ttk.Button(
+            header, text="All Issues", command=self.show_flow_list, style="Glass.TButton"
+        )
+        self.home_button.grid(row=0, column=1, rowspan=3, sticky="e")
 
-        self.content = ttk.Frame(self.root, padding=(28, 18))
+        self.content = ttk.Frame(self.root, padding=(32, 24), style="Content.TFrame")
         self.content.grid(row=1, column=0, sticky="nsew")
         self.content.columnconfigure(0, weight=1)
 
@@ -137,6 +202,7 @@ class TechAssistDesktopApp:
         self.current_flow = None
         self.current_step = None
         self.current_solution = None
+        self._hovered_item = None
         self.home_button.state(["disabled"])
 
         heading = ttk.Label(
@@ -153,19 +219,22 @@ class TechAssistDesktopApp:
             )
             return
 
-        tree_frame = ttk.Frame(self.content)
-        tree_frame.grid(row=1, column=0, sticky="nsew", pady=(12, 0))
+        tree_frame = ttk.Frame(self.content, style="Card.TFrame", padding=2)
+        tree_frame.grid(row=1, column=0, sticky="nsew", pady=(16, 0))
         tree_frame.columnconfigure(0, weight=1)
         self.content.rowconfigure(1, weight=1)
 
         columns = ("Issue", "Description")
-        self.flow_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=12)
+        self.flow_tree = ttk.Treeview(
+            tree_frame, columns=columns, show="headings", height=12, style="DataGrid.Treeview"
+        )
         self.flow_tree.heading("Issue", text="Issue")
         self.flow_tree.heading("Description", text="Description")
         self.flow_tree.column("Issue", width=240, anchor="w")
         self.flow_tree.column("Description", width=600, anchor="w")
-        self.flow_tree.tag_configure("even", background="#f9fafb")
+        self.flow_tree.tag_configure("even", background="#f8fafc")
         self.flow_tree.tag_configure("odd", background="#ffffff")
+        self.flow_tree.tag_configure("hover", background="#e0f2fe")
 
         scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.flow_tree.yview)
         self.flow_tree.configure(yscrollcommand=scrollbar.set)
@@ -174,21 +243,30 @@ class TechAssistDesktopApp:
         scrollbar.grid(row=0, column=1, sticky="ns")
 
         self._flow_lookup = {}
+        self._row_tags = {}
         for idx, flow in enumerate(flows):
             tag = "even" if idx % 2 == 0 else "odd"
             item = self.flow_tree.insert(
                 "", "end", values=(flow["name"], flow["description"]), tags=(tag,)
             )
             self._flow_lookup[item] = flow["id"]
+            self._row_tags[item] = tag
 
         self.flow_tree.bind("<Double-1>", lambda event: self._start_selected_flow())
+        self.flow_tree.bind("<Motion>", self._on_tree_motion)
+        self.flow_tree.bind("<Leave>", self._on_tree_leave)
 
         actions = ttk.Frame(self.content)
-        actions.grid(row=2, column=0, sticky="e", pady=(16, 0))
-        ttk.Button(actions, text="Start Selected Issue", command=self._start_selected_flow).grid(
-            row=0, column=0, padx=(0, 8)
+        actions.grid(row=2, column=0, sticky="e", pady=(20, 0))
+        ttk.Button(
+            actions,
+            text="Start Selected Issue",
+            command=self._start_selected_flow,
+            style="Primary.TButton",
+        ).grid(row=0, column=0, padx=(0, 10))
+        ttk.Button(actions, text="Exit", command=self.root.destroy, style="Glass.TButton").grid(
+            row=0, column=1
         )
-        ttk.Button(actions, text="Exit", command=self.root.destroy).grid(row=0, column=1)
 
     def _start_selected_flow(self) -> None:
         selected = self.flow_tree.selection()
@@ -200,6 +278,28 @@ class TechAssistDesktopApp:
             messagebox.showerror("Error", "Unable to load the selected troubleshooting flow.")
             return
         self.start_flow(flow_id)
+
+    def _on_tree_motion(self, event: tk.Event) -> None:
+        row_id = self.flow_tree.identify_row(event.y)
+        if row_id == self._hovered_item:
+            return
+        if self._hovered_item:
+            base_tag = self._row_tags.get(self._hovered_item)
+            if base_tag:
+                self.flow_tree.item(self._hovered_item, tags=(base_tag,))
+        self._hovered_item = row_id
+        if row_id:
+            base_tag = self._row_tags.get(row_id)
+            tags = (base_tag, "hover") if base_tag else ("hover",)
+            self.flow_tree.item(row_id, tags=tags)
+
+    def _on_tree_leave(self, _event: tk.Event) -> None:
+        if not self._hovered_item:
+            return
+        base_tag = self._row_tags.get(self._hovered_item)
+        if base_tag:
+            self.flow_tree.item(self._hovered_item, tags=(base_tag,))
+        self._hovered_item = None
 
     def start_flow(self, flow_id: str) -> None:
         flow = self.engine.get_flow(flow_id)
@@ -245,7 +345,7 @@ class TechAssistDesktopApp:
         )
 
         options_frame = ttk.Frame(self.content)
-        options_frame.grid(row=3, column=0, sticky="ew", pady=(12, 0))
+        options_frame.grid(row=3, column=0, sticky="ew", pady=(16, 0))
         options_frame.columnconfigure(0, weight=1)
 
         for idx, option in enumerate(step.get("options", [])):
@@ -268,11 +368,13 @@ class TechAssistDesktopApp:
                 )
 
         actions = ttk.Frame(self.content)
-        actions.grid(row=4, column=0, sticky="e", pady=(20, 0))
-        ttk.Button(actions, text="Continue", command=self._advance_step).grid(
-            row=0, column=0, padx=(0, 8)
+        actions.grid(row=4, column=0, sticky="e", pady=(22, 0))
+        ttk.Button(actions, text="Continue", command=self._advance_step, style="Primary.TButton").grid(
+            row=0, column=0, padx=(0, 10)
         )
-        ttk.Button(actions, text="Cancel", command=self.show_flow_list).grid(row=0, column=1)
+        ttk.Button(actions, text="Cancel", command=self.show_flow_list, style="Glass.TButton").grid(
+            row=0, column=1
+        )
 
     def _advance_step(self) -> None:
         choice = self.choice_var.get()
@@ -367,6 +469,7 @@ class TechAssistDesktopApp:
                 metadata,
                 text="Open Reference",
                 command=lambda: self._open_resource("Reference", reference_doc),
+                style="Glass.TButton",
             ).grid(row=0, column=1, padx=(8, 0))
 
         if video:
@@ -375,6 +478,7 @@ class TechAssistDesktopApp:
                 metadata,
                 text="Open Video",
                 command=lambda: self._open_resource("Video", video),
+                style="Glass.TButton",
             ).grid(row=1, column=1, padx=(8, 0))
 
         if escalate_if:
@@ -400,11 +504,13 @@ class TechAssistDesktopApp:
         ).grid(row=1, column=0, sticky="w", pady=(6, 0))
 
         actions = ttk.Frame(self.content)
-        actions.grid(row=6, column=0, sticky="e", pady=(18, 0))
-        ttk.Button(actions, text="Complete Session", command=self._complete_session).grid(
-            row=0, column=0, padx=(0, 8)
-        )
-        ttk.Button(actions, text="Start Over", command=self.show_flow_list).grid(row=0, column=1)
+        actions.grid(row=6, column=0, sticky="e", pady=(20, 0))
+        ttk.Button(
+            actions, text="Complete Session", command=self._complete_session, style="Primary.TButton"
+        ).grid(row=0, column=0, padx=(0, 10))
+        ttk.Button(
+            actions, text="Start Over", command=self.show_flow_list, style="Glass.TButton"
+        ).grid(row=0, column=1)
 
     def _extract_solution_id(self, solution) -> str:
         return self._get_solution_value(solution, "id", "")
@@ -481,9 +587,14 @@ class TechAssistDesktopApp:
         actions = ttk.Frame(self.content)
         actions.grid(row=2, column=0, sticky="e")
         ttk.Button(
-            actions, text="Troubleshoot another issue", command=self.show_flow_list
-        ).grid(row=0, column=0, padx=(0, 8))
-        ttk.Button(actions, text="Exit", command=self.root.destroy).grid(row=0, column=1)
+            actions,
+            text="Troubleshoot another issue",
+            command=self.show_flow_list,
+            style="Primary.TButton",
+        ).grid(row=0, column=0, padx=(0, 10))
+        ttk.Button(actions, text="Exit", command=self.root.destroy, style="Glass.TButton").grid(
+            row=0, column=1
+        )
 
     def capture_screenshot(self, path: Path) -> None:
         try:

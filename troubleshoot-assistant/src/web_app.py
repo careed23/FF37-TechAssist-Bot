@@ -21,99 +21,156 @@ BASE_TEMPLATE = """
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{ title }}</title>
   <style>
+    :root {
+      --accent: #00bfa5;
+      --primary-start: #2563eb;
+      --primary-end: #06b6d4;
+      --text-strong: #0f172a;
+      --text-muted: #5b6b82;
+    }
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f7fb;
+      font-family: "Segoe UI Variable", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 45%, #f1f5f9 100%);
       margin: 0;
-      color: #1f2a44;
+      color: var(--text-strong);
+      min-height: 100vh;
     }
     .container {
-      max-width: 960px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+      max-width: 1020px;
+      margin: 48px auto;
+      background: rgba(255, 255, 255, 0.78);
+      padding: 40px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(24px);
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 16px;
-      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+      padding-bottom: 20px;
+      margin-bottom: 28px;
+      gap: 24px;
     }
-    h1 {
-      font-size: 1.6rem;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-size: 0.85rem;
+    }
+    .logo span:last-child {
+      font-weight: 700;
+    }
+    .app-title {
+      font-size: 1.8rem;
+      font-weight: 600;
       margin: 0;
     }
     h2 {
       margin-top: 0;
-      color: #1f2937;
+      color: var(--text-strong);
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
     }
     .subheading {
-      color: #64748b;
-      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-size: 0.98rem;
     }
     a {
-      color: #2563eb;
+      color: var(--primary-start);
       text-decoration: none;
     }
     a.button, button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 18px;
-      border-radius: 10px;
+      padding: 12px 22px;
+      border-radius: 14px;
       border: none;
-      background: #2563eb;
+      background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
       color: #fff;
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 12px 22px rgba(37, 99, 235, 0.2);
     }
-    a.button.secondary, button.secondary {
-      background: #0f172a;
+    a.button:hover, button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 30px rgba(37, 99, 235, 0.25);
+    }
+    a.button.glass, button.glass {
+      background: rgba(255, 255, 255, 0.4);
+      color: var(--text-strong);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: none;
+      backdrop-filter: blur(12px);
+    }
+    a.button.glass:hover, button.glass:hover {
+      background: rgba(255, 255, 255, 0.6);
     }
     .flow-list {
       list-style: none;
       padding: 0;
       margin: 0;
       display: grid;
-      gap: 16px;
+      gap: 18px;
     }
     .flow-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 18px;
+      padding: 22px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
+      background: rgba(255, 255, 255, 0.7);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .flow-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 30px rgba(15, 23, 42, 0.1);
     }
     .flow-title {
-      font-weight: 700;
+      font-weight: 600;
       margin-bottom: 6px;
     }
     .flow-description {
-      color: #64748b;
+      color: var(--text-muted);
       margin: 0;
     }
     form {
       display: grid;
-      gap: 16px;
+      gap: 18px;
     }
     .option {
       display: grid;
       gap: 6px;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
       cursor: pointer;
+      background: rgba(255, 255, 255, 0.7);
+      transition: border-color 0.2s ease, background 0.2s ease;
     }
     .option:hover {
-      border-color: #94a3b8;
-      background: #f8fafc;
+      border-color: rgba(0, 191, 165, 0.55);
+      background: rgba(240, 253, 250, 0.8);
     }
     .option input {
       margin-right: 8px;
@@ -122,48 +179,56 @@ BASE_TEMPLATE = """
       font-weight: 600;
     }
     .option-description {
-      color: #64748b;
+      color: var(--text-muted);
       font-size: 0.92rem;
     }
     .metadata {
-      background: #f1f5f9;
-      padding: 14px;
-      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.65);
+      padding: 16px;
+      border-radius: 16px;
       color: #475569;
       display: grid;
       gap: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
     }
     .callout {
-      border-left: 4px solid #f59e0b;
-      background: #fffbeb;
+      border-left: 4px solid var(--accent);
+      background: rgba(240, 253, 250, 0.85);
       padding: 12px 16px;
-      border-radius: 8px;
-      color: #92400e;
+      border-radius: 12px;
+      color: #0f766e;
     }
     .error {
       color: #b91c1c;
-      background: #fee2e2;
-      padding: 10px 14px;
-      border-radius: 10px;
+      background: rgba(254, 226, 226, 0.9);
+      padding: 12px 16px;
+      border-radius: 12px;
     }
     ol {
-      padding-left: 20px;
+      padding-left: 22px;
     }
     .footer-actions {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       flex-wrap: wrap;
+      align-items: center;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div>
-        <h1>FF37 TechAssist Bot</h1>
-        <div class="subheading">Interactive Troubleshooting Assistant</div>
+      <div class="brand">
+        <div class="logo">
+          <span>Forged Fiber</span>
+          <span>37</span>
+        </div>
+        <div>
+          <h1 class="app-title">FF37 TechAssist Bot</h1>
+          <div class="subheading">Interactive Troubleshooting Assistant</div>
+        </div>
       </div>
-      <a class="button secondary" href="{{ url_for('index') }}">All Issues</a>
+      <a class="button glass" href="{{ url_for('index') }}">All Issues</a>
     </header>
     {% block content %}{% endblock %}
   </div>
@@ -216,7 +281,7 @@ STEP_TEMPLATE = """
   {% endfor %}
   <div class="footer-actions">
     <button type="submit">Continue</button>
-    <a class="button secondary" href="{{ url_for('index') }}">Cancel</a>
+    <a class="button glass" href="{{ url_for('index') }}">Cancel</a>
   </div>
 </form>
 {% endblock %}
@@ -255,7 +320,7 @@ SOLUTION_TEMPLATE = """
   </div>
   <div class="footer-actions">
     <button type="submit">Complete Session</button>
-    <a class="button secondary" href="{{ url_for('index') }}">Start Over</a>
+    <a class="button glass" href="{{ url_for('index') }}">Start Over</a>
   </div>
 </form>
 {% endblock %}
