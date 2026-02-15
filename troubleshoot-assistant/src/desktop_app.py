@@ -157,10 +157,12 @@ class TechAssistDesktopApp:
         brand.grid(row=0, column=0, sticky="w")
 
         logo_image = self._load_logo_image()
+        header_rows = 3
         if logo_image:
             self.logo_label = ttk.Label(brand, image=logo_image)
             self.logo_label.image = logo_image
             self.logo_label.grid(row=0, column=0, sticky="w", pady=(0, 8))
+            header_rows = 4
 
         logo = ttk.Frame(brand, style="Content.TFrame")
         logo.grid(row=1, column=0, sticky="w")
@@ -181,7 +183,7 @@ class TechAssistDesktopApp:
         self.home_button = ttk.Button(
             header, text="All Issues", command=self.show_flow_list, style="Glass.TButton"
         )
-        self.home_button.grid(row=0, column=1, rowspan=4, sticky="e")
+        self.home_button.grid(row=0, column=1, rowspan=header_rows, sticky="e")
 
         self.content = ttk.Frame(self.root, padding=(32, 24), style="Content.TFrame")
         self.content.grid(row=1, column=0, sticky="nsew")
@@ -553,8 +555,9 @@ class TechAssistDesktopApp:
             return None
         target_width = 260
         if image.width() > target_width:
-            scale = (image.width() + target_width - 1) // target_width
-            image = image.subsample(scale, scale)
+            scale = image.width() // target_width
+            if scale > 1:
+                image = image.subsample(scale, scale)
         return image
 
     def _complete_session(self) -> None:
