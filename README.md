@@ -12,6 +12,13 @@ pip install -r requirements.txt
 python src/assistant.py
 ```
 
+### Web Interface
+Run the web UI from the `troubleshoot-assistant` directory:
+```bash
+python src/web_app.py
+```
+Then open http://localhost:5000 to select an issue and step through the flow.
+
 ## Features
 
 - 5 troubleshooting workflows covering common issues
