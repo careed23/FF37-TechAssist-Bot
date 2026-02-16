@@ -26,7 +26,7 @@ def build_executable() -> None:
     command = [
         sys.executable,
         "-m",
-        "pyinstaller",
+        "PyInstaller",
         "--name",
         APP_NAME,
         "--onefile",
