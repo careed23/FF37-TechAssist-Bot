@@ -6,6 +6,7 @@ import sys
 APP_NAME = "FF37-TechAssist-Bot"
 BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "data" / "troubleshooting_flows.yaml"
+LOGO_FILE = BASE_DIR / "logo.png"
 ENTRYPOINT = BASE_DIR / "src" / "desktop_app.py"
 
 
@@ -13,7 +14,13 @@ def build_executable() -> None:
     if not DATA_FILE.exists():
         raise FileNotFoundError(f"Flows file not found at {DATA_FILE}")
 
-    add_data = [f"{DATA_FILE}{os.pathsep}data"]
+    if not LOGO_FILE.exists():
+        raise FileNotFoundError(f"Logo file not found at {LOGO_FILE}")
+
+    add_data = [
+        f"{DATA_FILE}{os.pathsep}data",
+        f"{LOGO_FILE}{os.pathsep}.",
+    ]
 
     command = [
         sys.executable,
