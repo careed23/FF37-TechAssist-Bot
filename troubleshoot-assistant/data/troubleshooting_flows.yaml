@@ -579,6 +579,110 @@ flows:
           - value: "unsure"
             solution: verify_splitter_availability_guide
 
+  # ============================================================================
+  # FLOW 6: Change Splitter Leg to First Available
+  # ============================================================================
+  - id: change_splitter_leg
+    name: "Change Splitter Leg to First Available"
+    description: "Move customer to different splitter leg (bad leg, optimization, or port change)"
+    steps:
+      - id: start
+        question: "Why does the splitter leg need to be changed?"
+        options:
+          - value: "bad_leg"
+            description: "Current leg is faulty or has poor signal"
+            next: verify_current_leg_info
+          - value: "optimization"
+            description: "Optimizing network or rebalancing load"
+            next: verify_current_leg_info
+          - value: "wrong_leg"
+            description: "ONT connected to wrong leg physically"
+            next: verify_correct_leg_assignment
+          - value: "port_conflict"
+            description: "Port conflict or duplicate assignment"
+            next: verify_current_leg_info
+      
+      - id: verify_current_leg_info
+        question: "Have you verified the current leg assignment in ODiN?"
+        options:
+          - value: "yes"
+            next: check_available_legs
+          - value: "no"
+            solution: check_current_leg_odin
+      
+      - id: verify_correct_leg_assignment
+        question: "What is the correct leg assignment in ODiN?"
+        options:
+          - value: "know_correct"
+            description: "I know what the correct leg should be"
+            next: coordinate_physical_move
+          - value: "need_to_find"
+            description: "Need to find correct leg assignment"
+            solution: check_current_leg_odin
+      
+      - id: check_available_legs
+        question: "Are there available legs on the same splitter?"
+        options:
+          - value: "yes_available"
+            description: "Yes, other legs are available"
+            next: select_target_leg
+          - value: "no_available"
+            description: "No, splitter is at capacity"
+            solution: no_available_legs_escalation
+          - value: "how_to_check"
+            description: "How do I check available legs?"
+            solution: check_available_legs_odin
+      
+      - id: select_target_leg
+        question: "Which leg will you move the customer to?"
+        options:
+          - value: "first_available"
+            description: "First available leg number"
+            next: update_odin_assignment
+          - value: "specific_leg"
+            description: "Specific leg number (technician request)"
+            next: update_odin_assignment
+          - value: "need_recommendation"
+            description: "Need recommendation on which leg to use"
+            solution: leg_selection_guidance
+      
+      - id: update_odin_assignment
+        question: "Have you updated the leg assignment in ODiN?"
+        options:
+          - value: "yes"
+            next: coordinate_physical_move
+          - value: "no"
+            solution: update_leg_assignment_odin
+          - value: "need_help"
+            description: "Need help updating ODiN"
+            solution: update_leg_assignment_odin
+      
+      - id: coordinate_physical_move
+        question: "Is a field tech on-site to physically move the fiber connection?"
+        options:
+          - value: "yes_onsite"
+            description: "Yes, field tech is on-site now"
+            solution: physical_leg_change_procedure
+          - value: "scheduled"
+            description: "Scheduled for later"
+            solution: schedule_leg_change_procedure
+          - value: "remote_only"
+            description: "This is remote-only (no physical move needed)"
+            next: verify_ont_registration
+      
+      - id: verify_ont_registration
+        question: "After the change, is the ONT registering on the new leg?"
+        options:
+          - value: "yes_registered"
+            description: "Yes, ONT shows online on new leg"
+            solution: leg_change_success
+          - value: "no_not_registered"
+            description: "No, ONT not showing up"
+            solution: troubleshoot_registration_failure
+          - value: "wrong_leg_showing"
+            description: "ONT showing on wrong leg still"
+            solution: ont_cached_on_old_leg
+
 
 # ============================================================================
 # SOLUTIONS - Resolution Procedures
@@ -2533,4 +2637,272 @@ solutions:
       - "Key action: Escalate to Structure Load for capacity planning"
     reference_doc: "Quantum Fiber – Splitter Capacity Issues & 1GIG Capability"
     escalate_if: "Always escalate capacity issues to Structure Load"
+  
+  - id: check_current_leg_odin
+    title: "Check Current Leg Assignment in ODiN"
+    steps:
+      - "Log into ODiN"
+      - "Navigate to: Inventory > Network Elements > ONT"
+      - "Search by customer address or ONT serial number"
+      - "View ONT details - note current assignment:"
+      - "  • FDH location"
+      - "  • Splitter ID"
+      - "  • Current leg number"
+      - "  • Physical port (PP) assignment"
+      - "Document current configuration before making changes"
+      - "This is your baseline to revert if needed"
+    reference_doc: "Quantum Fiber - Searching for RONTA in ODiN"
+    video: "Locate OLT and Circuit Details.mp4"
+  
+  - id: check_available_legs_odin
+    title: "How to Check Available Legs on Splitter"
+    steps:
+      - "In ODiN:"
+      - "  1. Navigate to the splitter serving this customer"
+      - "  2. View splitter port assignments"
+      - "  3. Look for ports showing 'Available' or 'Unassigned'"
+      - "In Field Data Toolkit:"
+      - "  • Visual representation shows color-coded ports"
+      - "  • Green = Available"
+      - "  • Red = Assigned/In Use"
+      - "  • Yellow = Reserved"
+      - "Recommended approach:"
+      - "  • Choose first available leg number (lowest number)"
+      - "  • Avoid legs next to known problem ports if possible"
+      - "  • Document selected leg number"
+      - "Example: If legs 1-8 are used, choose leg 9 (first available)"
+    reference_doc: "Quantum Fiber - Verify Available Splitter Ports in ODiN"
+    video: "How to Associate a Physical Port (PP) to a Leg.mp4"
+  
+  - id: leg_selection_guidance
+    title: "Guidance on Selecting Target Leg"
+    steps:
+      - "Best practices for leg selection:"
+      - "Option 1: First Available (Recommended)"
+      - "  • Choose lowest numbered available leg"
+      - "  • Easier for field techs to locate"
+      - "  • Sequential assignment keeps organization"
+      - "Option 2: Field Tech Recommendation"
+      - "  • Tech may prefer specific port for physical access"
+      - "  • May have better signal path from certain ports"
+      - "  • Trust experienced tech's judgment"
+      - "Option 3: Load Balancing"
+      - "  • If splitter heavily loaded on one side"
+      - "  • Choose port that balances fiber distribution"
+      - "Avoid these legs:"
+      - "  • Legs adjacent to known bad/faulty ports"
+      - "  • Legs with historical signal issues"
+      - "  • Reserved legs (if marked in system)"
+      - "When in doubt: Choose first available, document reason for selection"
+    reference_doc: "Quantum Fiber - Changing Splitter Leg"
+  
+  - id: update_leg_assignment_odin
+    title: "Update Leg Assignment in ODiN"
+    steps:
+      - "CRITICAL: Update ODiN BEFORE physical move to prevent confusion"
+      - "In ODiN:"
+      - "  1. Navigate to customer's ONT record"
+      - "  2. Click 'Edit' on facility assignment"
+      - "  3. Current leg assignment will be displayed"
+      - "  4. Update to new leg number (first available)"
+      - "  5. Verify splitter ID remains the same (only leg changes)"
+      - "  6. Update Physical Port (PP) if applicable"
+      - "  7. Save changes"
+      - "  8. Verify update saved correctly"
+      - "Document the change:"
+      - "  • Old leg: [number]"
+      - "  • New leg: [number]"
+      - "  • Date/time of change"
+      - "  • Reason for change"
+      - "Wait 2-3 minutes for system synchronization"
+      - "Verify change appears in Optius and Calix"
+    reference_doc: "Quantum Fiber - Changing Splitter Leg"
+    video: "FDT - Splitter Leg Change.webm"
+  
+  - id: physical_leg_change_procedure
+    title: "Physical Fiber Leg Change Procedure (Field Tech)"
+    steps:
+      - "Field tech performs physical fiber move:"
+      - "Step 1: Verify ODiN updated with new leg assignment"
+      - "  • Confirm with remote tech new leg number"
+      - "  • Double-check splitter location"
+      - "Step 2: Locate FDH and splitter"
+      - "  • Verify correct FDH (may have multiple in area)"
+      - "  • Identify correct splitter in FDH"
+      - "Step 3: Disconnect from old leg"
+      - "  • Note current leg number before disconnect"
+      - "  • Carefully remove fiber from old port"
+      - "  • Label fiber if needed for identification"
+      - "Step 4: Clean fiber connector"
+      - "  • Use alcohol wipe on connector tip"
+      - "  • Inspect for damage or dirt"
+      - "  • Allow to dry (10 seconds)"
+      - "Step 5: Connect to new leg"
+      - "  • Locate new leg port (first available as assigned)"
+      - "  • Insert fiber connector firmly"
+      - "  • Ensure connection clicks/locks"
+      - "  • Verify fiber secured and not under tension"
+      - "Step 6: Verify signal acquisition"
+      - "  • Wait 30-60 seconds for ONT to register"
+      - "  • If ONT was rebooted, wait up to 2 minutes"
+      - "  • Check ONT PON light (should turn solid green)"
+      - "  • Remote tech verifies ONT online in Calix"
+      - "Step 7: Test service"
+      - "  • Run speed test via QMate or customer equipment"
+      - "  • Verify signal levels in acceptable range"
+      - "  • Confirm service operational"
+      - "Document completion in ticket with new leg number"
+    reference_doc: "Quantum Fiber - Changing Splitter Leg"
+    video: "FDT - Splitter Leg Change.webm"
+  
+  - id: schedule_leg_change_procedure
+    title: "Schedule Physical Leg Change"
+    steps:
+      - "Leg change requires field tech on-site, schedule coordination"
+      - "Pre-work (complete before field dispatch):"
+      - "  1. Update leg assignment in ODiN"
+      - "  2. Document old and new leg numbers"
+      - "  3. Verify new leg is available and not reserved"
+      - "  4. Create work order in Salesforce"
+      - "Dispatch request should include:"
+      - "  • Customer address"
+      - "  • FDH location (address or GPS)"
+      - "  • Splitter ID"
+      - "  • Old leg number (current)"
+      - "  • New leg number"
+      - "  • Reason for leg change"
+      - "  • Customer contact info (if customer impact)"
+      - "Coordinate with customer if service interruption expected:"
+      - "  • Brief outage during physical move (5-10 minutes)"
+      - "  • Schedule during acceptable time window"
+      - "Field tech instructions:"
+      - "  • Disconnect from old leg [number]"
+      - "  • Connect to new leg [number]"
+      - "  • Clean connectors during move"
+      - "  • Test signal and service after change"
+      - "  • Update ticket with completion status"
+      - "Follow-up verification:"
+      - "  • Confirm ONT online on new leg in Calix"
+      - "  • Run speed test"
+      - "  • Close ticket with new leg documented"
+    reference_doc: "Quantum Fiber - Changing Splitter Leg"
+  
+  - id: leg_change_success
+    title: "Leg Change Completed Successfully"
+    steps:
+      - "ONT is now online on the new leg - leg change successful"
+      - "Final verification checklist:"
+      - "  ✓ ONT showing O5 (Operation) state in Calix"
+      - "  ✓ ONT registered on new leg number (verify in Calix facility info)"
+      - "  ✓ Fiber signal levels in acceptable range (-25 to -15 dBm guideline)"
+      - "  ✓ Service profile correctly applied"
+      - "  ✓ Customer service operational"
+      - "Documentation requirements:"
+      - "  • Update ticket with:"
+      - "    - Old leg number"
+      - "    - New leg number"
+      - "    - Date/time of change"
+      - "    - Reason for change"
+      - "    - Signal levels after change"
+      - "    - Service test results"
+      - "  • Update any internal tracking systems"
+      - "If this was due to bad leg:"
+      - "  • Report old leg as faulty in system"
+      - "  • Consider suspending old leg to prevent future use"
+      - "  • Escalate to maintenance for splitter inspection"
+      - "Close ticket as resolved with new leg documented"
+    reference_doc: "Quantum Fiber - Changing Splitter Leg"
+  
+  - id: troubleshoot_registration_failure
+    title: "ONT Not Registering After Leg Change"
+    steps:
+      - "ONT not showing online after leg change - troubleshoot"
+      - "Common causes and fixes:"
+      - "Issue 1: Physical connection not secure"
+      - "  • Have field tech reseat fiber in new port"
+      - "  • Verify connection clicks/locks"
+      - "  • Check PON light on ONT (should be green)"
+      - "Issue 2: Connected to wrong leg physically"
+      - "  • Verify field tech connected to correct port number"
+      - "  • Confirm port number matches ODiN assignment"
+      - "  • Easy to miscount ports - double-check"
+      - "Issue 3: System synchronization delay"
+      - "  • Wait 3-5 minutes for full propagation"
+      - "  • Check if ONT appears in Calix on OLD leg still"
+      - "  • May need to force refresh in Calix"
+      - "Issue 4: Dirty or damaged connector"
+      - "  • Clean fiber connector again"
+      - "  • Inspect for physical damage"
+      - "  • Check signal levels in Calix (if ONT visible at all)"
+      - "Issue 5: New leg port is actually faulty"
+      - "  • Try different available leg"
+      - "  • Document suspected bad port"
+      - "If ONT still won't register after all checks:"
+      - "  • Revert to old leg temporarily"
+      - "  • Escalate to Network Engineering"
+      - "  • May be splitter hardware issue"
+    reference_doc: "Quantum Fiber - Changing Splitter Leg"
+    escalate_if: "ONT won't register on multiple different legs - splitter may be faulty"
+  
+  - id: ont_cached_on_old_leg
+    title: "ONT Still Showing on Old Leg (Cached)"
+    steps:
+      - "ONT appearing on old leg in Calix despite physical move and ODiN update"
+      - "This is a system caching/sync issue"
+      - "Resolution steps:"
+      - "Step 1: Force ONT de-registration"
+      - "  • In Calix, locate ONT on old leg"
+      - "  • Force de-register or delete ONT from old leg"
+      - "  • This clears the cached registration"
+      - "Step 2: Power cycle ONT"
+      - "  • Have field tech unplug ONT for 30 seconds"
+      - "  • Plug back in and wait for boot (1-2 minutes)"
+      - "  • Fresh boot forces re-registration"
+      - "Step 3: Verify ODiN reflects new leg"
+      - "  • Confirm ODiN shows new leg assignment"
+      - "  • If ODiN still shows old leg, update again"
+      - "  • Wait 3-5 minutes for Calix sync"
+      - "Step 4: Check ONT discovery on new leg"
+      - "  • After power cycle, ONT should register on new leg"
+      - "  • Check Calix for new registration"
+      - "  • Verify facility info shows correct leg number"
+      - "If still showing on old leg after all steps:"
+      - "  • Clear provisioning cache in Calix (if accessible)"
+      - "  • Escalate to Network Engineering"
+      - "  • May need manual Calix database correction"
+    reference_doc: "Quantum Fiber - Changing Splitter Leg"
+    escalate_if: "ONT remains on old leg after power cycle and cache clear"
+  
+  - id: no_available_legs_escalation
+    title: "No Available Legs on Splitter - Capacity Issue"
+    steps:
+      - "Splitter is at capacity - no available legs for move"
+      - "This is a network capacity planning issue"
+      - "Options to resolve:"
+      - "Option 1: Use different splitter in same FDH"
+      - "  • Check if FDH has multiple splitters"
+      - "  • See if alternate splitter has available legs"
+      - "  • Requires fiber route assessment"
+      - "Option 2: Use different FDH in service area"
+      - "  • Check nearby FDHs for available capacity"
+      - "  • Customer location may be reachable from alternate FDH"
+      - "  • Requires longer fiber run potentially"
+      - "Option 3: Add splitter capacity (requires construction)"
+      - "  • Install additional splitter in FDH"
+      - "  • Requires field operations work order"
+      - "  • Timeline depends on construction scheduling"
+      - "  • Confirm timeline with Structure Load team"
+      - "Option 4: Rebalance existing assignments"
+      - "  • Move inactive/disconnected services off splitter"
+      - "  • Free up legs by cleaning up old assignments"
+      - "  • Requires audit of all splitter assignments"
+      - "Escalate to Structure Load team:"
+      - "  • Category: Splitter Capacity - No Available Legs"
+      - "  • Include: FDH location, splitter utilization, reason for leg change"
+      - "  • Request: Capacity expansion or alternative routing"
+      - "If urgent (customer down):"
+      - "  • See if temporary connection to an available leg with known limitations is acceptable"
+      - "  • Plan permanent fix after immediate restoration"
+    reference_doc: "Quantum Fiber - Changing the Size of a Splitter"
+    escalate_if: "All capacity issues require Structure Load involvement - always escalate"
 
