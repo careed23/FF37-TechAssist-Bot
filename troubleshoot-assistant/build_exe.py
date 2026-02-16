@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import subprocess
+from shutil import copy2
 import sys
 
 APP_NAME = "FF37-TechAssist-Bot"
@@ -37,6 +38,11 @@ def build_executable() -> None:
     command.append(str(ENTRYPOINT))
 
     subprocess.run(command, check=True, cwd=BASE_DIR)
+
+    dist_dir = BASE_DIR / "dist"
+    data_dir = dist_dir / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    copy2(DATA_FILE, data_dir / DATA_FILE.name)
 
 
 if __name__ == "__main__":
