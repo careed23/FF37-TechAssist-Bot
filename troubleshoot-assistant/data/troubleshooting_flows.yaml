@@ -2642,7 +2642,7 @@ solutions:
     title: "Check Current Leg Assignment in ODiN"
     steps:
       - "Log into ODiN"
-      - "Navigate to: Inventory → Network Elements → ONT"
+      - "Navigate to: Inventory > Network Elements > ONT"
       - "Search by customer address or ONT serial number"
       - "View ONT details - note current assignment:"
       - "  • FDH location"
@@ -2794,7 +2794,7 @@ solutions:
       - "Final verification checklist:"
       - "  ✓ ONT showing O5 (Operation) state in Calix"
       - "  ✓ ONT registered on new leg number (verify in Calix facility info)"
-      - "  ✓ Fiber signal levels in acceptable range (see Quantum Fiber - Changing Splitter Leg for -15 to -25 dBm guideline)"
+      - "  ✓ Fiber signal levels in acceptable range (-15 to -25 dBm guideline)"
       - "  ✓ Service profile correctly applied"
       - "  ✓ Customer service operational"
       - "Documentation requirements:"
