@@ -29,8 +29,18 @@ def _resolve_log_root(app_root: Path) -> Path:
     return app_root / "logs"
 
 
+def _resolve_data_path(app_root: Path) -> Path:
+    data_path = app_root / "data" / "troubleshooting_flows.yaml"
+    if getattr(sys, "frozen", False):
+        exe_root = Path(sys.executable).resolve().parent
+        override_path = exe_root / "data" / "troubleshooting_flows.yaml"
+        if override_path.exists():
+            return override_path
+    return data_path
+
+
 APP_ROOT = _resolve_app_root()
-DATA_PATH = APP_ROOT / "data" / "troubleshooting_flows.yaml"
+DATA_PATH = _resolve_data_path(APP_ROOT)
 LOG_ROOT = _resolve_log_root(APP_ROOT)
 LOG_PATH = LOG_ROOT / "troubleshooting_log.csv"
 
