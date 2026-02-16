@@ -2906,3 +2906,885 @@ solutions:
     reference_doc: "Quantum Fiber - Changing the Size of a Splitter"
     escalate_if: "All capacity issues require Structure Load involvement - always escalate"
 
+workflow:
+  id: WF-QF-ONT-001
+  name: "Change ONT Ports on Pending Order"
+  version: "4.0"
+  category: "Quantum Fiber - Facility Management"
+  difficulty: "intermediate"
+  estimated_time: "15-30 minutes"
+
+  metadata:
+    source_document: "SL-MP-2023-05-001 Issue 4"
+    last_updated: "2024-08-23"
+    author: "Yolanda Garner"
+    target_roles:
+      - "QF Facility Support"
+      - "QF Programming"
+      - "QF Tech Assist"
+
+  systems:
+    - name: "Optius"
+      type: "service_order_management"
+      required: true
+    - name: "ODiN"
+      type: "facility_inventory"
+      required: true
+    - name: "QFSF"
+      type: "customer_account"
+      required: false
+    - name: "Field Data Tool"
+      type: "automation"
+      required: false
+
+  prerequisites:
+    access:
+      - "Optius service order inquiry/update access"
+      - "ODiN facility management access"
+      - "Structure loading permissions"
+    knowledge:
+      - "Understanding of fiber optic network topology"
+      - "Familiarity with ONT hardware"
+      - "Basic Optius navigation"
+    materials:
+      - "Service order number"
+      - "Customer address information"
+
+  glossary:
+    ONT: "Optical Network Terminal - Customer premises equipment that converts fiber signals"
+    CED: "Customer Edge Device - Alternative term for ONT"
+    PP: "Physical Port - Individual connection point on ONT (e.g., PP=001, PP=002)"
+    SL: "Slot - Port grouping (SL=001 for voice, SL=002 for data)"
+    CVLAN: "Customer VLAN - Virtual network identifier for traffic segregation"
+    CTAG: "Customer Tag - VLAN tagging identifier"
+    DTN: "Directory Telephone Number - Unique service circuit identifier"
+    LCI: "Loop Circuit ID - Circuit identification number"
+    OSG: "Open Switchgate - Automated network provisioning system"
+    FDT: "Field Data Tool - Automated utility for port changes"
+    MST: "Multi Serving Terminal - Fiber distribution equipment"
+    TP: "Terminal Port - Connection point on MST equipment"
+
+  decision_point_001:
+    question: "Which method should be used to change the ONT port?"
+    context: "Two methods exist for changing ONT ports on pending orders"
+
+    option_A:
+      label: "Automated Method (Field Data Tool)"
+      recommended_when:
+        - "ONT has multiple ports"
+        - "Port status shows PENDING"
+        - "No complex port conflicts exist"
+        - "Standard residential service"
+
+      advantages:
+        - "Automatically updates both Optius and ODiN"
+        - "Sends order through Open Switchgate (OSG)"
+        - "Reprograms ONT if order already sent to OSG"
+        - "No manual port availability investigation needed"
+        - "Faster execution time (5-10 minutes)"
+
+      limitations:
+        - "Only works with multi-port ONTs in PENDING status"
+        - "Cannot modify ONTs, Terminal Ports (TPs), or Multi Serving Terminals (MSTs)"
+        - "Will not send to OSG if order hasn't been sent yet (remains White N status)"
+        - "Cannot handle suspended, working, or available port scenarios"
+
+      action: "GOTO procedure_FDT"
+      reference_document: "Quantum Fiber - Field Data Tool Kit (QF Tech Assist)"
+
+    option_B:
+      label: "Manual Method (Optius + ODiN)"
+      recommended_when:
+        - "FDT returns 'Not Found' message"
+        - "Single port ONT"
+        - "Port shows suspended, working, or has conflicts"
+        - "Need to modify ONTs, TPs, or MSTs"
+        - "Complex facility scenarios"
+        - "Need to assign specific port (not just next available)"
+
+      advantages:
+        - "Works in all scenarios"
+        - "Full control over port selection"
+        - "Can handle complex conflicts"
+        - "Can modify any facility type"
+        - "Can remove left-in addresses"
+
+      considerations:
+        - "Requires manual ODiN investigation"
+        - "More steps than FDT method"
+        - "Takes 15-30 minutes"
+        - "Requires understanding of facility states"
+
+      action: "GOTO procedure_manual_start"
+
+  procedure_FDT:
+    name: "Automated Port Change via Field Data Tool"
+    steps:
+      - id: "FDT-001"
+        action: "Refer to companion document for FDT usage"
+        document: "Quantum Fiber - Field Data Tool Kit (QF Tech Assist).docx"
+        location: "https://centurylink.sharepoint.com/sites/NAOLibrary"
+        note: "FDT procedure is maintained in separate documentation"
+        on_success: "GOTO workflow_complete"
+        on_failure: "GOTO procedure_manual_start"
+
+  procedure_manual_start:
+    name: "Manual Port Change - Phase 1: Retrieve ONT Information"
+    system: "Optius"
+
+    steps:
+      - id: "M001"
+        description: "Navigate to Service Order tab"
+        system: "Optius"
+        actions:
+          - "Click 'Service Order' tab at top of page"
+
+      - id: "M002"
+        description: "Open Service Order Inquiry"
+        system: "Optius"
+        actions:
+          - "Click 'Service Order Inquiry / Update'"
+
+      - id: "M003"
+        description: "Search for pending service order"
+        system: "Optius"
+        inputs:
+          - name: "SO Number"
+            type: "text"
+            description: "Service order number from ticket"
+            example: "ONT-CHANGE"
+        actions:
+          - "Under 'Specific Order Information', enter service order number in 'SO Number' field"
+          - "Click 'Find' button"
+
+      - id: "M004"
+        description: "Open order details"
+        system: "Optius"
+        actions:
+          - "Select radio button beside the target order"
+          - "Click 'Open Details' button"
+        validation:
+          - check: "Order status should be CPDG (Pending)"
+          - check: "Order type should be appropriate (CIASN, etc.)"
+
+      - id: "M005"
+        description: "Retrieve ONT facility information"
+        system: "Optius"
+        actions:
+          - "Scroll to bottom of 'Service Order Inquiry/Update Inward Details' page"
+          - "Locate ODiN facilities section"
+          - "Click 'CED Info' dropdown menu to expand"
+        note: "This displays the ONT assignment for this order"
+
+      - id: "M006"
+        description: "Copy ONT Distinguished Name and note current port"
+        system: "Optius"
+        outputs:
+          - name: "ONT_Distinguished_Name"
+            location: "ODiN Resource column under CED Info header"
+            example: "ME=1858 CHARLESTON LN ONT 1"
+            format: "ME="
+
+      - id: "PEN003"
+        description: "Identify pending reservation address"
+        system: "ODiN"
+        actions:
+          - "Scroll to bottom of page"
+          - "Expand 'Associated Reservations' section"
+          - "Look for entries with 'PENDING' status"
+          - "Note the address(es) in the 'Location' column"
+        outputs:
+          - name: "Pending_Address"
+            example: "1850 CHARLESTON LN, WACONIA, MN"
+
+        note: "Multiple pending reservations with same address indicates duplicate order"
+        screenshot_reference: "Page 25, Step 3 of source document"
+
+      - id: "PEN004"
+        description: "Search for address in Optius"
+        system: "Optius"
+        actions:
+          - "Navigate to 'Structure Loading' tab"
+          - "Select 'Address' → 'Address'"
+          - "Enter address components from PEN003:"
+
+        inputs:
+          house_number: "Example: 1850"
+          street_name: "Example: Charleston"
+          street_suffix: "Example: LN"
+          community: "Example: Waconia"
+          state: "Example: MN"
+
+        actions_continued:
+          - "Click 'Find' button"
+
+      - id: "PEN005"
+        description: "View service order activity for address"
+        system: "Optius"
+        actions:
+          - "Ensure radio button beside address is selected"
+          - "From dropdown menu, select 'View Service Order Activity'"
+          - "Click 'Go' button"
+        expected_result: "Shows all orders associated with address"
+
+      - id: "PEN006"
+        description: "Identify duplicate order using needed port"
+        system: "Optius"
+        context: "May see multiple pending orders - need to find which uses target port"
+        actions:
+          - "Review list of pending orders (status CPDG)"
+          - "For each pending order:"
+          - "  - Select radio button"
+          - "  - Click 'Open Details'"
+          - "  - Scroll to CED Info section"
+          - "  - Check PP= value in ODiN Resource"
+          - "  - If matches target port, this is the duplicate"
+          - "  - If not, click 'Back' and check next order"
+
+        identify:
+          - "Note the LCI (Loop Circuit ID)"
+          - "Note the SO Number"
+          - "Note the PP= value confirming it's the target port"
+
+        example: "Looking for PP=001, found order with ODiN Resource ending in PP=001"
+
+      - id: "PEN007"
+        description: "Return to order list"
+        system: "Optius"
+        actions:
+          - "Click 'Back' link at top of page"
+          - "Returns to 'View Service Order Activity' page"
+
+      - id: "PEN008"
+        description: "Verify correct order selected"
+        system: "Optius"
+        validations:
+          - "Checkmark should be beside order you just viewed"
+          - "LCI matches what you noted in PEN006"
+          - "SO Number matches what you noted in PEN006"
+
+        warning: "STOP if checkmark is beside wrong order - select correct one"
+
+      - id: "PEN009"
+        description: "Cancel duplicate order"
+        system: "Optius"
+        actions:
+          - "Click 'Cancel Service Order' button"
+          - "Confirmation dialog appears"
+          - "Click 'OK' to confirm cancellation"
+
+        cancellation_note: "System will process cancellation and release facilities"
+
+      - id: "PEN010"
+        description: "Verify port now available"
+        system: "ODiN"
+        actions:
+          - "Switch back to ODiN"
+          - "Refresh 'Physical Device - Optical Node Terminal' page"
+          - "Check target port in 'Containment Structure'"
+          - "Icon should now show ✅ Available"
+
+        on_success: "GOTO procedure_check_address"
+
+        troubleshooting:
+          port_still_pending:
+            - "Wait 2-3 minutes for system sync"
+            - "Refresh ODiN page"
+            - "If still pending after 5 minutes, escalate"
+
+  scenario_working_port:
+    name: "Alternate Scenario: Working Port"
+    trigger: "Target port shows working status (⚡) in ODiN"
+    cause: "Port has active service (possibly signed off in error)"
+    difficulty: "advanced"
+    estimated_time: "20-30 minutes"
+
+    warnings:
+      - "⚠️ ONLY proceed if service was confirmed signed off in error"
+      - "⚠️ Disconnecting active service creates customer impact"
+      - "⚠️ Verify with supervisor before proceeding"
+      - "⚠️ Document approval in ticket before taking action"
+
+    steps:
+      - id: "WRK001"
+        description: "Navigate to port network information"
+        system: "ODiN"
+        actions:
+          - "On 'Physical Device - Optical Node Terminal' page, scroll to bottom"
+          - "Under 'Associated From Resources', click blue 'MST Port' link"
+        expected_result: "Opens 'Hardware - Terminal Port' page"
+
+      - id: "WRK002"
+        description: "Access network details"
+        system: "ODiN"
+        actions:
+          - "Near top of page, click blue 'Network' link"
+        expected_result: "Opens 'Network - Network' page"
+
+      - id: "WRK003"
+        description: "Identify working service address"
+        system: "ODiN"
+        actions:
+          - "Scroll to bottom of page"
+          - "Expand 'Associated Reservations' section"
+          - "Look for entry with 'WORKING' status"
+          - "Note the address in 'Location' column"
+        outputs:
+          - name: "Working_Address"
+            example: "100 MORRELL ST, COLORADO SPRINGS, CO"
+
+        screenshot_reference: "Page 31, Step 3 of source document"
+
+      - id: "WRK004"
+        description: "Search for working address in Optius"
+        system: "Optius"
+        actions:
+          - "Navigate to 'Structure Loading' → 'Address' → 'Address'"
+          - "Enter address components from WRK003"
+          - "Click 'Find'"
+
+      - id: "WRK005"
+        description: "View facility list for address"
+        system: "Optius"
+        actions:
+          - "Select radio button beside address"
+          - "From dropdown, select 'View Address Facility List'"
+          - "Click 'Go' button"
+        expected_result: "Opens 'Address Facility List' page"
+
+      - id: "WRK006"
+        description: "Find working facilities"
+        system: "Optius"
+        actions:
+          - "On 'Address Facility List' page, click 'Find' button"
+          - "Review list for 'Working' status facilities"
+          - "Select radio button beside working facilities"
+          - "Click 'Open Details'"
+
+      - id: "WRK007"
+        description: "Verify ONT and port details"
+        system: "Optius"
+        actions:
+          - "On 'Facility Detail by Address' page"
+          - "Expand 'CED Info' section"
+          - "Confirm ONT name matches target ONT"
+          - "Confirm PP= value matches target port"
+        outputs:
+          - name: "Circuit_ID_DTN"
+            location: "Circuit ID field near top of page"
+            example: "1000250569"
+            note: "This is the DTN needed for disconnect order"
+
+        warning: "If ONT/port don't match, STOP - wrong facilities, go back to WRK006"
+
+      - id: "WRK008"
+        description: "Create disconnect order"
+        system: "Optius"
+        prerequisite: "Supervisor approval documented"
+        actions:
+          - "Open SECOND Optius window (keep first window open)"
+          - "In new window, navigate to create service order"
+          - "Create disconnect order using standard procedure"
+          - "Use Circuit ID (DTN) from WRK007 as service identifier"
+
+        disconnect_process:
+          - "Order type: Disconnect"
+          - "Service ID: Circuit ID from WRK007"
+          - "Reason: Signed off in error (or appropriate code)"
+          - "Process through all order steps"
+          - "Generate work tickets"
+
+      - id: "WRK009"
+        description: "Complete and sign off disconnect order"
+        system: "Optius"
+        actions:
+          - "Follow normal disconnect order workflow"
+          - "Send work tickets"
+          - "Complete any required technician steps"
+          - "Sign off service order when work complete"
+
+        timing: "May take several hours depending on dispatch"
+
+      - id: "WRK010"
+        description: "Verify port released in ODiN"
+        system: "ODiN"
+        actions:
+          - "After disconnect order signed off"
+          - "Refresh 'Physical Device - Optical Node Terminal' page"
+          - "Check target port status"
+
+        expected_statuses:
+          available:
+            icon: "✅"
+            action: "GOTO procedure_check_address"
+
+          suspended:
+            icon: "⏸️"
+            action: "GOTO scenario_suspended_port"
+            note: "Disconnect left port suspended"
+
+      - id: "WRK011"
+        description: "Check for left-in address"
+        system: "ODiN"
+        decision: "Does the working address match the pending order address?"
+
+        addresses_match:
+          meaning: "Same customer, port just needed cleanup"
+          action: "GOTO procedure_check_address"
+          note: "Address association should be fine"
+
+        addresses_different:
+          meaning: "Different customer address tied to port"
+          action: "GOTO procedure_remove_leftin"
+          note: "Must remove old address before reassignment"
+
+  procedure_remove_leftin:
+    name: "Remove Left-In Address from ONT Port"
+    trigger: "Address found in Associated Locations that shouldn't be there"
+    causes:
+      - "Incomplete disconnect cleanup"
+      - "System error during previous order"
+      - "Manual facility assignment not removed"
+    system: "ODiN"
+    estimated_time: "3-5 minutes"
+
+    steps:
+      - id: "REM001"
+        description: "Navigate to target port details"
+        system: "ODiN"
+        prerequisite: "Already at 'Hardware - Physical Port' page OR can navigate from ONT"
+        actions:
+          - "If not already there: Right-click target port → 'View Resource'"
+          - "Should be viewing 'Hardware - Physical Port' page"
+
+      - id: "REM002"
+        description: "Locate left-in address"
+        system: "ODiN"
+        actions:
+          - "Scroll to 'Associated Locations' section"
+          - "Expand if collapsed"
+          - "Identify address that needs removal"
+
+        displays:
+          - "Distinguished Name (address identifier)"
+          - "Location (full address)"
+          - "Location Type (Urban Property Address, etc.)"
+          - "Source (how it was created)"
+          - "Actions (Delete button)"
+
+      - id: "REM003"
+        description: "Delete address association"
+        system: "ODiN"
+        actions:
+          - "In 'Actions' column, click 'Delete' button for the address"
+          - "Address row disappears from table"
+
+        note: "No confirmation dialog - deletion is immediate (but not saved yet)"
+
+      - id: "REM004"
+        description: "Save deletion"
+        system: "ODiN"
+        actions:
+          - "Scroll to bottom of page"
+          - "Click 'Save' button"
+          - "Wait for confirmation"
+
+        validation:
+          - check: "No error messages"
+          - check: "'Associated Locations' section now empty or shows correct address only"
+
+      - id: "REM005"
+        description: "Verify address removed"
+        system: "ODiN"
+        actions:
+          - "Click 'Back' arrow at top of page"
+          - "Returns to 'Physical Device - Optical Node Terminal'"
+          - "Right-click port → 'View Resource' again"
+          - "Check 'Associated Locations' - should show 'No Locations are associated'"
+
+        on_success: "GOTO procedure_update_port_optius"
+        note: "Port is now clean and ready for assignment"
+
+        troubleshooting:
+          address_still_present:
+            - "Verify 'Save' was clicked in REM004"
+            - "Refresh page"
+            - "Try delete operation again"
+            - "Check for system error messages"
+
+  workflow_complete:
+    name: "Workflow Completion"
+
+    verification_checklist:
+      optius_checks:
+        - step: "Service order shows updated"
+          validation: "Success message 1218 displayed"
+
+        - step: "CED Info shows new port"
+          validation: "PP= value changed to target port"
+
+        - step: "Virtual ID updated"
+          validation: "New CVLAN/CTAG assigned"
+
+        - step: "Order status remains pending"
+          validation: "Order continues normal provisioning flow"
+
+      odin_checks:
+        - step: "Target port shows pending"
+          validation: "Port icon changed from available to pending (🔵)"
+
+        - step: "Address associated to port"
+          validation: "Customer address shows in Associated Locations"
+
+        - step: "Old port released"
+          validation: "Previous port returned to available status"
+
+    post_completion_actions:
+      - action: "Update ticket with completion notes"
+        details:
+          - "Document original port (e.g., PP=002)"
+          - "Document new port (e.g., PP=001)"
+          - "Document ONT Distinguished Name"
+          - "Document service order number"
+          - "Note any alternate scenarios used"
+
+      - action: "Verify no follow-up work needed"
+        checks:
+          - "No additional port conflicts"
+          - "No error messages in either system"
+          - "Customer not impacted during change"
+
+      - action: "Monitor order through provisioning"
+        timeline: "24-48 hours"
+        watch_for:
+          - "Order completes successfully"
+          - "No OSG errors"
+          - "Customer service activates normally"
+
+    next_steps:
+      normal_flow: "Order continues standard provisioning through OSG"
+      customer_impact: "None - transparent to customer"
+      technician_dispatch: "No change to scheduled installation"
+
+    estimated_completion_time:
+      fdt_method: "5-10 minutes"
+      manual_simple: "15-20 minutes (no conflicts)"
+      manual_with_suspended: "20-25 minutes"
+      manual_with_pending: "25-35 minutes"
+      manual_with_working: "45-60 minutes (includes disconnect)"
+
+  troubleshooting:
+    common_issues:
+      - issue: "Error 3981 - Virtual ID cannot be working, pending or test"
+        cause: "Attempted to save order before updating Virtual ID"
+        solution: "Complete Phase 5 (Update Virtual ID) before saving"
+        reference: "Step VID001-VID007"
+
+      - issue: "Port shows available in Optius but pending in ODiN"
+        cause: "System sync delay between Optius and ODiN"
+        solution:
+          - "Wait 2-3 minutes"
+          - "Refresh ODiN page"
+          - "Re-check port status"
+          - "If persists after 5 minutes, escalate"
+
+      - issue: "Cannot find ONT in ODiN search"
+        causes:
+          - "Typo in Distinguished Name"
+          - "Extra spaces in paste"
+          - "ONT not yet inventoried in ODiN"
+        solutions:
+          - "Copy Distinguished Name again from Optius carefully"
+          - "Trim any leading/trailing spaces"
+          - "Verify ONT exists in field"
+          - "Check alternative ONT naming"
+
+      - issue: "Re-assign ODiN Facilities button does nothing"
+        causes:
+          - "CED Distinguished Name field empty"
+          - "Invalid ONT name format"
+          - "Browser session issue"
+        solutions:
+          - "Verify field is populated"
+          - "Re-paste ONT Distinguished Name"
+          - "Try different browser"
+          - "Clear browser cache"
+
+      - issue: "Auto Assign TA Path fails"
+        causes:
+          - "VLAN pool exhausted"
+          - "Network configuration issue"
+          - "System connectivity problem"
+        solutions:
+          - "Try 'Auto Assign' again"
+          - "Check for system alerts"
+          - "Verify network element status"
+          - "Escalate to provisioning team"
+
+      - issue: "Port shows multiple addresses in Associated Locations"
+        cause: "Multiple left-in addresses from previous services"
+        solution: "Remove ALL addresses using procedure_remove_leftin (REM001-REM005)"
+
+      - issue: "After disconnect, port still shows working"
+        causes:
+          - "Disconnect not fully processed"
+          - "Work ticket not signed off"
+          - "System sync delay"
+        solutions:
+          - "Verify disconnect order signed off"
+          - "Check work ticket status"
+          - "Wait 10-15 minutes for sync"
+          - "May need to manually update port status"
+
+      - issue: "Cannot delete address from Associated Locations"
+        causes:
+          - "Insufficient permissions"
+          - "Address locked by active order"
+          - "System issue"
+        solutions:
+          - "Verify your ODiN permissions"
+          - "Check for pending orders on address"
+          - "Try logging out/in to ODiN"
+          - "Escalate if permissions issue"
+
+  escalation_criteria:
+    escalate_to_supervisor:
+      - condition: "Working port needs disconnect but no supervisor approval"
+        reason: "Customer impact - requires management decision"
+
+      - condition: "Multiple failed attempts to change port (3+)"
+        reason: "May indicate systemic issue"
+
+      - condition: "Error messages not covered in troubleshooting"
+        reason: "Unknown issue requires senior analysis"
+
+      - condition: "Port conflicts cannot be resolved through standard procedures"
+        reason: "May require manual facility correction"
+
+      - condition: "Customer calling about service impact during port change"
+        reason: "Customer escalation protocol"
+
+    escalate_to_provisioning:
+      - condition: "VLAN pool exhausted (Auto Assign TA Path fails repeatedly)"
+        reason: "Network engineering intervention needed"
+
+      - condition: "OSG errors after port change"
+        reason: "Provisioning system issue"
+
+      - condition: "Network element down or unreachable"
+        reason: "Infrastructure problem"
+
+    escalate_to_facilities_team:
+      - condition: "ONT not found in ODiN but exists in field"
+        reason: "Inventory discrepancy"
+
+      - condition: "Port physically damaged or defective"
+        reason: "May require ONT replacement"
+
+      - condition: "All ports on ONT unavailable"
+        reason: "May need new ONT or terminal assignment"
+
+  best_practices:
+    before_starting:
+      - tip: "Verify service order is actually pending (CPDG status)"
+        why: "Saves time - can't change ports on completed orders"
+
+      - tip: "Check if customer has active service on different port"
+        why: "Prevents accidentally disconnecting working service"
+
+      - tip: "Screenshot original port assignment"
+        why: "Provides rollback reference if needed"
+
+      - tip: "Review any previous notes on account"
+        why: "May explain why original port was chosen"
+
+    during_execution:
+      - tip: "Work through phases systematically - don't skip steps"
+        why: "Missing steps causes errors later"
+
+      - tip: "Use FDT when criteria met - it's faster and more reliable"
+        why: "Automated process has fewer points of failure"
+
+      - tip: "Document each system as you work"
+        why: "Easier to troubleshoot if something goes wrong"
+
+      - tip: "For suspended ports, just flip to available - easiest scenario"
+        why: "No investigation needed, quick resolution"
+
+      - tip: "For pending ports, investigate before canceling"
+        why: "Might be legitimate order, not duplicate"
+
+      - tip: "For working ports, get supervisor approval BEFORE disconnect"
+        why: "CYA - customer impact liability"
+
+      - tip: "Always verify port status in ODiN after Optius changes"
+        why: "Catches sync issues early"
+
+    after_completion:
+      - tip: "Monitor order through next provisioning stage"
+        why: "Catches OSG errors early"
+
+      - tip: "Update ticket with detailed notes"
+        why: "Helps next tech if follow-up needed"
+
+      - tip: "Save success message screenshots"
+        why: "Proof of completion if questioned later"
+
+      - tip: "Check old port returned to available"
+        why: "Prevents future facility exhaustion"
+
+  time_saving_tips:
+    from_5_year_veteran:
+      - tip: "Check ODiN first before even opening Optius order"
+        time_saved: "5 minutes"
+        rationale: "If target port is working or has complex conflict, you know immediately you need supervisor/different approach"
+
+      - tip: "Keep Optius and ODiN open in separate windows side-by-side"
+        time_saved: "3-4 minutes per change"
+        rationale: "Eliminates constant window switching, copy/paste faster"
+
+      - tip: "Create text file template with common ONT Distinguished Names in your area"
+        time_saved: "1-2 minutes per order"
+        rationale: "Many orders in same neighborhood use same ONTs"
+
+      - tip: "Bookmark the exact Optius Service Order Inquiry page"
+        time_saved: "30 seconds per order"
+        rationale: "Skip navigation through menus"
+
+      - tip: "Learn keyboard shortcuts for Optius (Tab, Enter, Alt+S for Save)"
+        time_saved: "2-3 minutes per order"
+        rationale: "Mouse clicks are slow"
+
+      - tip: "If you see 🔵 pending port, go straight to canceling duplicate - don't investigate extensively"
+        time_saved: "5-10 minutes"
+        rationale: "99% of pending ports are duplicates, investigation rarely reveals anything else"
+
+      - tip: "Batch similar port changes together"
+        time_saved: "Variable"
+        rationale: "Mental context switching is expensive, do all suspended ports in a row, then all pending ports, etc."
+
+  gotchas_and_warnings:
+    critical_mistakes_to_avoid:
+      - mistake: "Saving in Optius before updating Virtual ID"
+        consequence: "Error 3981, have to redo Virtual ID update"
+        prevention: "Always complete all 5 phases in order"
+
+      - mistake: "Deleting address in ODiN without clicking Save"
+        consequence: "Address not actually removed, port change fails"
+        prevention: "Always click Save after any ODiN edit"
+
+      - mistake: "Canceling wrong pending order"
+        consequence: "Cancel customer's real order instead of duplicate"
+        prevention: "Always verify LCI and PP= match before canceling"
+
+      - mistake: "Disconnecting working service without approval"
+        consequence: "Customer complaint, possible disciplinary action"
+        prevention: "Never disconnect working port without documented supervisor approval"
+
+      - mistake: "Using FDT on single-port ONT"
+        consequence: "FDT fails, wasted time"
+        prevention: "Check port count in ODiN first"
+
+      - mistake: "Pasting full ODiN Resource string into CED Distinguished Name field"
+        consequence: "Field won't accept it, assignment fails"
+        prevention: "Only paste the ONT name portion (ME=... ONT #), not the PP= part"
+
+      - mistake: "Assuming available icon means port is clean"
+        consequence: "Left-in address blocks assignment"
+        prevention: "Always check Associated Locations even if port shows available"
+
+  related_documents:
+    - title: "Quantum Fiber - Field Data Tool Kit (QF Tech Assist)"
+      type: "Procedure"
+      when_to_use: "For automated port changes using FDT"
+      location: "https://centurylink.sharepoint.com/sites/NAOLibrary"
+
+    - title: "Quantum Fiber - ODiN Facility Management"
+      type: "Reference"
+      when_to_use: "Deep dive on ODiN facility concepts"
+
+    - title: "Optius Service Order Processing"
+      type: "Training"
+      when_to_use: "New to Optius system"
+
+    - title: "Quantum Fiber Network Architecture"
+      type: "Technical Reference"
+      when_to_use: "Understanding ONT, MST, TP relationships"
+
+  output_format:
+    ticket_notes_template: |
+      ONT PORT CHANGE COMPLETED
+
+      Service Order: [SO Number]
+      Customer: [Customer Name]
+      Address: [Service Address]
+
+      ONT Details:
+      - ONT Distinguished Name: [ME=... ONT #]
+      - Original Port: [PP=00X]
+      - New Port: [PP=00Y]
+
+      Method Used: [FDT / Manual]
+
+      Alternate Scenarios (if any):
+      - [None / Suspended Port / Pending Port / Working Port / Left-in Address]
+
+      Systems Updated:
+      - Optius: ✓ (Message 1218 received)
+      - ODiN: ✓ (Port status verified)
+      - Virtual ID: ✓ (New CVLAN/CTAG assigned: [####/###])
+
+      Verification:
+      - Target port now shows pending (🔵) in ODiN
+      - Customer address associated to new port
+      - Previous port released to available
+
+      Order Status: Continues normal provisioning
+      Customer Impact: None (transparent change)
+
+      Next Steps: Monitor order through completion (24-48hr)
+
+      Notes: [Any additional relevant details]
+
+      Completed by: [Your Name]
+      Date/Time: [Timestamp]
+
+metadata:
+  changelog:
+    - version: "1.0"
+      date: "2023-05-19"
+      author: "Yolanda Garner"
+      changes:
+        - "Initial version created"
+
+    - version: "2.0"
+      date: "2023-05-24"
+      author: "Yolanda Garner"
+      changes:
+        - "Added screenshot to Section 6.4 Step 4"
+
+    - version: "3.0"
+      date: "2024-03-19"
+      author: "Yolanda Garner"
+      changes:
+        - "Introduced Field Data Tool (FDT) as automated option"
+        - "Changed document title and target audience"
+        - "Added decision tree for FDT vs manual method"
+
+    - version: "4.0"
+      date: "2024-08-23"
+      author: "Yolanda Garner"
+      changes:
+        - "Changed title of section 6.0 to 'ONT Port Verification and Modification'"
+        - "Added new section 6.2.1: Assigning a Specific ONT Port"
+        - "Enhanced port pre-assignment capabilities"
+
+  approval:
+    approver: "Jackie Stecher"
+    title: "Manager - Mass Markets Ops Excellence"
+    date: "2023-05-19"
+
+  contact:
+    author_email: "Yolanda.Garner@lumen.com"
+    sme_email: "sasktelinternational.com"
+    support_line: "206-580-2629"
