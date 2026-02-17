@@ -11,12 +11,12 @@
 [![Coverage](https://img.shields.io/badge/Issue%20Coverage-Top%205%20(~70%25)-success)](https://github.com/careed23/FF37-TechAssist-Bot)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/careed23/FF37-TechAssist-Bot/pulls)
 
-**Professional troubleshooting assistant for Forged Fiber 37 field technician support**
+**Professional troubleshooting assistant for Forged Fiber 37 field technicians**
 
-A Windows desktop application that provides step-by-step troubleshooting guidance for common fiber optic installation and service issues. Built to streamline technical support workflows and reduce resolution time in the field.
+A Windows desktop application that provides structured, step-by-step guidance for common fiber installation and service issues. Designed to standardize support workflows, reduce escalations, and improve time-to-resolution in the field.
 
-**Currently:** Proof of concept featuring the **top 5 most recurring support calls** to demonstrate viability and impact.  
-**Potential:** Scalable framework ready to expand to cover every support scenario we face.
+**Current scope:** Proof of concept covering the **five most frequent support scenarios** (~70% of call volume).  
+**Future-ready:** Architecture built to scale to full issue coverage with minimal additional effort.
 
 </div>
 
@@ -26,7 +26,7 @@ A Windows desktop application that provides step-by-step troubleshooting guidanc
 
 ![FF37 TechAssist Bot Screenshot](QuantumFiber.png)
 
-*Clean, intuitive interface with Quantum Fiber branding*
+*Streamlined interface aligned with Quantum Fiber branding*
 
 </div>
 
@@ -35,37 +35,37 @@ A Windows desktop application that provides step-by-step troubleshooting guidanc
 ## 💡 Why This Tool Exists
 
 ### The Problem
-Field tech support at scale presents real challenges:
-- **Training Overhead** - Weeks of training required for new service desk analysts to learn troubleshooting procedures across multiple systems
-- **Ticket Inefficiency** - Unnecessary escalations created when analysts don't know the exact resolution steps, clogging the queue
-- **Knowledge Gaps** - Critical troubleshooting steps forgotten or skipped, leading to callbacks and repeat tickets
-- **First Call Resolution** - Inconsistent outcomes when analysts rely on memory rather than standardized procedures
+Supporting field technicians at scale introduces recurring operational challenges:
+- **Training overhead** - Onboarding new service desk analysts requires weeks of cross-system instruction
+- **Ticket inefficiency** - Incomplete guidance leads to avoidable escalations and longer queues
+- **Knowledge gaps** - Missed steps cause callbacks, repeat tickets, and inconsistent outcomes
+- **First-call resolution** - Results vary without standardized, documented procedures
 
 ### The Proof of Concept
-This tool was built to **demonstrate the viability** of a guided troubleshooting approach:
+This project validates a guided troubleshooting model by focusing on the five most common issues:
 
 **Current Scope:** The top 5 most recurring support issues (representing ~70% of call volume)
-- Proves the concept works with real-world troubleshooting scenarios
-- Validates the UI/UX approach with field techs and service desk analysts
+- Confirms the approach with real-world troubleshooting scenarios
+- Validates the UI/UX with field techs and service desk analysts
 - Demonstrates measurable impact on training time and ticket efficiency
-- Shows the technical feasibility of the framework
+- Confirms the technical feasibility of the framework
 
 **Expansion Potential:** Scalable architecture ready for comprehensive coverage
 - **Every support scenario** - Framework can accommodate 100+ additional flows
 - **Market-specific issues** - Custom flows for regional or seasonal problems  
-- **Integration ready** - Built to connect with ticketing systems, CRMs, and knowledge bases
+- **Integration ready** - Designed to connect with ticketing systems, CRMs, and knowledge bases
 - **Analytics expansion** - Foundation for predictive analytics and automated ticket routing
 
 ### Real Impact (Even at POC Scale)
-✅ **Reduces Training Time** - New hires can start resolving the most common tickets immediately  
-✅ **Improves First Call Resolution** - Step-by-step guidance ensures nothing is missed on high-frequency issues  
-✅ **Eliminates Unnecessary Tickets** - Prevents ~70% of premature escalations by covering the most common problems  
-✅ **Serves as Training Wheels** - Acts as a knowledge companion for the issues analysts face most often  
-✅ **Proves Scalability** - Demonstrates that full coverage is achievable with minimal additional effort  
+✅ **Reduces training time** - New hires can resolve the most common tickets immediately  
+✅ **Improves first-call resolution** - Step-by-step guidance ensures nothing is missed on high-frequency issues  
+✅ **Eliminates unnecessary tickets** - Prevents ~70% of premature escalations by covering common problems  
+✅ **Provides a knowledge companion** - Supports analysts on the issues they face most often  
+✅ **Proves scalability** - Demonstrates that full coverage is achievable with minimal additional effort  
 
 **Measured Success Metrics:**
 - New hire productivity: **2-3 weeks faster** to full competency on covered issues
-- First call resolution: **35-40% improvement** on ONT and authentication issues
+- First-call resolution: **35-40% improvement** on ONT and authentication issues
 - Unnecessary escalations: **50-60% reduction** for the top 5 issue categories
 - Training material access time: **Reduced from 5-10 minutes to 10-15 seconds** per lookup
 
@@ -77,12 +77,12 @@ This tool was built to **demonstrate the viability** of a guided troubleshooting
 
 ### Download & Run (POC Version)
 1. Download the latest release: [FF37-TechAssist-Bot.exe](https://github.com/careed23/FF37-TechAssist-Bot/releases)
-2. Double-click `FF37-TechAssist-Bot.exe` to launch
+2. Launch `FF37-TechAssist-Bot.exe`
 3. **No installation required** - runs as a standalone executable
 
 > **Note:** Windows may show a SmartScreen warning for unsigned executables. Click "More info" → "Run anyway" to proceed.
 
-**Current Coverage:** This proof of concept includes the top 5 most recurring support issues. If you encounter a scenario not covered, please document it for inclusion in future expansion phases.
+**Current Coverage:** This proof of concept includes the top five recurring support issues. If you encounter an uncovered scenario, please document it for inclusion in future expansion phases.
 
 ---
 
@@ -97,14 +97,14 @@ Based on ticket volume analysis, this proof of concept includes troubleshooting 
 - **Speed Issues** - Performance and bandwidth troubleshooting
 - **New Build Not Ready** - Facility availability and construction status
 
-**These 5 flows represent ~70% of all field tech support calls**, demonstrating the tool's immediate impact potential.
+**These five flows represent ~70% of all field tech support calls**, demonstrating immediate impact potential.
 
 ### Built for Efficiency
-- **75+ Solution Procedures** - Step-by-step resolution guides for the top recurring issues
-- **Automatic Session Logging** - Track troubleshooting history and analytics
-- **Reference Documentation** - Links to internal docs and video tutorials
-- **Escalation Guidance** - Clear indicators for when to escalate issues
-- **Extensible Architecture** - Framework designed to easily add new flows as needed
+- **75+ solution procedures** - Step-by-step resolution guides for the top recurring issues
+- **Automatic session logging** - Track troubleshooting history and analytics
+- **Reference documentation** - Links to internal docs and video tutorials
+- **Escalation guidance** - Clear indicators for when to escalate issues
+- **Extensible architecture** - Framework designed to easily add new flows as needed
 
 ### Scalability Path
 This proof of concept demonstrates the framework's capability. The architecture is designed to scale to:
@@ -127,10 +127,10 @@ This proof of concept demonstrates the framework's capability. The architecture 
 
 ## 📊 How It Works
 
-1. **Select Troubleshooting Flow** - Choose the issue category from the main menu
-2. **Answer Diagnostic Questions** - Follow the guided step-by-step process
-3. **Get Resolution Procedure** - Receive detailed instructions for fixing the issue
-4. **Log Session Results** - Track whether the issue was resolved for analytics
+1. **Select a troubleshooting flow** - Choose the issue category from the main menu
+2. **Answer diagnostic questions** - Follow the guided step-by-step process
+3. **Receive the resolution procedure** - Get detailed instructions for fixing the issue
+4. **Log session results** - Track whether the issue was resolved for analytics
 
 ### Example Workflow
 ```
@@ -156,7 +156,7 @@ FF37-TechAssist-Bot.exe         # Standalone Windows executable
 ```
 
 **Session Logs Location:**  
-`%APPDATA%\FF37-TechAssist-Bot\logs\troubleshooting_log.csv`
+%APPDATA%\FF37-TechAssist-Bot\logs\troubleshooting_log.csv
 
 ---
 
@@ -185,7 +185,7 @@ python build_exe.py
 The compiled executable will be in `troubleshoot-assistant/dist/FF37-TechAssist-Bot.exe`
 
 ### Tech Stack
-- **Desktop GUI:** tkinter + ttk (custom styled)
+- **Desktop GUI:** tkinter + ttk (custom styling)
 - **Web App:** Flask + Jinja2
 - **CLI:** Rich (interactive terminal UI)
 - **Engine:** PyYAML-based flow processor
@@ -225,7 +225,7 @@ troubleshoot-assistant/
 Based on ticket volume analysis, these flows represent the most frequent support scenarios:
 
 ### 1. ONT Not Provisioning *(Most Frequent - 28% of calls)*
-Diagnoses why ONT devices aren't coming online in Calix/Adtran systems.
+Diagnoses why ONT devices are not coming online in Calix/Adtran systems.
 
 **Key Decision Points:**
 - ONT state (O1, O5, not visible)
@@ -261,7 +261,7 @@ Diagnoses bandwidth and performance problems.
 - OLT congestion indicators
 
 ### 5. New Build Not Ready *(10% of calls)*
-Handles situations where customer installations are scheduled but facilities aren't available.
+Handles situations where customer installations are scheduled but facilities are not available.
 
 **Key Decision Points:**
 - Address existence in Optius/ODiN
@@ -269,14 +269,14 @@ Handles situations where customer installations are scheduled but facilities are
 - OLT commissioning
 - TA Path availability
 
-**Combined Impact:** These 5 flows cover approximately **84% of all field tech support calls**, demonstrating that focusing on the most common issues delivers immediate operational value while the framework proves extensibility for full coverage.
+**Combined Impact:** These five flows cover approximately **84% of all field tech support calls**, demonstrating immediate operational value while the framework proves extensible for full coverage.
 
 ---
 
 ## 📊 Session Analytics
 
 The application automatically logs all troubleshooting sessions to:  
-`%APPDATA%\FF37-TechAssist-Bot\logs\troubleshooting_log.csv`
+%APPDATA%\FF37-TechAssist-Bot\logs\troubleshooting_log.csv
 
 **Tracked Metrics:**
 - Flow usage frequency
@@ -291,16 +291,16 @@ Use this data to identify training needs, optimize procedures, and track team pe
 
 ## 🔒 Security & Privacy
 
-- **No Internet Connection Required** - Runs completely offline
-- **Local Data Only** - Session logs stored locally on the machine
-- **No PII Collection** - Logs contain flow data, not customer information
-- **Read-Only Operations** - Application doesn't modify system files or registry
+- **No internet connection required** - Runs completely offline
+- **Local data only** - Session logs stored locally on the machine
+- **No PII collection** - Logs contain flow data, not customer information
+- **Read-only operations** - Application doesn't modify system files or registry
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -310,9 +310,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 IT Support Specialist | Qualfon  
 Milan, Tennessee
 
-*Built from firsthand observation of support operations - watching new hires struggle through training, seeing tickets pile up from avoidable escalations, and recognizing the need for a tool that reduces both training time and ticket overhead. This proof of concept demonstrates that a comprehensive solution is not only possible, but highly effective even at limited scope.*
+*Built from firsthand observation of support operations: new hires struggling through training, tickets piling up from avoidable escalations, and a clear need for a tool that reduces training time and ticket overhead. This proof of concept demonstrates that comprehensive coverage is not only possible, but effective even at limited scope.*
 
-**Vision:** Transform this POC into a full-scale knowledge companion covering every support scenario, integrated with existing systems, and serving as the primary troubleshooting tool for all field tech and service desk operations.
+**Vision:** Expand this POC into a full-scale knowledge companion covering every support scenario, integrated with existing systems, and serving as the primary troubleshooting tool for all field tech and service desk operations.
 
 ---
 
@@ -330,7 +330,7 @@ This proof of concept demonstrates the foundation. Here's the vision for full-sc
 ### Phase 2: Comprehensive Coverage (Proposed)
 - 📋 Add 20+ additional troubleshooting flows covering remaining support scenarios
 - 📋 Expand solution library to 300+ procedures
-- 📋 Include rare/edge case scenarios for complete coverage
+- 📋 Include rare/edge-case scenarios for complete coverage
 - 📋 Market-specific flows for regional issues
 
 ### Phase 3: Integration & Automation (Future)
@@ -341,7 +341,7 @@ This proof of concept demonstrates the foundation. Here's the vision for full-sc
 
 ### Phase 4: Intelligence Layer (Advanced)
 - 📋 AI-powered issue prediction based on symptoms
-- 📋 Automated ticket routing to right specialist
+- 📋 Automated ticket routing to the right specialist
 - 📋 Dynamic procedure updates based on resolution success rates
 - 📋 Predictive maintenance alerts for proactive support
 
