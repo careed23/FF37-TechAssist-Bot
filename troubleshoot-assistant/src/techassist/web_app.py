@@ -22,8 +22,12 @@ from flask import (
     url_for,
 )
 
-from .flow_engine import TroubleshootingEngine
-from .logger import TroubleshootingLogger
+try:
+    from .flow_engine import TroubleshootingEngine
+    from .logger import TroubleshootingLogger
+except ImportError:
+    from flow_engine import TroubleshootingEngine
+    from logger import TroubleshootingLogger
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent

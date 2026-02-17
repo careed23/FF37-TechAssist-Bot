@@ -4,8 +4,12 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.markdown import Markdown
 from rich import box
-from .flow_engine import TroubleshootingEngine
-from .logger import TroubleshootingLogger
+try:
+    from .flow_engine import TroubleshootingEngine
+    from .logger import TroubleshootingLogger
+except ImportError:
+    from flow_engine import TroubleshootingEngine
+    from logger import TroubleshootingLogger
 import sys
 from datetime import datetime
 

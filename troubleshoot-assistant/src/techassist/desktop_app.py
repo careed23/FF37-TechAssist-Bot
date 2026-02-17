@@ -8,8 +8,12 @@ from tkinter import messagebox, ttk
 from urllib.parse import urlparse
 import webbrowser
 
-from .flow_engine import TroubleshootingEngine
-from .logger import TroubleshootingLogger
+try:
+    from .flow_engine import TroubleshootingEngine
+    from .logger import TroubleshootingLogger
+except ImportError:
+    from flow_engine import TroubleshootingEngine
+    from logger import TroubleshootingLogger
 
 APP_NAME = "FF37-TechAssist-Bot"
 
