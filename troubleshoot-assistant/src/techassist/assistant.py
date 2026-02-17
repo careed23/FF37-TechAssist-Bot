@@ -4,15 +4,8 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.markdown import Markdown
 from rich import box
-try:
-    from .flow_engine import TroubleshootingEngine
-    from .logger import TroubleshootingLogger
-except ImportError:
-    import sys as _sys
-    from pathlib import Path as _Path
-    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
-    from flow_engine import TroubleshootingEngine
-    from logger import TroubleshootingLogger
+from .flow_engine import TroubleshootingEngine
+from .logger import TroubleshootingLogger
 import sys
 from datetime import datetime
 
