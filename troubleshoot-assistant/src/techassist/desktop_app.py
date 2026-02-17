@@ -56,6 +56,7 @@ class TechAssistDesktopApp:
     TEXT_PRIMARY = "#f8fafc"
     TEXT_SECONDARY = "#cbd5e1"
     ACCENT_COLOR = "#6ee7f5"
+    PURPLE_ACCENT = "#7B2FBE"
     COLOR_BUTTON_FG = "#ffffff"
     COLOR_PRESSED_PRIMARY = "#1b4f7c"
     COLOR_GLASS_BG = "#3b3b3b"
@@ -285,25 +286,70 @@ class TechAssistDesktopApp:
 
         for idx, flow in enumerate(flows):
             description = flow.get("description", "")
-            label = f"{flow['name']}\n{description}" if description else flow["name"]
-            button = tk.Button(
+            flow_id = flow["id"]
+
+            card = tk.Frame(
                 scrollable_frame,
-                text=label,
-                command=lambda flow_id=flow["id"]: self.start_flow(flow_id),
-                bg=self.FLOW_BUTTON_COLOR,
-                fg=self.TEXT_PRIMARY,
-                activebackground=self.FLOW_BUTTON_ACTIVE,
-                activeforeground=self.TEXT_PRIMARY,
-                font=(self.FONT_FAMILY, 10, "bold"),
-                relief="flat",
+                background=self.FLOW_BUTTON_COLOR,
+                cursor="hand2",
                 bd=0,
                 highlightthickness=0,
-                wraplength=self.BUTTON_WRAPLENGTH,
-                justify="center",
-                padx=16,
-                pady=12,
             )
-            button.grid(row=idx, column=0, sticky="ew", padx=12, pady=(0, 14))
+            card.grid(row=idx, column=0, sticky="ew", padx=12, pady=(0, 14))
+            card.columnconfigure(0, weight=1)
+
+            name_label = tk.Label(
+                card,
+                text=flow["name"],
+                bg=self.FLOW_BUTTON_COLOR,
+                fg=self.PURPLE_ACCENT,
+                font=(self.FONT_FAMILY, 12, "bold"),
+                anchor="center",
+                cursor="hand2",
+                padx=16,
+                pady=(8, 2),
+            )
+            name_label.grid(row=0, column=0, sticky="ew")
+
+            if description:
+                desc_label = tk.Label(
+                    card,
+                    text=description,
+                    bg=self.FLOW_BUTTON_COLOR,
+                    fg=self.TEXT_PRIMARY,
+                    font=(self.FONT_FAMILY, 10),
+                    anchor="center",
+                    cursor="hand2",
+                    wraplength=self.BUTTON_WRAPLENGTH,
+                    justify="center",
+                    padx=16,
+                    pady=(0, 8),
+                )
+                desc_label.grid(row=1, column=0, sticky="ew")
+            else:
+                name_label.configure(pady=12)
+
+            def _on_enter(e, c=card):
+                c.configure(background=self.FLOW_BUTTON_ACTIVE)
+                for child in c.winfo_children():
+                    child.configure(bg=self.FLOW_BUTTON_ACTIVE)
+
+            def _on_leave(e, c=card):
+                c.configure(background=self.FLOW_BUTTON_COLOR)
+                for child in c.winfo_children():
+                    child.configure(bg=self.FLOW_BUTTON_COLOR)
+
+            def _on_click(e, fid=flow_id):
+                self.start_flow(fid)
+
+            for widget in (card, name_label):
+                widget.bind("<Enter>", _on_enter)
+                widget.bind("<Leave>", _on_leave)
+                widget.bind("<Button-1>", _on_click)
+            if description:
+                desc_label.bind("<Enter>", _on_enter)
+                desc_label.bind("<Leave>", _on_leave)
+                desc_label.bind("<Button-1>", _on_click)
 
     def _start_selected_flow(self) -> None:
         if not hasattr(self, "flow_tree"):
