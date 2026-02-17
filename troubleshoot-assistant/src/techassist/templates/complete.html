@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Session logged</h2>
+<p>
+  {% if resolved %}
+  ✅ Great news! The {{ flow_name }} issue was resolved and logged for analytics.
+  {% else %}
+  ⚠️ The session has been logged. Please follow escalation procedures for {{ flow_name }}.
+  {% endif %}
+</p>
+<div class="footer-actions">
+  <a class="button" href="{{ url_for('main.index') }}">Troubleshoot another issue</a>
+</div>
+{% endblock %}

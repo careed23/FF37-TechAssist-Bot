@@ -1,0 +1,192 @@
+:root {
+  --accent: #00bfa5;
+  --primary-start: #2563eb;
+  --primary-end: #06b6d4;
+  --text-strong: #0f172a;
+  --text-muted: #5b6b82;
+}
+body {
+  font-family: "Segoe UI Variable", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 45%, #f1f5f9 100%);
+  margin: 0;
+  color: var(--text-strong);
+  min-height: 100vh;
+}
+.container {
+  max-width: 1020px;
+  margin: 48px auto;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 40px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(24px);
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+  gap: 24px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+.logo span:last-child {
+  font-weight: 700;
+}
+.app-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+}
+h2 {
+  margin-top: 0;
+  color: var(--text-strong);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.subheading {
+  color: var(--text-muted);
+  font-size: 0.98rem;
+}
+a {
+  color: var(--primary-start);
+  text-decoration: none;
+}
+a.button, button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 12px 22px rgba(37, 99, 235, 0.2);
+}
+a.button:hover, button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.25);
+}
+a.button.glass, button.glass {
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--text-strong);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+}
+a.button.glass:hover, button.glass:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+.flow-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 18px;
+}
+.flow-card {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 18px;
+  padding: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.flow-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.1);
+}
+.flow-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.flow-description {
+  color: var(--text-muted);
+  margin: 0;
+}
+form {
+  display: grid;
+  gap: 18px;
+}
+.option {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.7);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.option:hover {
+  border-color: rgba(0, 191, 165, 0.55);
+  background: rgba(240, 253, 250, 0.8);
+}
+.option input {
+  margin-right: 8px;
+}
+.option-label {
+  font-weight: 600;
+}
+.option-description {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+.metadata {
+  background: rgba(255, 255, 255, 0.65);
+  padding: 16px;
+  border-radius: 16px;
+  color: #475569;
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+.callout {
+  border-left: 4px solid var(--accent);
+  background: rgba(240, 253, 250, 0.85);
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: #0f766e;
+}
+.error {
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.9);
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+ol {
+  padding-left: 22px;
+}
+.footer-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}

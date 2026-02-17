@@ -8,7 +8,8 @@ APP_NAME = "FF37-TechAssist-Bot"
 BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "data" / "troubleshooting_flows.yaml"
 LOGO_FILE = BASE_DIR / "logo.png"
-ENTRYPOINT = BASE_DIR / "src" / "desktop_app.py"
+ENTRYPOINT = BASE_DIR / "src" / "techassist" / "desktop_app.py"
+PACKAGE_DIR = BASE_DIR / "src"
 
 
 def build_executable() -> None:
@@ -32,6 +33,8 @@ def build_executable() -> None:
         "--onefile",
         "--windowed",
         "--noconfirm",
+        "--paths",
+        str(PACKAGE_DIR),
     ]
     for payload in add_data:
         command.extend(["--add-data", payload])

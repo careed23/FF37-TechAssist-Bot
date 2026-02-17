@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ flow.name }}</h2>
+<p class="subheading">{{ flow.description }}</p>
+<h3>{{ step.question }}</h3>
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+<form method="post">
+  {% for option in step.options %}
+  <label class="option">
+    <div>
+      <input type="radio" name="choice" value="{{ option.value }}" required />
+      <span class="option-label">{{ option.value }}</span>
+    </div>
+    {% if option.description %}
+    <div class="option-description">{{ option.description }}</div>
+    {% endif %}
+  </label>
+  {% endfor %}
+  <div class="footer-actions">
+    <button type="submit">Continue</button>
+    <a class="button glass" href="{{ url_for('main.index') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

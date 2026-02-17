@@ -87,7 +87,7 @@ class TroubleshootingLogger:
         try:
             with open(self.log_file, 'r', encoding='utf-8') as f:
                 # Subtract 1 for header row
-                return sum(1 for line in f) - 1
+                return sum(1 for _ in f) - 1
         except Exception:
             return 0
     

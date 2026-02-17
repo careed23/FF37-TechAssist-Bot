@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Select a troubleshooting scenario</h2>
+{% if flows %}
+<ul class="flow-list">
+  {% for flow in flows %}
+  <li class="flow-card">
+    <div>
+      <div class="flow-title">{{ flow.name }}</div>
+      <p class="flow-description">{{ flow.description }}</p>
+    </div>
+    <a class="button" href="{{ url_for('main.start_flow', flow_id=flow.id) }}">Start</a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No troubleshooting flows are available.</p>
+{% endif %}
+{% endblock %}

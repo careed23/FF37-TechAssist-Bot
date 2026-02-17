@@ -184,50 +184,7 @@ class TroubleshootingEngine:
         errors = []
         
         for flow in self.flows:
-            flow_id = flow.get('id', 'UNKNOWN')
-            
-            # Check required flow fields
-            if not flow.get('name'):
-                errors.append(f"Flow {flow_id}: Missing 'name' field")
-            if not flow.get('description'):
-                errors.append(f"Flow {flow_id}: Missing 'description' field")
-            if not flow.get('steps'):
-                errors.append(f"Flow {flow_id}: No steps defined")
-                continue
-            
-            # Validate each step
-            for step in flow['steps']:
-                step_id = step.get('id', 'UNKNOWN')
-                
-                if not step.get('question'):
-                    errors.append(f"Flow {flow_id}, Step {step_id}: Missing 'question' field")
-                
-                if not step.get('options'):
-                    errors.append(f"Flow {flow_id}, Step {step_id}: No options defined")
-                    continue
-                
-                # Validate each option
-                for idx, option in enumerate(step['options']):
-                    if not option.get('value'):
-                        errors.append(f"Flow {flow_id}, Step {step_id}, Option {idx}: Missing 'value' field")
-                    
-                    if not option.get('description'):
-                        errors.append(f"Flow {flow_id}, Step {step_id}, Option {idx}: Missing 'description' field")
-                    
-                    # Check that option has either 'next' or 'solution'
-                    if 'next' not in option and 'solution' not in option:
-                        errors.append(
-                            f"Flow {flow_id}, Step {step_id}, Option '{option.get('value')}': "
-                            f"Must have either 'next' or 'solution' field"
-                        )
-                    
-                    # Validate referenced solutions exist
-                    if 'solution' in option:
-                        if option['solution'] not in self.solutions:
-                            errors.append(
-                                f"Flow {flow_id}, Step {step_id}, Option '{option.get('value')}': "
-                                f"References non-existent solution '{option['solution']}'"
-                            )
+            errors.extend(self._validate_flow(flow))
         
         # Validate solutions
         for solution_id, solution in self.solutions.items():
@@ -236,6 +193,63 @@ class TroubleshootingEngine:
             if not solution.steps:
                 errors.append(f"Solution {solution_id}: No steps defined")
         
+        return errors
+
+    def _validate_flow(self, flow: Dict) -> List[str]:
+        """Validate a single flow's structure."""
+        errors = []
+        flow_id = flow.get('id', 'UNKNOWN')
+
+        if not flow.get('name'):
+            errors.append(f"Flow {flow_id}: Missing 'name' field")
+        if not flow.get('description'):
+            errors.append(f"Flow {flow_id}: Missing 'description' field")
+        if not flow.get('steps'):
+            errors.append(f"Flow {flow_id}: No steps defined")
+            return errors
+
+        for step in flow['steps']:
+            errors.extend(self._validate_step(flow_id, step))
+
+        return errors
+
+    def _validate_step(self, flow_id: str, step: Dict) -> List[str]:
+        """Validate a single step within a flow."""
+        errors = []
+        step_id = step.get('id', 'UNKNOWN')
+
+        if not step.get('question'):
+            errors.append(f"Flow {flow_id}, Step {step_id}: Missing 'question' field")
+        if not step.get('options'):
+            errors.append(f"Flow {flow_id}, Step {step_id}: No options defined")
+            return errors
+
+        for idx, option in enumerate(step['options']):
+            errors.extend(self._validate_option(flow_id, step_id, idx, option))
+
+        return errors
+
+    def _validate_option(self, flow_id: str, step_id: str, idx: int, option: Dict) -> List[str]:
+        """Validate a single option within a step."""
+        errors = []
+
+        if not option.get('value'):
+            errors.append(f"Flow {flow_id}, Step {step_id}, Option {idx}: Missing 'value' field")
+        if not option.get('description'):
+            errors.append(f"Flow {flow_id}, Step {step_id}, Option {idx}: Missing 'description' field")
+
+        if 'next' not in option and 'solution' not in option:
+            errors.append(
+                f"Flow {flow_id}, Step {step_id}, Option '{option.get('value')}': "
+                f"Must have either 'next' or 'solution' field"
+            )
+
+        if 'solution' in option and option['solution'] not in self.solutions:
+            errors.append(
+                f"Flow {flow_id}, Step {step_id}, Option '{option.get('value')}': "
+                f"References non-existent solution '{option['solution']}'"
+            )
+
         return errors
 
 

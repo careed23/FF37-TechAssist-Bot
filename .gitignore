@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
+*.egg-info/
 troubleshoot-assistant/logs/
 troubleshoot-assistant/build/
 troubleshoot-assistant/dist/

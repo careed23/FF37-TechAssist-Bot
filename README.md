@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D6?logo=windows&logoColor=white)](https://www.microsoft.com/windows)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![GUI](https://img.shields.io/badge/GUI-CustomTkinter-00ADD8?logo=python&logoColor=white)](https://github.com/TomSchimansky/CustomTkinter)
+[![GUI](https://img.shields.io/badge/GUI-tkinter%20%2B%20ttk-00ADD8?logo=python&logoColor=white)](https://docs.python.org/3/library/tkinter.html)
 [![Status](https://img.shields.io/badge/Status-Proof%20of%20Concept-orange)](https://github.com/careed23/FF37-TechAssist-Bot)
 [![Release](https://img.shields.io/badge/Release-v1.0-blue)](https://github.com/careed23/FF37-TechAssist-Bot/releases)
 [![Coverage](https://img.shields.io/badge/Issue%20Coverage-Top%205%20(~70%25)-success)](https://github.com/careed23/FF37-TechAssist-Bot)
@@ -185,7 +185,9 @@ python build_exe.py
 The compiled executable will be in `troubleshoot-assistant/dist/FF37-TechAssist-Bot.exe`
 
 ### Tech Stack
-- **Framework:** CustomTkinter (modern UI)
+- **Desktop GUI:** tkinter + ttk (custom styled)
+- **Web App:** Flask + Jinja2
+- **CLI:** Rich (interactive terminal UI)
 - **Engine:** PyYAML-based flow processor
 - **Packaging:** PyInstaller (single-file executable)
 - **Logging:** CSV-based session tracking
@@ -193,15 +195,27 @@ The compiled executable will be in `troubleshoot-assistant/dist/FF37-TechAssist-
 ### Project Structure
 ```
 troubleshoot-assistant/
+├── config.yaml                 # Application configuration
+├── logo.png                    # Quantum Fiber branding
 ├── data/                       # Troubleshooting flows (YAML)
-│   ├── logo.png               # Quantum Fiber branding
 │   └── troubleshooting_flows.yaml
-├── src/                        # Python source code
-│   ├── desktop_app.py         # Main GUI application
-│   ├── flow_engine.py         # Troubleshooting logic
-│   └── logger.py              # Session tracking
-├── build_exe.py               # PyInstaller build script
-└── requirements.txt           # Python dependencies
+├── docs/                       # Developer documentation
+│   └── README.md
+├── logs/                       # Session log output
+│   └── troubleshooting_log.csv
+├── src/
+│   └── techassist/             # Python package
+│       ├── __init__.py         # Package init & config loader
+│       ├── flow_engine.py      # Troubleshooting decision engine
+│       ├── knowledge_parser.py # Reference knowledge access layer
+│       ├── logger.py           # Session tracking
+│       ├── assistant.py        # CLI application (Rich)
+│       ├── desktop_app.py      # Desktop GUI (tkinter + ttk)
+│       └── web_app.py          # Web application (Flask)
+├── build_exe.py                # PyInstaller build script
+├── pyproject.toml              # Package metadata & entry points
+├── requirements.txt            # Runtime dependencies
+└── requirements-dev.txt        # Build dependencies
 ```
 
 ---

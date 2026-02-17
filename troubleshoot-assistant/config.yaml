@@ -1,0 +1,7 @@
+# FF37-TechAssist-Bot Configuration
+# Minimal configuration — data and log file paths.
+# Paths are resolved relative to the project root (troubleshoot-assistant/).
+
+paths:
+  data_file: "data/troubleshooting_flows.yaml"
+  log_file: "logs/troubleshooting_log.csv"
