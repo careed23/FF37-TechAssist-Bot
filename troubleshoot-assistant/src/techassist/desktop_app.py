@@ -307,7 +307,7 @@ class TechAssistDesktopApp:
                 anchor="center",
                 cursor="hand2",
                 padx=16,
-                pady=(8, 2),
+                pady=8,
             )
             name_label.grid(row=0, column=0, sticky="ew")
 
