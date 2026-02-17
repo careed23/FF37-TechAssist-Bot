@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import argparse
 from datetime import datetime
 import os
@@ -5,6 +7,7 @@ from pathlib import Path
 import sys
 import tkinter as tk
 from tkinter import messagebox, ttk
+from typing import Any
 from urllib.parse import urlparse
 import webbrowser
 
@@ -77,14 +80,16 @@ class TechAssistDesktopApp:
         self.root = root
         self.engine = TroubleshootingEngine(str(flows_path))
         self.logger = TroubleshootingLogger(str(log_path))
-        self.current_flow = None
-        self.current_step = None
-        self.current_solution = None
-        self.session_data = {}
+        self.current_flow: dict[str, Any] | None = None
+        self.current_step: dict[str, Any] | None = None
+        self.current_solution: Any = None
+        self.session_data: dict[str, Any] = {}
         self.choice_var = tk.StringVar()
         self.resolution_var = tk.StringVar()
-        self._hovered_item = None
-        self._row_tags = {}
+        self._hovered_item: str | None = None
+        self._row_tags: dict[str, str] = {}
+        self.flow_tree: ttk.Treeview | None = None
+        self._flow_lookup: dict[str, str] = {}
 
         self._configure_window()
         self._build_layout()
@@ -197,7 +202,7 @@ class TechAssistDesktopApp:
         logo_image = self._load_logo_image()
         if logo_image:
             logo_label = ttk.Label(header, image=logo_image)
-            logo_label.image = logo_image
+            logo_label.image = logo_image  # type: ignore[attr-defined]  # prevent GC
             logo_label.grid(row=0, column=0, sticky="w")
 
         self.home_button = ttk.Button(
@@ -307,10 +312,10 @@ class TechAssistDesktopApp:
                 anchor="center",
                 cursor="hand2",
                 padx=16,
-                pady=8,
             )
-            name_label.grid(row=0, column=0, sticky="ew")
+            name_label.grid(row=0, column=0, sticky="ew", pady=(8, 2))
 
+            desc_label: tk.Label | None = None
             if description:
                 desc_label = tk.Label(
                     card,
@@ -323,21 +328,20 @@ class TechAssistDesktopApp:
                     wraplength=self.BUTTON_WRAPLENGTH,
                     justify="center",
                     padx=16,
-                    pady=(0, 8),
                 )
-                desc_label.grid(row=1, column=0, sticky="ew")
+                desc_label.grid(row=1, column=0, sticky="ew", pady=(0, 8))
             else:
                 name_label.configure(pady=12)
 
             def _on_enter(e, c=card):
                 c.configure(background=self.FLOW_BUTTON_ACTIVE)
                 for child in c.winfo_children():
-                    child.configure(bg=self.FLOW_BUTTON_ACTIVE)
+                    child.configure(bg=self.FLOW_BUTTON_ACTIVE)  # type: ignore[call-arg]
 
             def _on_leave(e, c=card):
                 c.configure(background=self.FLOW_BUTTON_COLOR)
                 for child in c.winfo_children():
-                    child.configure(bg=self.FLOW_BUTTON_COLOR)
+                    child.configure(bg=self.FLOW_BUTTON_COLOR)  # type: ignore[call-arg]
 
             def _on_click(e, fid=flow_id):
                 self.start_flow(fid)
@@ -346,13 +350,13 @@ class TechAssistDesktopApp:
                 widget.bind("<Enter>", _on_enter)
                 widget.bind("<Leave>", _on_leave)
                 widget.bind("<Button-1>", _on_click)
-            if description:
+            if desc_label is not None:
                 desc_label.bind("<Enter>", _on_enter)
                 desc_label.bind("<Leave>", _on_leave)
                 desc_label.bind("<Button-1>", _on_click)
 
     def _start_selected_flow(self) -> None:
-        if not hasattr(self, "flow_tree"):
+        if self.flow_tree is None:
             messagebox.showwarning("Selection Required", "Select an issue from the list to continue.")
             return
         selected = self.flow_tree.selection()
@@ -366,6 +370,8 @@ class TechAssistDesktopApp:
         self.start_flow(flow_id)
 
     def _on_tree_motion(self, event: tk.Event) -> None:
+        if self.flow_tree is None:
+            return
         row_id = self.flow_tree.identify_row(event.y)
         if row_id == self._hovered_item:
             return
@@ -380,7 +386,7 @@ class TechAssistDesktopApp:
             self.flow_tree.item(row_id, tags=tags)
 
     def _on_tree_leave(self, _event: tk.Event) -> None:
-        if not self._hovered_item:
+        if not self._hovered_item or self.flow_tree is None:
             return
         base_tag = self._row_tags.get(self._hovered_item)
         if base_tag:
@@ -418,6 +424,7 @@ class TechAssistDesktopApp:
         self._show_home_button()
         self.current_step = step
         self.choice_var.set("")
+        assert self.current_flow is not None
 
         ttk.Label(self.content, text=self.current_flow["name"], style=self.STYLE_SECTION_LABEL).grid(
             row=0, column=0, sticky="w"
@@ -467,6 +474,8 @@ class TechAssistDesktopApp:
         if not choice:
             messagebox.showwarning("Selection Required", "Select an option to continue.")
             return
+        assert self.current_step is not None
+        assert self.current_flow is not None
 
         selected_option = next(
             (
@@ -491,8 +500,9 @@ class TechAssistDesktopApp:
             }
         )
 
+        step_id = self.current_step.get("id", "")
         next_action = self.engine.get_next_action(
-            self.current_flow["id"], self.current_step.get("id"), selected_option["value"]
+            self.current_flow["id"], str(step_id), selected_option["value"]
         )
         if not next_action:
             messagebox.showerror(
@@ -528,6 +538,7 @@ class TechAssistDesktopApp:
             text=f"Resolution: {title}",
             style=self.STYLE_SECTION_LABEL,
         ).grid(row=0, column=0, sticky="w")
+        assert self.current_flow is not None
         ttk.Label(self.content, text=self.current_flow["name"]).grid(
             row=1, column=0, sticky="w", pady=(4, 12)
         )
@@ -536,7 +547,7 @@ class TechAssistDesktopApp:
         steps_frame.grid(row=2, column=0, sticky="ew")
         steps_frame.columnconfigure(0, weight=1)
 
-        for idx, step in enumerate(steps, 1):
+        for idx, step in enumerate(steps or [], 1):
             ttk.Label(
                 steps_frame,
                 text=f"{idx}. {step}",
@@ -598,8 +609,9 @@ class TechAssistDesktopApp:
             actions, text="Start Over", command=self.show_flow_list, style=self.STYLE_GLASS_BUTTON
         ).grid(row=0, column=1)
 
-    def _extract_solution_id(self, solution) -> str:
-        return self._get_solution_value(solution, "id", "")
+    def _extract_solution_id(self, solution: Any) -> str:
+        result = self._get_solution_value(solution, "id", "")
+        return str(result) if result is not None else ""
 
     def _open_resource(self, label: str, resource: str) -> None:
         resource_path = Path(resource).expanduser()
@@ -698,7 +710,7 @@ class TechAssistDesktopApp:
 
     def capture_screenshot(self, path: Path) -> None:
         try:
-            from PIL import ImageGrab
+            from PIL import ImageGrab  # type: ignore[import-unresolved]
         except ImportError as exc:
             raise RuntimeError("Pillow is required for --screenshot output.") from exc
 
