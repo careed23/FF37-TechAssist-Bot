@@ -18,7 +18,7 @@ class TroubleshootAssistant:
     Main interactive troubleshooting assistant
     """
     
-    def __init__(self, flows_file='data/troubleshooting_flows.yaml'):
+    def __init__(self, flows_file='data'):
         """Initialize the assistant"""
         try:
             self.engine = TroubleshootingEngine(flows_file)

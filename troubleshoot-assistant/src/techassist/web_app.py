@@ -27,7 +27,7 @@ from .logger import TroubleshootingLogger
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
-DATA_PATH = PROJECT_ROOT / "data" / "troubleshooting_flows.yaml"
+DATA_PATH = PROJECT_ROOT / "data"
 LOG_PATH = PROJECT_ROOT / "logs" / "troubleshooting_log.csv"
 SECRET_KEY_PATH = PROJECT_ROOT / "logs" / ".secret_key"
 

@@ -6,23 +6,25 @@ import sys
 
 APP_NAME = "FF37-TechAssist-Bot"
 BASE_DIR = Path(__file__).resolve().parent
-DATA_FILE = BASE_DIR / "data" / "troubleshooting_flows.yaml"
+DATA_DIR = BASE_DIR / "data"
 LOGO_FILE = BASE_DIR / "logo.png"
 ENTRYPOINT = BASE_DIR / "launch_desktop.py"
 PACKAGE_DIR = BASE_DIR / "src"
 
 
 def build_executable() -> None:
-    if not DATA_FILE.exists():
-        raise FileNotFoundError(f"Flows file not found at {DATA_FILE}")
+    yaml_files = list(DATA_DIR.glob("*.yaml")) + list(DATA_DIR.glob("*.yml"))
+    if not yaml_files:
+        raise FileNotFoundError(f"No YAML files found in {DATA_DIR}")
 
     if not LOGO_FILE.exists():
         raise FileNotFoundError(f"Logo file not found at {LOGO_FILE}")
 
     add_data = [
-        f"{DATA_FILE}{os.pathsep}data",
         f"{LOGO_FILE}{os.pathsep}.",
     ]
+    for yaml_file in yaml_files:
+        add_data.append(f"{yaml_file}{os.pathsep}data")
 
     command = [
         sys.executable,
@@ -53,7 +55,8 @@ def build_executable() -> None:
     dist_dir = BASE_DIR / "dist"
     data_dir = dist_dir / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
-    copy2(DATA_FILE, data_dir / DATA_FILE.name)
+    for yaml_file in yaml_files:
+        copy2(yaml_file, data_dir / yaml_file.name)
 
 
 if __name__ == "__main__":

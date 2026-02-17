@@ -14,7 +14,7 @@ from typing import Dict, Any
 
 _DEFAULT_CONFIG: Dict[str, Any] = {
     "paths": {
-        "data_file": "data/troubleshooting_flows.yaml",
+        "data_file": "data",
         "log_file": "logs/troubleshooting_log.csv",
     },
 }

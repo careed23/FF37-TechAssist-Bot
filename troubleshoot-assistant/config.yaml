@@ -3,5 +3,5 @@
 # Paths are resolved relative to the project root (troubleshoot-assistant/).
 
 paths:
-  data_file: "data/troubleshooting_flows.yaml"
+  data_file: "data"
   log_file: "logs/troubleshooting_log.csv"
