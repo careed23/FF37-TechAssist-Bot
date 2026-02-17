@@ -48,7 +48,7 @@ LOG_PATH = LOG_ROOT / "troubleshooting_log.csv"
 class TechAssistDesktopApp:
     HEADER_ROWS_WITH_LOGO = 4
     HEADER_ROWS_WITHOUT_LOGO = 3
-    TARGET_LOGO_WIDTH = 820
+    TARGET_LOGO_WIDTH = 700
     BACKGROUND_COLOR = "#2b2b2b"
     PANEL_COLOR = "#242424"
     FLOW_BUTTON_COLOR = "#1f6aa5"
@@ -197,6 +197,10 @@ class TechAssistDesktopApp:
         for widget in self.content.winfo_children():
             widget.destroy()
 
+    def _show_home_button(self) -> None:
+        self.home_button.grid(row=0, column=1, sticky="e")
+        self.home_button.state(["!disabled"])
+
     def _reset_session(self) -> None:
         self.session_data = {
             "flow_id": None,
@@ -287,6 +291,9 @@ class TechAssistDesktopApp:
             button.grid(row=idx, column=0, sticky="ew", padx=12, pady=(0, 14))
 
     def _start_selected_flow(self) -> None:
+        if not hasattr(self, "flow_tree"):
+            messagebox.showwarning("Selection Required", "Select an issue from the list to continue.")
+            return
         selected = self.flow_tree.selection()
         if not selected:
             messagebox.showwarning("Select an Issue", "Please select an issue to continue.")
@@ -347,8 +354,7 @@ class TechAssistDesktopApp:
 
     def show_step(self, step: dict) -> None:
         self._clear_content()
-        self.home_button.grid()
-        self.home_button.state(["!disabled"])
+        self._show_home_button()
         self.current_step = step
         self.choice_var.set("")
 
@@ -446,8 +452,7 @@ class TechAssistDesktopApp:
 
     def show_solution(self, solution) -> None:
         self._clear_content()
-        self.home_button.grid()
-        self.home_button.state(["!disabled"])
+        self._show_home_button()
         self.resolution_var.set("")
         self.current_solution = solution
 
@@ -600,8 +605,7 @@ class TechAssistDesktopApp:
 
     def show_completion(self, resolved: bool) -> None:
         self._clear_content()
-        self.home_button.grid()
-        self.home_button.state(["!disabled"])
+        self._show_home_button()
 
         message = (
             f"✅ Great news! The {self.session_data.get('flow_name')} issue was resolved and logged."
