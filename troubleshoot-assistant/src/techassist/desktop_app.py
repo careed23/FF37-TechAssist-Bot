@@ -105,9 +105,7 @@ class TechAssistDesktopApp:
 
         style = ttk.Style(self.root)
         theme_names = {name.lower() for name in style.theme_names()}
-        if sys.platform.startswith("win") and "vista" in theme_names:
-            style.theme_use("vista")
-        elif "clam" in theme_names:
+        if "clam" in theme_names:
             style.theme_use("clam")
         style.configure("TFrame", background=mica_background)
         style.configure(self.STYLE_CONTENT_FRAME, background=mica_background)
