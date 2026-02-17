@@ -12,6 +12,7 @@ try:
     from .flow_engine import TroubleshootingEngine
     from .logger import TroubleshootingLogger
 except ImportError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
     from flow_engine import TroubleshootingEngine
     from logger import TroubleshootingLogger
 
