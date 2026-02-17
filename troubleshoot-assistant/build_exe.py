@@ -37,6 +37,8 @@ def build_executable() -> None:
         "--noconfirm",
         "--paths",
         str(PACKAGE_DIR),
+        "--collect-all",
+        "techassist",
         "--hidden-import",
         "techassist",
         "--hidden-import",
@@ -45,6 +47,12 @@ def build_executable() -> None:
         "techassist.logger",
         "--hidden-import",
         "techassist.desktop_app",
+        "--hidden-import",
+        "techassist.knowledge_parser",
+        "--hidden-import",
+        "techassist.assistant",
+        "--hidden-import",
+        "techassist.web_app",
     ]
     for payload in add_data:
         command.extend(["--add-data", payload])
