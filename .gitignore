@@ -5,3 +5,5 @@ troubleshoot-assistant/logs/
 troubleshoot-assistant/build/
 troubleshoot-assistant/dist/
 troubleshoot-assistant/*.spec
+web-frontend/node_modules/
+web-frontend/dist/
