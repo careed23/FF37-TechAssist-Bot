@@ -18,6 +18,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_from_directory,
     session,
     url_for,
 )
@@ -30,6 +31,7 @@ PROJECT_ROOT = BASE_DIR.parent.parent
 DATA_PATH = PROJECT_ROOT / "data"
 LOG_PATH = PROJECT_ROOT / "logs" / "troubleshooting_log.csv"
 SECRET_KEY_PATH = PROJECT_ROOT / "logs" / ".secret_key"
+REACT_DIST = PROJECT_ROOT.parent / "web-frontend" / "dist"
 
 
 # ------------------------------------------------------------------
@@ -331,7 +333,24 @@ def create_app() -> Flask:
     app.config["ENGINE"] = TroubleshootingEngine(str(DATA_PATH))
     app.config["LOGGER"] = TroubleshootingLogger(str(LOG_PATH))
 
-    app.register_blueprint(bp)
+    # JSON API blueprint (always registered)
+    from .api import api_bp  # noqa: PLC0415
+    app.register_blueprint(api_bp)
+
+    if REACT_DIST.exists():
+        # Serve the React SPA: static assets by path, index.html for all other routes.
+        @app.route("/", defaults={"path": ""})
+        @app.route("/<path:path>")
+        def serve_react(path: str = ""):  # pragma: no cover
+            if path.startswith("api/") or path.startswith("static/"):
+                abort(404)
+            full = REACT_DIST / path
+            if path and full.is_file():
+                return send_from_directory(str(REACT_DIST), path)
+            return send_from_directory(str(REACT_DIST), "index.html")
+    else:
+        # Fall back to the original Jinja2 UI when no React build is present.
+        app.register_blueprint(bp)
 
     return app
 
