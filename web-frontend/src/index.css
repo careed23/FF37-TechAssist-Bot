@@ -6,7 +6,7 @@
   --qf-magenta:      #c026d3;
   --qf-bg-light:     #f5f0ff;
   --qf-bg-gradient:  linear-gradient(135deg, #ede9fe 0%, #f3e8ff 45%, #e0f2fe 100%);
-  --qf-logo-url:     url('/QuantumFiber.png');
+  --qf-logo-url:     url('/ff37-logo.png');
   --qf-logo-size:    480px;
 
   --accent: #c026d3;
@@ -89,20 +89,11 @@ header {
   flex-wrap: wrap;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-size: 0.85rem;
-  white-space: nowrap;
-}
-
-.logo span:last-child {
-  font-weight: 700;
+.logo-img {
+  height: 56px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .app-title {

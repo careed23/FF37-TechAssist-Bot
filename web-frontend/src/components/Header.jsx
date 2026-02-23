@@ -5,10 +5,7 @@ export default function Header() {
   return (
     <header>
       <div className="brand">
-        <div className="logo">
-          <span>Forged Fiber</span>
-          <span>37</span>
-        </div>
+        <img src="/ff37-logo.png" alt="FF37 TechAssist logo" className="logo-img" />
         <div>
           <h1 className="app-title">FF37 TechAssist Bot</h1>
           <div className="subheading">Interactive Troubleshooting Assistant</div>
