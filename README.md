@@ -184,6 +184,62 @@ python build_exe.py
 
 The compiled executable will be in `troubleshoot-assistant/dist/FF37-TechAssist-Bot.exe`
 
+### Running the Web App
+
+**Option 1 — Flask backend only (Jinja2 UI)**
+
+```bash
+cd FF37-TechAssist-Bot/troubleshoot-assistant
+
+# Install dependencies (if not already done)
+pip install -r requirements.txt
+
+# Start the development server
+techassist-web
+```
+
+The app will be available at **http://127.0.0.1:5000**.
+
+**Option 2 — React frontend + Flask backend (full stack)**
+
+In one terminal, start the React dev server:
+
+```bash
+cd FF37-TechAssist-Bot/web-frontend
+
+# Install Node dependencies (first time only)
+npm install
+
+# Start the Vite development server
+npm run dev
+```
+
+The React UI will be available at **http://localhost:5173** (Vite default).
+
+In a second terminal, start the Flask API server:
+
+```bash
+cd FF37-TechAssist-Bot/troubleshoot-assistant
+pip install -r requirements.txt
+techassist-web
+```
+
+**Option 3 — Serve the built React app via Flask**
+
+```bash
+# Build the React frontend
+cd FF37-TechAssist-Bot/web-frontend
+npm install
+npm run build
+
+# Launch Flask — it will automatically serve the React build
+cd ../troubleshoot-assistant
+pip install -r requirements.txt
+techassist-web
+```
+
+The full-stack app will be available at **http://127.0.0.1:5000**.
+
 ### Tech Stack
 - **Desktop GUI:** tkinter + ttk (custom styling)
 - **Web App:** Flask + Jinja2
