@@ -2,7 +2,7 @@
 nixPkgs = ["python312", "python312Packages.pip"]
 
 [phases.build]
-cmds = []
+cmds = ["echo 'Skipping redundant python3 build phase'"]
 
 [phases.install]
 cmds = ["pip install -e ."]
