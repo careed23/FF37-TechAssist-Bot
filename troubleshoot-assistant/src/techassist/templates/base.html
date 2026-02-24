@@ -3,20 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ title }}</title>
+  <title>{{ title }} | Quantum Fiber TechAssist</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    body {
+      background-image: url("{{ url_for('static', filename='qf-background.png') }}");
+      background-size: cover;
+      background-position: left center;
+      background-attachment: scroll;
+      background-repeat: no-repeat;
+    }
+    .container {
+      margin-left: auto !important;
+      margin-right: 80px !important;
+      max-width: 680px !important;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <header>
       <div class="brand">
-        <div class="logo">
-          <span>Forged Fiber</span>
-          <span>37</span>
-        </div>
+        <img src="{{ url_for('static', filename='quantum-logo.png') }}" alt="Quantum Fiber" class="brand-logo" />
         <div>
-          <h1 class="app-title">FF37 TechAssist Bot</h1>
-          <div class="subheading">Interactive Troubleshooting Assistant</div>
+          <h1 class="app-title">TechAssist Bot</h1>
+          <div class="subheading">Field Technician Troubleshooting Assistant</div>
         </div>
       </div>
       <a class="button glass" href="{{ url_for('main.index') }}">All Issues</a>
