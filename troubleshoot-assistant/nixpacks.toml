@@ -1,6 +1,9 @@
 [phases.setup]
 nixPkgs = ["python312", "python312Packages.pip"]
 
+[phases.build]
+cmds = []
+
 [phases.install]
 cmds = ["pip install -e ."]
 
