@@ -1,13 +1,17 @@
-# Updated troubleshooting_flows.yaml
+# YAML Configuration for Troubleshooting Flows
 
-check_splitter_ports:
-  description: Check splitter ports
-  commands:
-    - command: check_ports
-      parameters:
-        - port_num: 1
-        - status: active
-    - command: read_logs
-      parameters:
-        - log_type: error
-        - since: '2026-03-02T21:24:37Z'
+# This section describes the troubleshooting flows for the FF37 Tech Assist Bot.
+
+troubleshooting_flows:
+  check_splitter_ports:
+    description: 'Checks the splitter ports for connectivity issues.'
+    steps:
+      - step: 'Check if the ports are reachable.'
+        action: 'ping <port>'
+      - step: 'Verify the splitter settings.'
+        action: 'validate_settings()'
+      - step: 'Log the results for further inspection.'
+        action: 'log_results()'
+
+  # Additional troubleshooting steps can be added here.
+
