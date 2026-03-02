@@ -1,17 +1,865 @@
-# YAML Configuration for Troubleshooting Flows
+# FF37 TechAssist Bot - Troubleshooting Flows
+# Schema expected by flow_engine.py:
+#   flows:   list of flow objects  (id, name, description, steps[])
+#   steps:   list of step objects  (id, question, options[])
+#   options: each option has value, description, and either "next" (step id) or "solution" (solution id)
+#   solutions: list of solution objects (id, title, steps[], reference_doc?, video?, escalate_if?)
 
-# This section describes the troubleshooting flows for the FF37 Tech Assist Bot.
+# ---------------------------------------------------------------------------
+# FLOWS
+# ---------------------------------------------------------------------------
+flows:
 
-troubleshooting_flows:
-  check_splitter_ports:
-    description: 'Checks the splitter ports for connectivity issues.'
+  # ── No Internet / Offline ────────────────────────────────────────────────
+  - id: no_internet
+    name: "No Internet / Offline"
+    description: "Customer has no internet connectivity - lights on ONT or router indicate a problem."
     steps:
-      - step: 'Check if the ports are reachable.'
-        action: 'ping <port>'
-      - step: 'Verify the splitter settings.'
-        action: 'validate_settings()'
-      - step: 'Log the results for further inspection.'
-        action: 'log_results()'
 
-  # Additional troubleshooting steps can be added here.
+      - id: s1_ont_lights
+        question: "What is the status of the lights on the ONT (fiber modem)?"
+        options:
+          - value: no_power
+            description: "ONT has no power / all lights off"
+            next: s2_power_check
+          - value: red_alarm
+            description: "ONT shows a red Alarm or LOS (Loss of Signal) light"
+            next: s2_los_check
+          - value: green_lights
+            description: "ONT lights are green but internet is still down"
+            next: s2_router_check
+          - value: unsure
+            description: "Customer is unsure / cannot see the ONT"
+            next: s2_locate_ont
 
+      - id: s2_power_check
+        question: "Check the ONT's power. Is the power cable securely plugged in at both the ONT and the outlet?"
+        options:
+          - value: now_powered
+            description: "Reseated the cable — ONT is now on"
+            next: s3_reboot_result
+          - value: still_no_power
+            description: "Cable is secure but ONT still shows no power"
+            solution: sol_replace_ont_power
+
+      - id: s2_los_check
+        question: "A red LOS/Alarm light means the fiber signal is lost. Is the fiber cable (small clear cable going into the ONT) visibly damaged, bent, or disconnected?"
+        options:
+          - value: cable_damaged
+            description: "Fiber cable is visibly damaged or disconnected"
+            solution: sol_dispatch_fiber_damage
+          - value: cable_ok
+            description: "Fiber cable looks intact and connected"
+            next: s3_reboot_ont
+
+      - id: s2_router_check
+        question: "Perform a full power cycle: unplug the router, wait 30 seconds, then plug it back in. After it fully reboots (~2 min), is the internet working?"
+        options:
+          - value: internet_restored
+            description: "Yes — internet is back after the reboot"
+            solution: sol_reboot_resolved
+          - value: still_down
+            description: "No — still no internet after the reboot"
+            next: s3_check_outage
+
+      - id: s2_locate_ont
+        question: "The ONT is usually a white or grey box mounted near where the fiber cable enters the home. Ask the customer to locate it. Were they able to find it?"
+        options:
+          - value: found_ont
+            description: "Customer found the ONT"
+            next: s1_ont_lights
+          - value: cannot_find
+            description: "Customer cannot locate the ONT"
+            solution: sol_dispatch_locate_ont
+
+      - id: s3_reboot_ont
+        question: "Reboot the ONT: unplug the power cord from the ONT, wait 60 seconds, then plug it back in. Allow 3–5 minutes for full restart. Did the LOS/Alarm light clear?"
+        options:
+          - value: lights_clear
+            description: "LOS light cleared — ONT looks normal"
+            next: s3_reboot_result
+          - value: still_alarming
+            description: "LOS/Alarm light still on after reboot"
+            solution: sol_dispatch_los
+
+      - id: s3_reboot_result
+        question: "After the ONT rebooted, does the customer have internet access?"
+        options:
+          - value: internet_working
+            description: "Yes — internet is working now"
+            solution: sol_reboot_resolved
+          - value: no_internet
+            description: "No — still no internet"
+            next: s3_check_outage
+
+      - id: s3_check_outage
+        question: "Check the ticketing system or outage map for the customer's address. Is there an active outage in the area?"
+        options:
+          - value: outage_confirmed
+            description: "Yes — active outage confirmed"
+            solution: sol_active_outage
+          - value: no_outage
+            description: "No outage detected"
+            solution: sol_dispatch_no_internet
+
+  # ── Slow Internet ────────────────────────────────────────────────────────
+  - id: slow_internet
+    name: "Slow Internet / Poor Speed"
+    description: "Customer is experiencing slow speeds or intermittent performance issues."
+    steps:
+
+      - id: s1_speed_test
+        question: "Ask the customer to run a speed test at speedtest.net (wired connection if possible). How do the results compare to their subscribed plan speed?"
+        options:
+          - value: close_to_plan
+            description: "Speed is at or near plan speed (within 80%)"
+            next: s2_wifi_vs_wired
+          - value: well_below
+            description: "Speed is significantly below plan speed"
+            next: s2_wired_test
+          - value: no_test
+            description: "Customer cannot run a speed test right now"
+            next: s2_symptom_check
+
+      - id: s2_wifi_vs_wired
+        question: "The speeds look normal on a wired test. Is the customer using Wi-Fi?"
+        options:
+          - value: yes_wifi
+            description: "Yes — they are on Wi-Fi"
+            solution: sol_wifi_optimization
+          - value: no_wired
+            description: "No — they are wired and speeds still feel slow"
+            next: s2_symptom_check
+
+      - id: s2_wired_test
+        question: "Ask the customer to connect a laptop or PC directly to the router with an Ethernet cable and run the speed test again. Are speeds better on a wired connection?"
+        options:
+          - value: wired_fast
+            description: "Yes — wired speeds are good; Wi-Fi is the problem"
+            solution: sol_wifi_optimization
+          - value: wired_slow
+            description: "No — wired speeds are also slow"
+            next: s3_ont_signal
+
+      - id: s2_symptom_check
+        question: "What best describes the slowness?"
+        options:
+          - value: all_day
+            description: "Slow all the time, regardless of time of day"
+            next: s3_ont_signal
+          - value: peak_hours
+            description: "Slow mainly in the evenings or peak hours"
+            solution: sol_congestion_info
+          - value: specific_site
+            description: "Slow on one specific website or service only"
+            solution: sol_endpoint_issue
+
+      - id: s3_ont_signal
+        question: "Perform a full power cycle of both the ONT and router (unplug both, wait 60 seconds, plug ONT in first, wait 2 min, then plug in router). Did speeds improve?"
+        options:
+          - value: improved
+            description: "Yes — speeds improved after the reboot"
+            solution: sol_reboot_resolved
+          - value: no_change
+            description: "No — still slow after the reboot"
+            solution: sol_dispatch_slow_speed
+
+  # ── Wi-Fi Issues ─────────────────────────────────────────────────────────
+  - id: wifi_issues
+    name: "Wi-Fi Issues"
+    description: "Customer has Wi-Fi connectivity problems: devices won't connect, weak signal, or frequent drops."
+    steps:
+
+      - id: s1_wifi_symptom
+        question: "What is the customer's primary Wi-Fi complaint?"
+        options:
+          - value: wont_connect
+            description: "Device cannot connect to the Wi-Fi network at all"
+            next: s2_wifi_password
+          - value: weak_signal
+            description: "Wi-Fi signal is weak or drops in certain areas"
+            next: s2_wifi_range
+          - value: frequent_drops
+            description: "Wi-Fi keeps disconnecting and reconnecting"
+            next: s2_wifi_drops
+          - value: one_device
+            description: "Only one specific device has a problem"
+            next: s2_device_specific
+
+      - id: s2_wifi_password
+        question: "Ask the customer to 'Forget' the network on the device and reconnect. Are they entering the correct Wi-Fi password?"
+        options:
+          - value: wrong_password
+            description: "Password was incorrect — reconnected successfully"
+            solution: sol_wifi_password_fixed
+          - value: correct_no_connect
+            description: "Password is correct but device still won't connect"
+            next: s3_router_reboot_wifi
+
+      - id: s2_wifi_range
+        question: "How far is the customer from the router when they experience weak signal?"
+        options:
+          - value: same_room
+            description: "Same room or very close to the router"
+            next: s3_router_reboot_wifi
+          - value: other_floors
+            description: "Different floor or far end of the home"
+            solution: sol_wifi_extender
+
+      - id: s2_wifi_drops
+        question: "Are ALL devices dropping Wi-Fi at the same time, or just one device?"
+        options:
+          - value: all_devices
+            description: "All devices drop at the same time"
+            next: s3_router_reboot_wifi
+          - value: one_device
+            description: "Only one device drops repeatedly"
+            next: s2_device_specific
+
+      - id: s2_device_specific
+        question: "Is this issue happening on only one specific device?"
+        options:
+          - value: yes_one_device
+            description: "Yes — only one device has the problem"
+            solution: sol_device_specific_wifi
+          - value: multiple_devices
+            description: "No — multiple devices affected"
+            next: s3_router_reboot_wifi
+
+      - id: s3_router_reboot_wifi
+        question: "Reboot the router (unplug for 30 seconds, plug back in). After it fully restarts (~2 minutes), is the Wi-Fi issue resolved?"
+        options:
+          - value: resolved
+            description: "Yes — Wi-Fi is working after the reboot"
+            solution: sol_reboot_resolved
+          - value: not_resolved
+            description: "No — still having Wi-Fi issues"
+            solution: sol_dispatch_wifi
+
+  # ── ONT / Equipment Programming ──────────────────────────────────────────
+  - id: ont_programming
+    name: "ONT / Equipment Programming"
+    description: "New install, replacement ONT, or equipment that needs to be provisioned or reprogrammed."
+    steps:
+
+      - id: s1_equipment_type
+        question: "What type of equipment needs to be programmed?"
+        options:
+          - value: calix_e7
+            description: "Calix 844G ONT on E7 platform"
+            next: s2_calix_e7_check
+          - value: calix_e3_gpon
+            description: "Calix E3-2 GPON SMx"
+            next: s2_calix_e3_check
+          - value: calix_gfast
+            description: "Calix E3-16F or E5-16F G.Fast SMx"
+            next: s2_calix_gfast_check
+          - value: adtran_ta5000
+            description: "Adtran TA5000 Series GPON"
+            next: s2_adtran_check
+          - value: positron_ghn
+            description: "Positron G.HN equipment"
+            next: s2_positron_check
+          - value: calix_e7_data
+            description: "Calix E7-2 or E7-20 GPON (Data Only)"
+            next: s2_calix_e7_data_check
+
+      - id: s2_calix_e7_check
+        question: "For Calix 844G on E7: Do you have the ONT serial number and the correct service profile ready?"
+        options:
+          - value: ready
+            description: "Yes — serial number and profile are available"
+            solution: sol_calix_e7_programming
+          - value: missing_info
+            description: "No — missing serial number or profile information"
+            solution: sol_gather_ont_info
+
+      - id: s2_calix_e3_check
+        question: "For Calix E3-2 GPON: Is the ONT on-site and powered on?"
+        options:
+          - value: yes_powered
+            description: "Yes — ONT is on-site and powered"
+            solution: sol_calix_e3_programming
+          - value: not_ready
+            description: "No — ONT is not on-site or not powered"
+            solution: sol_schedule_programming
+
+      - id: s2_calix_gfast_check
+        question: "For Calix G.Fast: Is this a new install or a replacement unit?"
+        options:
+          - value: new_install
+            description: "New install"
+            solution: sol_calix_gfast_new
+          - value: replacement
+            description: "Replacement unit"
+            solution: sol_calix_gfast_replace
+
+      - id: s2_adtran_check
+        question: "For Adtran TA5000: Is the OLT accessible and is the GPON port identified?"
+        options:
+          - value: yes_accessible
+            description: "Yes — OLT accessible and port identified"
+            solution: sol_adtran_programming
+          - value: not_accessible
+            description: "No — OLT not accessible or port unknown"
+            solution: sol_escalate_adtran
+
+      - id: s2_positron_check
+        question: "For Positron G.HN: Has the existing copper pair been verified for G.HN service compatibility?"
+        options:
+          - value: verified
+            description: "Yes — pair verified and ready"
+            solution: sol_positron_programming
+          - value: not_verified
+            description: "No — pair not yet verified"
+            solution: sol_verify_positron_pair
+
+      - id: s2_calix_e7_data_check
+        question: "For Calix E7-2 / E7-20 Data Only: Is this a residential or business data-only service?"
+        options:
+          - value: residential
+            description: "Residential data-only service"
+            solution: sol_calix_e7_data_programming
+          - value: business
+            description: "Business data-only service"
+            solution: sol_escalate_business
+
+  # ── Salesforce Cases ──────────────────────────────────────────────────────
+  - id: salesforce_cases
+    name: "Salesforce Case Management"
+    description: "Guidance for creating, updating, and managing Salesforce cases for customer issues."
+    steps:
+
+      - id: s1_case_action
+        question: "What Salesforce case action do you need help with?"
+        options:
+          - value: create_case
+            description: "Create a new case"
+            next: s2_case_type
+          - value: update_case
+            description: "Update or add notes to an existing case"
+            solution: sol_sf_update_case
+          - value: escalate_case
+            description: "Escalate a case to a higher tier"
+            next: s2_escalation_reason
+          - value: close_case
+            description: "Close a resolved case"
+            solution: sol_sf_close_case
+
+      - id: s2_case_type
+        question: "What type of case needs to be created?"
+        options:
+          - value: tech_trouble
+            description: "Technical trouble / service issue"
+            solution: sol_sf_create_tech_case
+          - value: new_install
+            description: "New installation request"
+            solution: sol_sf_create_install_case
+          - value: equipment
+            description: "Equipment issue / swap request"
+            solution: sol_sf_create_equipment_case
+
+      - id: s2_escalation_reason
+        question: "What is the reason for escalation?"
+        options:
+          - value: unresolved_issue
+            description: "Issue unresolved after standard troubleshooting"
+            solution: sol_sf_escalate_tier2
+          - value: repeat_issue
+            description: "Repeat or chronic issue for the same customer"
+            solution: sol_sf_escalate_chronic
+          - value: equipment_failure
+            description: "Confirmed equipment failure requiring field work"
+            solution: sol_sf_escalate_dispatch
+
+  # ── 360 WiFi ─────────────────────────────────────────────────────────────
+  - id: wifi_360
+    name: "Quantum Fiber 360 WiFi"
+    description: "Troubleshooting and setup for Quantum Fiber 360 WiFi mesh nodes."
+    steps:
+
+      - id: s1_360_symptom
+        question: "What is the issue with the 360 WiFi system?"
+        options:
+          - value: node_offline
+            description: "One or more mesh nodes are offline (red/amber light)"
+            next: s2_360_node_offline
+          - value: slow_wifi
+            description: "WiFi is slow even with 360 nodes"
+            next: s2_360_speed
+          - value: setup
+            description: "Setting up 360 WiFi for the first time"
+            solution: sol_360_setup
+          - value: app_issue
+            description: "Problem with the Quantum Fiber app"
+            solution: sol_360_app_issue
+
+      - id: s2_360_node_offline
+        question: "Is the offline node plugged in and powered on?"
+        options:
+          - value: not_powered
+            description: "No — node is not powered or unplugged"
+            solution: sol_360_power_node
+          - value: powered_offline
+            description: "Yes — node is powered but still shows offline"
+            next: s3_360_reboot_node
+
+      - id: s2_360_speed
+        question: "Run a speed test on a device connected to the 360 WiFi. Is the speed significantly below the subscribed plan?"
+        options:
+          - value: yes_slow
+            description: "Yes — speeds are well below plan speed"
+            next: s3_360_reboot_node
+          - value: acceptable
+            description: "Speeds are acceptable — customer has other concerns"
+            solution: sol_360_optimization
+
+      - id: s3_360_reboot_node
+        question: "Unplug the offline or slow node, wait 30 seconds, and plug it back in. After 3 minutes, did the node come back online?"
+        options:
+          - value: back_online
+            description: "Yes — node came back online"
+            solution: sol_reboot_resolved
+          - value: still_offline
+            description: "No — node is still offline after reboot"
+            solution: sol_360_replace_node
+
+# ---------------------------------------------------------------------------
+# SOLUTIONS
+# ---------------------------------------------------------------------------
+solutions:
+
+  # ── General ───────────────────────────────────────────────────────────────
+  - id: sol_reboot_resolved
+    title: "Issue Resolved via Power Cycle / Reboot"
+    steps:
+      - "The issue was resolved after power cycling the equipment."
+      - "Advise the customer to wait up to 5 minutes after plugging in before testing again."
+      - "Ask the customer to confirm speeds or connectivity before ending the call."
+      - "Log the session and close the ticket if everything is working."
+    escalate_if: "Issue recurs within 24–48 hours — may indicate a hardware or signal problem."
+
+  - id: sol_active_outage
+    title: "Active Outage in Customer Area"
+    steps:
+      - "Inform the customer that there is a known service outage affecting their area."
+      - "Provide the estimated time of restoration (ETR) from the outage management system if available."
+      - "Create or update a Salesforce case and link it to the outage ticket."
+      - "Advise the customer that no further action is required on their end."
+      - "Offer to set up a callback/notification when service is restored if possible."
+    escalate_if: "Outage ETR exceeds 4 hours or no ETR is available — escalate to NOC."
+
+  # ── No Internet ───────────────────────────────────────────────────────────
+  - id: sol_replace_ont_power
+    title: "ONT Power Adapter / Outlet Issue"
+    steps:
+      - "Confirm the ONT power adapter is fully seated at both ends."
+      - "Try a different electrical outlet — avoid power strips or UPS units."
+      - "If ONT still does not power on with a different outlet, the power adapter may be faulty."
+      - "Create a Salesforce case for an equipment swap (power adapter or ONT replacement)."
+      - "Schedule a dispatch if no spare equipment is available for the customer to swap."
+    reference_doc: "Calix 844G ONT Replacement Guide"
+    escalate_if: "ONT will not power on with a confirmed working outlet — dispatch required."
+
+  - id: sol_dispatch_fiber_damage
+    title: "Dispatch - Fiber Cable Damage"
+    steps:
+      - "Document the visible damage to the fiber cable in the Salesforce case."
+      - "Do NOT advise the customer to attempt to reconnect or repair the fiber cable themselves."
+      - "Create a dispatch ticket for a field technician to inspect and replace the fiber drop."
+      - "Inform the customer of the estimated appointment window."
+    escalate_if: "Damage appears to be external (cut line, storm damage) — may require infrastructure team."
+
+  - id: sol_dispatch_los
+    title: "Dispatch - Persistent Loss of Signal"
+    steps:
+      - "Document the LOS/Alarm condition in the Salesforce case."
+      - "Verify there is no active area outage that would explain the LOS."
+      - "Attempt a remote ONT reboot from the NMS/OLT if access is available."
+      - "If LOS persists after remote reboot, schedule a field technician dispatch."
+      - "Note the ONT serial number, port, and OLT in the case before dispatching."
+    escalate_if: "Multiple customers on the same PON port show LOS — possible OLT port failure, escalate to NOC."
+
+  - id: sol_dispatch_no_internet
+    title: "Dispatch - No Internet (No Outage)"
+    steps:
+      - "Confirm no active outage in the area."
+      - "Document all troubleshooting steps performed (reboot, lights, wired test) in the Salesforce case."
+      - "Attempt a remote test/ping from the NMS if available."
+      - "If the issue cannot be resolved remotely, schedule a field technician dispatch."
+      - "Set customer expectations for the appointment window."
+    escalate_if: "Issue persists after dispatch — escalate to Tier 2 or NOC for further investigation."
+
+  - id: sol_dispatch_locate_ont
+    title: "Dispatch - Customer Cannot Locate ONT"
+    steps:
+      - "Walk the customer through common ONT installation locations: utility closet, garage, basement, or near the electrical panel."
+      - "If the customer truly cannot locate the ONT, schedule a technician visit."
+      - "Create a Salesforce case noting the customer cannot locate the ONT."
+    escalate_if: "Customer insists no equipment was installed — may need new install verification."
+
+  # ── Slow Internet ─────────────────────────────────────────────────────────
+  - id: sol_wifi_optimization
+    title: "Wi-Fi Optimization Guidance"
+    steps:
+      - "Confirm wired speeds are at or near plan speed — the service itself is working correctly."
+      - "Advise the customer to place the router in a central, elevated location."
+      - "Ensure the router is not inside a cabinet, closet, or behind a TV."
+      - "Keep the router away from microwaves, cordless phones, and other 2.4 GHz devices."
+      - "If the home is large (>2,000 sq ft) or multi-story, recommend Quantum Fiber 360 WiFi mesh nodes."
+      - "Advise the customer to connect 4K streaming and gaming devices via Ethernet for best performance."
+    reference_doc: "Quantum Fiber - 360 WiFi (QF Tech Assist)"
+    escalate_if: "Wired speeds are also below plan speed — escalate to slow internet flow."
+
+  - id: sol_congestion_info
+    title: "Peak-Hour Network Congestion Information"
+    steps:
+      - "Explain that peak-hour slowness (evenings 7–10 PM) can occasionally occur due to high neighborhood demand."
+      - "Check if the customer is subscribed to the appropriate speed tier for their household usage."
+      - "Recommend an upgrade to a higher speed tier if the household has many simultaneous users."
+      - "Create a Salesforce case to document the complaint if speeds are consistently below 70% of plan."
+      - "Escalate to NOC if multiple customers in the same area report peak-hour issues — may indicate capacity problem."
+    escalate_if: "Congestion complaints are widespread in a specific node area — escalate to NOC."
+
+  - id: sol_endpoint_issue
+    title: "Issue Isolated to Specific Website or Service"
+    steps:
+      - "Confirm the issue is only with one destination (e.g., Netflix, gaming server, work VPN)."
+      - "Ask the customer to test on a different device or browser to rule out a local cache issue."
+      - "Advise clearing browser cache and cookies, or trying an incognito/private window."
+      - "If a VPN is in use, have the customer disconnect the VPN and retest."
+      - "If the issue is with a specific service (e.g., Netflix, Xbox Live), advise checking that service's status page."
+      - "Document the specific affected destination in the Salesforce case."
+    escalate_if: "Multiple customers report issues with the same destination — may be a routing/peering issue, escalate to NOC."
+
+  - id: sol_dispatch_slow_speed
+    title: "Dispatch - Persistent Slow Speeds"
+    steps:
+      - "Document baseline speed test results (both wired and wireless) in the Salesforce case."
+      - "Note the time of day the tests were performed."
+      - "Attempt a line quality check or remote diagnostic from the NMS if available."
+      - "If remote diagnostics do not identify the issue, schedule a field technician dispatch."
+      - "Request the technician verify ONT signal levels, splitter integrity, and in-home wiring."
+    escalate_if: "Signal levels are within spec but speeds remain low — escalate to Tier 2 for advanced diagnostics."
+
+  # ── Wi-Fi ─────────────────────────────────────────────────────────────────
+  - id: sol_wifi_password_fixed
+    title: "Wi-Fi Password Issue Resolved"
+    steps:
+      - "The device connected successfully after forgetting the network and re-entering the password."
+      - "Remind the customer to update saved passwords on other devices if they recently changed their Wi-Fi password."
+      - "If the customer needs to find or change their Wi-Fi password, direct them to the router admin page (usually 192.168.1.1 or 192.168.0.1)."
+    escalate_if: "Customer cannot log into router admin — may need a factory reset."
+
+  - id: sol_wifi_extender
+    title: "Wi-Fi Range Extension Recommendation"
+    steps:
+      - "Explain that physical distance and building materials (concrete, brick, metal) reduce Wi-Fi range."
+      - "Recommend Quantum Fiber 360 WiFi mesh nodes for whole-home coverage."
+      - "If 360 WiFi is already in place, ensure satellite nodes are within a reasonable range of the main router (1–2 rooms away, not through multiple floors/walls)."
+      - "As an interim step, suggest moving the router to a more central location."
+    reference_doc: "Quantum Fiber - 360 WiFi (QF Tech Assist)"
+
+  - id: sol_device_specific_wifi
+    title: "Device-Specific Wi-Fi Issue"
+    steps:
+      - "Confirm all other devices connect and work normally on the same Wi-Fi network."
+      - "On the affected device, go to Wi-Fi settings, select 'Forget Network', then reconnect."
+      - "Restart the affected device completely (full power off, not just sleep)."
+      - "Check if the device's network adapter driver needs an update (Windows) or if an iOS/Android update is pending."
+      - "Try toggling the device's Wi-Fi off and back on."
+      - "If the device has a VPN app installed, disable it and retest."
+    escalate_if: "Issue persists on a device that works on other Wi-Fi networks — may be a router MAC filtering or band-steering issue. Escalate to Tier 2."
+
+  - id: sol_dispatch_wifi
+    title: "Dispatch - Persistent Wi-Fi Issues"
+    steps:
+      - "Document all troubleshooting steps and speed test results in the Salesforce case."
+      - "Confirm whether the issue is Wi-Fi only (wired connection works)."
+      - "If the router hardware may be at fault, schedule an equipment swap dispatch."
+      - "If the router is owned by the customer (BYO), advise them to contact the router manufacturer."
+    escalate_if: "Router is QuantumFiber-provided and reboots/replacements do not resolve the issue — escalate to Tier 2."
+
+  # ── ONT Programming ───────────────────────────────────────────────────────
+  - id: sol_calix_e7_programming
+    title: "Calix 844G ONT Programming on E7 Platform"
+    steps:
+      - "Log into the Calix E7 EMS/SMx management system."
+      - "Navigate to the OLT and locate the correct GPON port."
+      - "Click 'Add ONT' and enter the ONT serial number from the label on the device."
+      - "Select the appropriate service profile (Residential Data, Video + Data, etc.) as per the work order."
+      - "Assign the VLAN and bandwidth profile according to the customer's subscribed plan."
+      - "Activate the ONT and verify that the ONT comes online (green status)."
+      - "Run a ping test from the EMS to verify end-to-end connectivity."
+      - "Update the Salesforce case with the ONT serial number, port, and activation time."
+    reference_doc: "844G Integrated ONT Programming - CALIX E7 (COR-TSC and QF Tech Assist)"
+    escalate_if: "ONT does not register after 5 minutes — verify serial number, check fiber signal levels, and escalate to NOC if signal is missing."
+
+  - id: sol_calix_e3_programming
+    title: "Calix E3-2 GPON SMx Programming"
+    steps:
+      - "Log into the Calix SMx management system."
+      - "Navigate to the E3-2 OLT and identify the target GPON port."
+      - "Add the ONT using the serial number from the device label."
+      - "Apply the correct service template for the customer's service type."
+      - "Provision the subscriber VLAN and ensure the correct bandwidth profile is applied."
+      - "Activate the ONT and confirm it registers successfully (green/up status)."
+      - "Perform an end-to-end connectivity test."
+      - "Document the provisioning details in the Salesforce case."
+    reference_doc: "Calix E3-2 GPON SMx Programming (Remote Tech Assist)"
+    escalate_if: "ONT fails to register — check OLT port status and fiber level; escalate to NOC if OLT port is down."
+
+  - id: sol_calix_gfast_new
+    title: "Calix G.Fast New Install Programming"
+    steps:
+      - "Verify the copper pair is qualified for G.Fast service (loop length and condition)."
+      - "Log into the Calix SMx management system."
+      - "Locate the E3-16F or E5-16F DSLAM and the target port."
+      - "Create a new subscriber profile with the correct G.Fast speed tier."
+      - "Activate the port and confirm sync with the G.Fast CPE."
+      - "Test speeds from the CPE — verify downstream and upstream rates meet the plan."
+      - "Document the port, profile, and sync speeds in the Salesforce case."
+    reference_doc: "Calix E3-16F & E5-16F G.Fast SMx Programming (Remote Tech Assist)"
+    escalate_if: "G.Fast CPE will not sync or sync rates are below acceptable threshold — escalate to provisioning team."
+
+  - id: sol_calix_gfast_replace
+    title: "Calix G.Fast Replacement Unit Programming"
+    steps:
+      - "Retrieve the existing subscriber profile from the Calix SMx system."
+      - "Deactivate the old CPE on the port."
+      - "Note the existing port, VLAN, and bandwidth profile settings."
+      - "Re-provision the port with the new CPE's MAC/serial number."
+      - "Activate the port and confirm sync."
+      - "Verify speeds match the customer's plan tier."
+      - "Update the Salesforce case with the new equipment serial number."
+    reference_doc: "Calix E3-16F & E5-16F G.Fast SMx Programming (Remote Tech Assist)"
+
+  - id: sol_adtran_programming
+    title: "Adtran TA5000 GPON Programming"
+    steps:
+      - "Access the Adtran TA5000 via CLI (SSH) or the element management system."
+      - "Identify the correct OLT shelf, slot, and GPON port for the customer."
+      - "Pre-provision the ONT using the serial number from the device."
+      - "Assign the correct T-CONT and GEM port configuration per the service type."
+      - "Apply the appropriate traffic profile and VLAN."
+      - "Activate the ONT and confirm it comes online."
+      - "Test connectivity end-to-end and verify speed."
+      - "Document all provisioning parameters in the Salesforce case."
+    reference_doc: "Adtran TA5000 Series GPON Programming (Remote Tech Assist)"
+    escalate_if: "ONT will not register — verify OLT port status; if port is down, escalate to NOC."
+
+  - id: sol_escalate_adtran
+    title: "Adtran - Escalate to Provisioning Team"
+    steps:
+      - "Create a Salesforce case with all available information: customer account, service address, equipment type."
+      - "Note that OLT access or port identification is unavailable."
+      - "Escalate the case to the Provisioning / NOC team for OLT access and port assignment."
+    escalate_if: "Always escalate — OLT access required."
+
+  - id: sol_positron_programming
+    title: "Positron G.HN Programming"
+    steps:
+      - "Log into the Positron management system."
+      - "Locate the customer's copper pair and confirm G.HN service eligibility."
+      - "Add the G.HN endpoint device using its MAC address or serial number."
+      - "Apply the correct service profile and bandwidth allocation."
+      - "Activate the endpoint and verify sync with the DPU (Distribution Point Unit)."
+      - "Test speeds and confirm they meet the subscribed plan tier."
+      - "Update the Salesforce case with provisioning details."
+    reference_doc: "Positron G.HN Programming (COR-TSC and QF Tech Assist)"
+    escalate_if: "G.HN endpoint will not sync — check DPU port status and pair quality; escalate to provisioning team if unresolved."
+
+  - id: sol_verify_positron_pair
+    title: "Verify Copper Pair for Positron G.HN"
+    steps:
+      - "Run a pair qualification test from the provisioning system or with test equipment."
+      - "Verify loop length is within G.HN service limits."
+      - "Check for bridged taps, excessive bridge taps, or pair damage."
+      - "If pair qualifies, proceed with Positron G.HN programming."
+      - "If pair does not qualify, create a Salesforce case and schedule a field technician to evaluate alternative pairs or service options."
+    reference_doc: "Positron G.HN Programming (COR-TSC and QF Tech Assist)"
+
+  - id: sol_calix_e7_data_programming
+    title: "Calix E7-2 / E7-20 GPON Data-Only Programming"
+    steps:
+      - "Log into the Calix E7 EMS."
+      - "Navigate to the appropriate OLT and GPON port."
+      - "Add the ONT with the serial number from the device label."
+      - "Select the Data-Only residential service template."
+      - "Assign the data VLAN and the correct downstream/upstream bandwidth profile for the subscribed speed tier."
+      - "Activate the ONT and confirm registration."
+      - "Ping the ONT gateway from the EMS to verify data path."
+      - "Document provisioning in the Salesforce case."
+    reference_doc: "Calix E7-2 and E7-20 GPON Data Only Programming (Remote Tech Assist)"
+    escalate_if: "ONT does not register or ping fails — check OLT port and fiber signal; escalate to NOC."
+
+  - id: sol_escalate_business
+    title: "Business Service - Escalate to Business Support"
+    steps:
+      - "Confirm this is a business-tier data service account."
+      - "Gather the customer's account number, service address, and contact information."
+      - "Create a Salesforce case and flag it as a Business account."
+      - "Escalate to the Business Support or Tier 2 team — business accounts have dedicated provisioning procedures."
+
+  - id: sol_gather_ont_info
+    title: "Gather ONT Information Before Programming"
+    steps:
+      - "Locate the ONT serial number on the label affixed to the device (typically on the bottom or side)."
+      - "Obtain the work order or service order to identify the correct service profile and speed tier."
+      - "Confirm the OLT address and GPON port assignment from the OSS/provisioning system."
+      - "Once all information is gathered, return to the ONT programming flow."
+
+  - id: sol_schedule_programming
+    title: "Schedule ONT Programming - Equipment Not Ready"
+    steps:
+      - "Document in the Salesforce case that the ONT is not yet on-site or not powered."
+      - "Coordinate with the field technician or customer to confirm when the ONT will be available."
+      - "Schedule a callback or a new provisioning window once equipment is confirmed in place."
+
+  # ── Salesforce ────────────────────────────────────────────────────────────
+  - id: sol_sf_create_tech_case
+    title: "Create a Technical Trouble Salesforce Case"
+    steps:
+      - "In Salesforce, click 'New Case' from the Cases tab or the customer account."
+      - "Set Record Type to 'Technical Trouble'."
+      - "Link the case to the correct customer Account and Contact."
+      - "Set the Subject line to a brief description (e.g., 'No Internet - ONT LOS - 123 Main St')."
+      - "In the Description field, document all troubleshooting steps taken and results."
+      - "Set Priority based on impact: High for complete outages, Medium for degraded service."
+      - "Assign the case to the appropriate queue or team."
+      - "Save the case and provide the case number to the customer."
+    reference_doc: "Quantum Fiber - Working with Salesforce Cases (QF Tech Assist)"
+    escalate_if: "If the issue is part of a known outage, link the case to the outage master case."
+
+  - id: sol_sf_create_install_case
+    title: "Create a New Installation Salesforce Case"
+    steps:
+      - "In Salesforce, click 'New Case' and set Record Type to 'Installation'."
+      - "Link the case to the customer Account and Contact."
+      - "Include the service address and order number in the case details."
+      - "Document any special instructions or access requirements for the install location."
+      - "Set the expected installation date based on the work order."
+      - "Assign to the appropriate install team queue."
+    reference_doc: "Quantum Fiber - Working with Salesforce Cases (QF Tech Assist)"
+
+  - id: sol_sf_create_equipment_case
+    title: "Create an Equipment Issue Salesforce Case"
+    steps:
+      - "In Salesforce, click 'New Case' and set Record Type to 'Equipment'."
+      - "Link to the customer Account and Contact."
+      - "Document the equipment type, serial number, and the nature of the fault."
+      - "Specify whether this is a swap (replacement) or a new equipment request."
+      - "If a field dispatch is required, add a dispatch request to the case."
+      - "Assign to the equipment/dispatch queue."
+    reference_doc: "Quantum Fiber - Working with Salesforce Cases (QF Tech Assist)"
+
+  - id: sol_sf_update_case
+    title: "Update an Existing Salesforce Case"
+    steps:
+      - "Search for the case by case number, customer name, or account number."
+      - "Open the case and click 'Edit' or add a 'Case Comment'."
+      - "In Case Comments, document: date/time, technician name/ID, actions taken, and results."
+      - "Update the Status field if appropriate (e.g., In Progress → Pending Customer → Resolved)."
+      - "If additional work orders or dispatches are needed, create them and link to the case."
+      - "Save all changes."
+    reference_doc: "Quantum Fiber - Working with Salesforce Cases (QF Tech Assist)"
+
+  - id: sol_sf_close_case
+    title: "Close a Resolved Salesforce Case"
+    steps:
+      - "Open the case in Salesforce."
+      - "Verify that all work orders and sub-tasks are complete."
+      - "Add a final Case Comment summarizing the resolution."
+      - "Set the Case Status to 'Closed' and the Close Reason to the appropriate value (e.g., 'Resolved - Reboot', 'Resolved - Dispatch', etc.)."
+      - "Confirm the customer was informed of the resolution."
+      - "Save the case."
+    reference_doc: "Quantum Fiber - Working with Salesforce Cases (QF Tech Assist)"
+
+  - id: sol_sf_escalate_tier2
+    title: "Escalate Salesforce Case to Tier 2"
+    steps:
+      - "Ensure all Tier 1 troubleshooting steps are documented in the case."
+      - "Add a Case Comment: 'Escalating to Tier 2 — issue unresolved after standard troubleshooting. Steps taken: [summary]'."
+      - "Change the Case Owner or Queue to the Tier 2 / Advanced Support team."
+      - "Set Case Priority to High if not already done."
+      - "Notify the customer that the case has been escalated and provide an expected follow-up timeframe."
+    reference_doc: "Quantum Fiber - Working with Salesforce Cases (QF Tech Assist)"
+
+  - id: sol_sf_escalate_chronic
+    title: "Escalate Chronic / Repeat Issue Case"
+    steps:
+      - "Review the customer's case history to identify the pattern of repeat issues."
+      - "Document the history in the current case (case numbers, dates, resolutions)."
+      - "Add a Case Comment noting this is a chronic issue requiring root cause analysis."
+      - "Escalate to Tier 2 or the Network Operations Center (NOC) with the full history."
+      - "Request a chronic issue review or proactive maintenance check for the affected network segment."
+    reference_doc: "Quantum Fiber - Working with Salesforce Cases (QF Tech Assist)"
+    escalate_if: "Always escalate chronic cases — do not close without Tier 2 review."
+
+  - id: sol_sf_escalate_dispatch
+    title: "Escalate to Field Dispatch via Salesforce"
+    steps:
+      - "Confirm the issue requires a field technician (remote troubleshooting exhausted)."
+      - "Create or update the Salesforce case with full troubleshooting notes."
+      - "Create a Dispatch Work Order from the case: include service address, access instructions, and issue description."
+      - "Assign the work order to the field operations queue."
+      - "Provide the customer with the dispatch appointment window."
+      - "Set Case Status to 'Pending Dispatch'."
+    reference_doc: "Quantum Fiber - Working with Salesforce Cases (QF Tech Assist)"
+
+  # ── 360 WiFi ──────────────────────────────────────────────────────────────
+  - id: sol_360_setup
+    title: "Quantum Fiber 360 WiFi Initial Setup"
+    steps:
+      - "Download the Quantum Fiber app on a smartphone (iOS or Android)."
+      - "Log in with the customer's Quantum Fiber account credentials."
+      - "Follow the in-app setup wizard to connect the primary 360 WiFi node to the router."
+      - "Place the primary node close to the router and connect it via Ethernet for best performance."
+      - "Once the primary node is online, add satellite nodes following the app prompts."
+      - "Place satellite nodes approximately one to two rooms apart from the primary node."
+      - "Complete the setup and test connectivity on multiple devices."
+    reference_doc: "Quantum Fiber - 360 WiFi (QF Tech Assist)"
+    escalate_if: "App cannot discover the node — verify the customer's account has 360 WiFi provisioned; escalate to provisioning if missing."
+
+  - id: sol_360_power_node
+    title: "360 WiFi Node Not Powered"
+    steps:
+      - "Ensure the node's power adapter is securely connected to both the node and the outlet."
+      - "Try a different outlet — avoid extension cords or power strips."
+      - "The node should show a solid white light when healthy."
+      - "If the node does not power on after changing outlets, the power adapter or node may be faulty."
+      - "Create a Salesforce equipment case for a node replacement if needed."
+    reference_doc: "Quantum Fiber - 360 WiFi (QF Tech Assist)"
+
+  - id: sol_360_optimization
+    title: "360 WiFi Performance Optimization"
+    steps:
+      - "Ensure satellite nodes are placed no more than two rooms away from the primary node (or another satellite)."
+      - "Avoid placing nodes near microwaves, baby monitors, or thick concrete walls."
+      - "Use the Quantum Fiber app to view the mesh network map and signal strength between nodes."
+      - "Move underperforming nodes closer to the primary router or to a more open location."
+      - "For devices needing maximum speed (gaming consoles, smart TVs), use a wired Ethernet connection if possible."
+    reference_doc: "Quantum Fiber - 360 WiFi (QF Tech Assist)"
+
+  - id: sol_360_replace_node
+    title: "360 WiFi Node Replacement"
+    steps:
+      - "Document the node's LED status and any error messages in the Salesforce case."
+      - "Attempt a factory reset of the node: hold the reset button for 10 seconds, then re-add through the app."
+      - "If the node still will not come online after a factory reset, it may be defective."
+      - "Create a Salesforce equipment case for a replacement 360 WiFi node."
+      - "Advise the customer on the replacement process (mail-in vs. dispatch)."
+    reference_doc: "Quantum Fiber - 360 WiFi (QF Tech Assist)"
+    escalate_if: "Multiple nodes are failing simultaneously — may indicate a firmware or provisioning issue, escalate to Tier 2."
+
+  - id: sol_360_app_issue
+    title: "Quantum Fiber App Issue"
+    steps:
+      - "Ask the customer to force-close the Quantum Fiber app and reopen it."
+      - "Verify the customer is logged in with the correct Quantum Fiber account credentials."
+      - "Check if an app update is available in the App Store (iOS) or Google Play (Android)."
+      - "Ask the customer to uninstall and reinstall the app if the issue persists."
+      - "If the app cannot connect to the network, verify the customer's phone is on the Quantum Fiber Wi-Fi network (not mobile data)."
+      - "If the app shows incorrect device information or settings are not saving, create a Salesforce case and escalate to app support / Tier 2."
+    reference_doc: "Quantum Fiber - 360 WiFi (QF Tech Assist)"
+    escalate_if: "App-level changes are not taking effect on the network — backend sync issue, escalate to Tier 2."
