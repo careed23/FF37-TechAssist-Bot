@@ -1,0 +1,39 @@
+---
+- name: Reset SmartNID
+  hosts: smartnid_devices
+  gather_facts: no
+  vars:
+    smartnid_serial: "{{ lookup('env', 'SMARTNID_SERIAL') }}"
+    # Access method depends on the SmartNID model and management interface (e.g., CLI, Web UI, specific API)
+    # Assuming a CLI access method for demonstration:
+    admin_username: "{{ lookup('env', 'ADMIN_USERNAME') }}"
+    admin_password: "{{ lookup('env', 'ADMIN_PASSWORD') }}"
+    device_ip: "{{ lookup('env', 'DEVICE_IP') }}"
+
+  tasks:
+    - name: Connect to SmartNID CLI
+      ansible.builtin.shell:
+        cmd: "ssh {{ admin_username }}@{{ device_ip }} 'your_login_command_here'"
+      register: ssh_result
+      ignore_errors: yes
+
+    - name: Perform Factory Reset
+      # This command is a placeholder and needs to be replaced with the actual command
+      # for the specific SmartNID model (e.g., Adtran, Calix).
+      ansible.builtin.shell:
+        cmd: "# Replace with actual factory reset command for SmartNID serial {{ smartnid_serial }} on {{ device_ip }} #"
+      when: ssh_result.rc == 0
+
+    - name: Verify Reset Status (if possible)
+      # This task would attempt to check the status of the SmartNID after reset.
+      # The specific command depends on the device's capabilities.
+      ansible.builtin.shell:
+        cmd: "# Replace with actual command to verify SmartNID status after reset #"
+      register: reset_status
+      when: ssh_result.rc == 0
+      ignore_errors: yes # Resetting might temporarily make it unreachable
+
+    - name: Display Reset Status
+      ansible.builtin.debug:
+        var: reset_status.stdout_lines
+      when: ssh_result.rc == 0 and reset_status is defined

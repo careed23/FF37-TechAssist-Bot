@@ -1,0 +1,66 @@
+---
+- name: Configure 360 WiFi Pods and SmartNIDs
+  hosts: localhost
+  gather_facts: no
+  vars:
+    qmate_username: "{{ lookup('env', 'QMAT_USERNAME') }}"
+    qmate_password: "{{ lookup('env', 'QMAT_PASSWORD') }}"
+    qmate_api_endpoint: "{{ lookup('env', 'QMAT_API_ENDPOINT') }}"
+    action: "{{ lookup('env', 'ACTION') }}" # e.g., 'claim', 'unclaim', 'update_serial_number', 'sync_pods'
+    smartnid_serial: "{{ lookup('env', 'SMARTNID_SERIAL') }}"
+    pod_serial: "{{ lookup('env', 'POD_SERIAL') }}"
+    account_id: "{{ lookup('env', 'ACCOUNT_ID') }}"
+    new_serial_number: "{{ lookup('env', 'NEW_SERIAL_NUMBER') }}"
+
+  tasks:
+    - name: Log in to QMate API
+      # This task would typically involve using a QMate API client or making HTTP requests.
+      # For demonstration, we simulate a successful login.
+      ansible.builtin.debug:
+        msg: "Simulating QMate API login for user {{ qmate_username }}"
+
+    - name: Claim Pod
+      # This task would use QMate API to claim a pod.
+      community.general.httpapi:
+        method: POST
+        url: "{{ qmate_api_endpoint }}/pods/claim"
+        data:
+          accountId: "{{ account_id }}"
+          smartnidSerial: "{{ smartnid_serial }}"
+          podSerial: "{{ pod_serial }}"
+        when: "action == 'claim'"
+
+    - name: Unclaim Pod
+      # This task would use QMate API to unclaim a pod.
+      community.general.httpapi:
+        method: POST
+        url: "{{ qmate_api_endpoint }}/pods/unclaim"
+        data:
+          accountId: "{{ account_id }}"
+          smartnidSerial: "{{ smartnid_serial }}"
+          podSerial: "{{ pod_serial }}"
+        when: "action == 'unclaim'"
+
+    - name: Update Pod Serial Number
+      # This task would use QMate API to update a pod's serial number.
+      community.general.httpapi:
+        method: PUT
+        url: "{{ qmate_api_endpoint }}/pods/{{ pod_serial }}"
+        data:
+          newSerialNumber: "{{ new_serial_number }}"
+        when: "action == 'update_serial_number'"
+
+    - name: Sync Pods / Correct Pod Count
+      # This task would use QMate API to sync pod counts.
+      community.general.httpapi:
+        method: POST
+        url: "{{ qmate_api_endpoint }}/pods/sync"
+        data:
+          accountId: "{{ account_id }}"
+          smartnidSerial: "{{ smartnid_serial }}"
+        when: "action == 'sync_pods'"
+
+    - name: Display Action Result
+      ansible.builtin.debug:
+        var: result
+      when: result is defined

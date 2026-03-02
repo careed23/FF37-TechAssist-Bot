@@ -1,0 +1,44 @@
+---
+- name: Switch Calix ONT Type (GE to RG or RG to GE)
+  hosts: calix_e7_devices
+  gather_facts: no
+  vars:
+    ont_id: "{{ lookup('env', 'ONT_ID') }}"
+    current_programming_type: "{{ lookup('env', 'CURRENT_PROGRAMMING_TYPE') }}" # e.g., 'GE' or 'RG'
+    target_programming_type: "{{ lookup('env', 'TARGET_PROGRAMMING_TYPE') }}" # e.g., 'RG' or 'GE'
+    cms_username: "{{ lookup('env', 'CMS_USERNAME') }}"
+    cms_password: "{{ lookup('env', 'CMS_PASSWORD') }}"
+    cms_ip: "{{ lookup('env', 'CMS_IP') }}"
+
+  tasks:
+    - name: Log in to Calix CMS
+      ansible.builtin.shell:
+        cmd: "ssh {{ cms_username }}@{{ cms_ip }} 'your_login_command_here'"
+      register: cms_login_result
+      ignore_errors: yes
+
+    - name name: Remove Current Programming (GE or RG)
+      ansible.builtin.shell:
+        cmd: "cms-cli -u {{ cms_username }} -p {{ cms_password }} 'delete service {{ ont_id }} type {{ current_programming_type }}'"
+      when: cms_login_result.rc == 0
+
+    - name: Change ONT Profile & Template
+      ansible.builtin.shell:
+        cmd: "cms-cli -u {{ cms_username }} -p {{ cms_password }} 'update ont {{ ont_id }} profile {{ target_programming_type }} template {{ target_programming_type }}_template'"
+      when: cms_login_result.rc == 0
+
+    - name: Re-program as Target Service Type (RG or GE)
+      ansible.builtin.shell:
+        cmd: "cms-cli -u {{ cms_username }} -p {{ cms_password }} 'add service {{ ont_id }} type {{ target_programming_type }}'"
+      when: cms_login_result.rc == 0
+
+    - name: Verify ONT Status
+      ansible.builtin.shell:
+        cmd: "cms-cli -u {{ cms_username }} -p {{ cms_password }} 'show ont {{ ont_id }}'"
+      register: ont_status
+      when: cms_login_result.rc == 0
+
+    - name: Display ONT Status
+      ansible.builtin.debug:
+        var: ont_status.stdout_lines
+      when: cms_login_result.rc == 0
