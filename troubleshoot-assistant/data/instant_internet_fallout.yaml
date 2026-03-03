@@ -1,0 +1,643 @@
+# =============================================================================
+# FF37 TechAssist Bot - Workflow
+# File: instant_internet_fallout.yaml
+# Title: Instant Internet Programming Fallout
+# Description: Guides QF programming agents through monitoring and resolving
+#              Optius fallout for Quantum Fiber Instant Internet (MDU) orders.
+# SOP Reference: QF Instant Internet - Programming Fallout (Rev. 2, 04/16/25)
+# Author: FF37 TechAssist Bot (Creed Reed)
+# =============================================================================
+
+id: instant_internet_fallout
+title: "Instant Internet Programming Fallout"
+description: >
+  Step-by-step workflow for monitoring and completing Optius programming
+  fallout for Quantum Fiber Instant Internet (MDU) orders, including
+  OSG error resolution and Instant Internet Disconnect handling.
+icon: "📡"
+tags:
+  - instant_internet
+  - fallout
+  - osg
+  - mdu
+  - programming
+
+# -----------------------------------------------------------------------------
+# ENTRY POINT
+# -----------------------------------------------------------------------------
+start: entry
+
+steps:
+
+  # ---------------------------------------------------------------------------
+  # ENTRY — Determine which process the agent needs
+  # ---------------------------------------------------------------------------
+  entry:
+    id: entry
+    type: choice
+    message: |
+      📡 **Instant Internet Programming Fallout**
+
+      Quantum Fiber Instant Internet orders are pre-installed MDU services
+      where ONTs, facilities, and programming are staged *before* a customer
+      moves in. These appear as **"F" prefix** Service Orders in Optius
+      (e.g., F0160250).
+
+      ⚠️ **Important Reminders:**
+      - You CANNOT create cases or ROP these from Salesforce
+      - Facility or VLAN changes should NOT be required at II properties
+      - When a customer disconnects, the DTN/username stays and returns to Walled Garden
+
+      What do you need help with?
+    choices:
+      - label: "🔍 Monitor Fallout (Find error tickets in Optius)"
+        next: monitor_step1
+      - label: "🛠️ Complete a Work Ticket (Already have a ticket open)"
+        next: complete_step1
+      - label: "🔌 Instant Internet Disconnect (CICHG order / IILIF)"
+        next: disconnect_entry
+      - label: "❌ OSG Error — I know my error code"
+        next: osg_error_router
+
+  # ---------------------------------------------------------------------------
+  # SECTION 1 — MONITORING FALLOUT
+  # ---------------------------------------------------------------------------
+  monitor_step1:
+    id: monitor_step1
+    type: info
+    message: |
+      **Step 1 — Log into Optius**
+
+      🌐 URL: http://o2prod.corp.intranet/optius/
+      🖥️ Use **Chrome** with your **CUID / Password**
+
+      When the popup appears, select **"Relaunch Optius"**.
+
+      Once you're on the Optius main page, proceed.
+    next: monitor_step2
+
+  monitor_step2:
+    id: monitor_step2
+    type: info
+    message: |
+      **Step 2 — Navigate to Work Tickets**
+
+      From the Optius main page:
+      1. Select the **Service Order** tab
+      2. Then select **Work Ticket**
+    next: monitor_step3
+
+  monitor_step3:
+    id: monitor_step3
+    type: info
+    message: |
+      **Step 3 — Configure Your Search**
+
+      On the Work Ticket Search screen, populate the following fields:
+
+      | Field | Value |
+      |---|---|
+      | **Device Qualifier** | `OED` *(Required)* |
+      | **Central Office Group ID** | 2-digit state (e.g., NC, FL, MN) or market (LQ, LC) — *Optional* |
+      | **Start Date** | Select from calendar *(Required)* |
+      | **Stop Date** | Select from calendar — *Optional* |
+      | **Status** | `E - Error` *(Filters to programming fallout only)* |
+
+      💡 **Tip:** Set an early Start Date (e.g., 12/01/21) to catch past-due tickets.
+
+      Then select **Find**.
+    next: monitor_step4
+
+  monitor_step4:
+    id: monitor_step4
+    type: info
+    message: |
+      **Step 4 — Review Results**
+
+      Matching tickets will appear in the bottom half of the screen.
+
+      🔑 **Key Identifier:**
+      - SO Numbers beginning with **"F"** = Instant Internet installs
+      - SO Numbers beginning with **"A"** = Standard installs
+
+      💡 Use the **Page** function to navigate forward/backward through results.
+
+      Ready to open a ticket?
+    next: complete_step1
+
+  # ---------------------------------------------------------------------------
+  # SECTION 2 — COMPLETING WORK TICKETS
+  # ---------------------------------------------------------------------------
+  complete_step1:
+    id: complete_step1
+    type: info
+    message: |
+      **Step 1 — Open the Work Ticket**
+
+      From the results list:
+      1. Select the **work ticket** you want to view
+      2. Select **"View Work Tickets for Service Order"**
+    next: complete_step2
+
+  complete_step2:
+    id: complete_step2
+    type: info
+    message: |
+      **Step 2 — Select the Programming Work Ticket**
+
+      1. Select the **Programming Work Ticket** from the list
+      2. Ensure the bottom dropdown is set to **"View Work Ticket Detail"**
+      3. Select **Go**
+    next: complete_step3
+
+  complete_step3:
+    id: complete_step3
+    type: info
+    message: |
+      **Step 3 — Review the Work Ticket Detail Screen**
+
+      The Programming Work Ticket Detail screen gives you three action options:
+
+      - 📋 **View Service Order Detail** — Confirm current facilities (DTN, RONTA, VLANs)
+      - ✅ **Reset Status to Complete** — Use when ONT, cross connects & speed are already correct
+      - 📤 **Send / Resend to OSG** — Use to re-trigger automation after fixing a blocking issue
+
+      **Top of ticket shows:**
+      - Device Name
+      - Device Type (e.g., E7-20)
+      - Device Location (Device IP)
+
+      **Bottom of ticket shows:**
+      - Number of OSG attempts
+      - OSG failure reason/code
+    next: complete_step4
+
+  complete_step4:
+    id: complete_step4
+    type: choice
+    message: |
+      **Step 4 — Determine Your Next Action**
+
+      After reviewing the ticket details, what does the OSG section show?
+    choices:
+      - label: "❌ There is an OSG error code — I need to resolve it"
+        next: osg_error_router
+      - label: "✅ ONT, Cross Connects & Speed are already correct"
+        next: complete_reset
+      - label: "🔄 I fixed the blocking issue — ready to resend"
+        next: complete_resend
+
+  complete_reset:
+    id: complete_reset
+    type: info
+    message: |
+      **✅ Reset Status to Complete**
+
+      Since the ONT, cross connects, and speed are already correctly programmed:
+
+      1. Select **"Reset Status to Complete"** on the work ticket
+      2. Confirm the reset
+      3. Verify in Optius that the ticket status has updated
+
+      ✔️ Ticket is resolved! Log your work and move to the next fallout item.
+    next: done
+
+  complete_resend:
+    id: complete_resend
+    type: info
+    message: |
+      **📤 Resend to OSG**
+
+      After clearing the blocking issue:
+
+      1. Select **"Resend to OSG"** on the work ticket
+      2. Monitor for OSG response — allow a few minutes
+      3. Verify the following are correct:
+         - ✅ VLANs
+         - ✅ ONT
+         - ✅ DTN
+         - ✅ Speed
+
+      If OSG returns a new error, route back through the OSG error handler.
+      If successful, the ticket will clear from your fallout queue.
+    next: done
+
+  # ---------------------------------------------------------------------------
+  # SECTION 3 — INSTANT INTERNET DISCONNECTS
+  # ---------------------------------------------------------------------------
+  disconnect_entry:
+    id: disconnect_entry
+    type: info
+    message: |
+      **🔌 Instant Internet Disconnect (CICHG Order)**
+
+      When an Instant Internet customer cancels service, Optius will reflect
+      a **CICHG** order.
+
+      ⚠️ **Key Reminder:**
+      SmartNID addresses do **NOT** receive CIDIS orders in Optius when a
+      customer cancels in QF Salesforce. SmartNID services remain "working"
+      in O2 systems and are placed into **Walled Garden** status in IMPROV.
+
+      The customer name remains as-is in Optius, and the **Broadband Service**
+      field updates to reflect **IILIF** (Instant Internet Left In Facility).
+    next: disconnect_check_speed
+
+  disconnect_check_speed:
+    id: disconnect_check_speed
+    type: choice
+    message: |
+      **What is the Broadband Service & Technology type on this account?**
+
+      Check the Broadband Service field in Optius:
+      - IILIF = Instant Internet Left In Facility
+      - SMNIDLIF = SmartNID Left In Facility
+
+      Both require speed re-programming based on Technology type.
+      What is the Technology?
+    choices:
+      - label: "GPON"
+        next: disconnect_speed_gpon
+      - label: "G.hn"
+        next: disconnect_speed_ghn
+      - label: "XGS"
+        next: disconnect_speed_xgs
+      - label: "G.Fast"
+        next: disconnect_speed_gfast
+
+  disconnect_speed_gpon:
+    id: disconnect_speed_gpon
+    type: info
+    message: |
+      **GPON — Required Speed: 940/940**
+
+      Program the SMx or Mosaic to **940/940**.
+
+      Then check: is there a Programming Work Ticket present?
+      - If the speed is already 940/940 → No ticket needed, confirm and close.
+      - If a ticket exists → Complete it per the work ticket process.
+    next: disconnect_ticket_check
+
+  disconnect_speed_ghn:
+    id: disconnect_speed_ghn
+    type: info
+    message: |
+      **G.hn — Required Speed: 940/940**
+
+      Program the SMx or Mosaic to **940/940**.
+
+      Then check: is there a Programming Work Ticket present?
+      - If the speed is already 940/940 → No ticket needed, confirm and close.
+      - If a ticket exists → Complete it per the work ticket process.
+    next: disconnect_ticket_check
+
+  disconnect_speed_xgs:
+    id: disconnect_speed_xgs
+    type: info
+    message: |
+      **XGS — Required Speed: 1G/1G**
+
+      Program the SMx or Mosaic to **1G/1G**.
+
+      💡 **Note:** If the customer had 1G service before canceling, and the
+      Technology is XGS, the speed is already at 1G — so **no Programming
+      Work Ticket will be generated** in most cases.
+
+      Confirm current speed and close if correct.
+    next: disconnect_ticket_check
+
+  disconnect_speed_gfast:
+    id: disconnect_speed_gfast
+    type: info
+    message: |
+      **G.Fast — Required Speed: 500/500**
+
+      Program the SMx or Mosaic to **500/500**.
+
+      ⚠️ If the customer had 1G service, a **Programming Work Ticket WILL be
+      present** to change the device from 1G → 500M.
+
+      Proceed to complete the programming work ticket.
+    next: disconnect_ticket_check
+
+  disconnect_ticket_check:
+    id: disconnect_ticket_check
+    type: choice
+    message: |
+      **Is there a Programming Work Ticket present for this disconnect?**
+    choices:
+      - label: "Yes — I need to complete the work ticket"
+        next: complete_step1
+      - label: "No — Speed is already correct, just need to confirm and close"
+        next: disconnect_confirm_close
+
+  disconnect_confirm_close:
+    id: disconnect_confirm_close
+    type: info
+    message: |
+      **✅ Confirm & Close**
+
+      Verify the following before closing:
+      - ✅ Broadband Service reflects IILIF or SMNIDLIF
+      - ✅ Speed matches the required LIF speed for this Technology
+      - ✅ Account is in Walled Garden status in IMPROV
+      - ✅ DTN and username remain in place
+
+      No further action needed. Log your work.
+    next: done
+
+  # ---------------------------------------------------------------------------
+  # SECTION 4 — OSG ERROR ROUTER
+  # ---------------------------------------------------------------------------
+  osg_error_router:
+    id: osg_error_router
+    type: choice
+    message: |
+      **🚨 OSG Error Resolution**
+
+      What error code is showing in the OSG section of your work ticket?
+    choices:
+      - label: "00 — FAILED, STATUS UNKNOWN"
+        next: osg_00
+      - label: "06 — FAILED, PARENT COMMAND FAILED"
+        next: osg_06
+      - label: "290 — FAILED, THE OBJECT ALREADY EXISTS"
+        next: osg_290
+      - label: "14 — FAILED, I/O ERROR READING SO IN SWITCHGATE"
+        next: osg_14
+      - label: "15 — FAILED, INVALID PROG CO/E911 CO SW ID"
+        next: osg_15
+
+  # ---------------------------------------------------------------------------
+  # OSG ERROR 00
+  # ---------------------------------------------------------------------------
+  osg_00:
+    id: osg_00
+    type: choice
+    message: |
+      **Error 00 — FAILED, STATUS UNKNOWN**
+
+      This error typically comes from an unexpected response — for example,
+      trying to create service when the ONT does not exist — or there is
+      no communication to the device.
+
+      **First step:** Check CMS/EMS to verify whether the OLT/PON/ONT exist.
+
+      What did you find in CMS/EMS?
+    choices:
+      - label: "OLT (Card) is missing from CMS/EMS"
+        next: osg_00_missing_card
+      - label: "Device does not match — wrong device in network manager"
+        next: osg_00_device_mismatch
+      - label: "ONT already exists in EMS (GUI)"
+        next: osg_00_ont_exists
+      - label: "ONT does not exist in EMS (GUI)"
+        next: osg_00_ont_missing
+
+  osg_00_missing_card:
+    id: osg_00_missing_card
+    type: info
+    message: |
+      **OLT Card Missing — Refer for Inventory Correction**
+
+      1. Verify facilities are correct on the order
+      2. Refer the ticket for **inventory correction** or a **card add**
+      3. Do NOT resend to OSG until the card exists in inventory
+
+      ⚠️ This will require an escalation or plant-side correction before
+      programming can complete.
+    next: done
+
+  osg_00_device_mismatch:
+    id: osg_00_device_mismatch
+    type: info
+    message: |
+      **Device Does Not Match — Update Network Device**
+
+      1. Go to the **Network Device** tab in O2
+      2. Update the device to match:
+         - **DIV (CRIS markets)** — or —
+         - **TabView (ENS markets)**
+      3. After correcting, resend the fallout to OSG
+      4. Verify VLANs, ONT, DTN, and Speed are correct
+    next: done
+
+  osg_00_ont_exists:
+    id: osg_00_ont_exists
+    type: info
+    message: |
+      **ONT Already Exists in EMS — REG ID Format Issue**
+
+      ⚠️ There are known discrepancies in LQ markets where the node uses
+      a different format (e.g., `0002` or `0003`) than what O2 expects —
+      causing the REG ID to differ.
+
+      **Resolution:**
+      1. **Delete the ONT** in EMS
+      2. **Resend the fallout to OSG** — this lets OSG recreate it with the correct format
+      3. **Verify** VLANs, ONT, DTN, and Speed are correct after completion
+    next: done
+
+  osg_00_ont_missing:
+    id: osg_00_ont_missing
+    type: info
+    message: |
+      **ONT Does Not Exist — Create the ONT**
+
+      1. **Create the ONT** manually in EMS
+      2. **Resend the fallout to OSG**
+      3. **Verify** the following after OSG completes:
+         - ✅ VLANs
+         - ✅ ONT
+         - ✅ DTN
+         - ✅ Speed
+    next: done
+
+  # ---------------------------------------------------------------------------
+  # OSG ERROR 06
+  # ---------------------------------------------------------------------------
+  osg_06:
+    id: osg_06
+    type: info
+    message: |
+      **Error 06 — FAILED, PARENT COMMAND FAILED**
+
+      The command could not complete because the command *before* it failed.
+
+      **Example:** "Create ONT" failed → "Create Data" cannot process.
+
+      **Resolution — Choose one path:**
+
+      **Path A — Fix & Resend:**
+      1. Identify and clear the blocking issue (e.g., manually create the ONT)
+      2. Resend to OSG
+      3. Verify VLANs, ONT, DTN, and Speed
+
+      **Path B — Manual Program & Reset:**
+      1. Manually program the service completely
+      2. Reset OSG to Complete
+
+      💡 Path A is preferred. Only use Path B if OSG continues to fail after
+      the blocking issue is resolved.
+    next: done
+
+  # ---------------------------------------------------------------------------
+  # OSG ERROR 290
+  # ---------------------------------------------------------------------------
+  osg_290:
+    id: osg_290
+    type: choice
+    message: |
+      **Error 290 — FAILED, THE OBJECT ALREADY EXISTS**
+
+      The service could not be added because cross connects **already exist**
+      on the port.
+
+      First, verify whether the existing service matches the installing service.
+
+      Does the existing service match the service being installed?
+    choices:
+      - label: "✅ Yes — Existing service matches the install"
+        next: osg_290_match
+      - label: "❌ No — Existing service does NOT match"
+        next: osg_290_no_match
+
+  osg_290_match:
+    id: osg_290_match
+    type: info
+    message: |
+      **Existing Service Matches — Complete the OSG Fallout**
+
+      Since the cross connects already in place match what's being installed,
+      the service is effectively already provisioned.
+
+      1. Select **"Reset Status to Complete"** on the work ticket
+      2. Verify the customer's service is active and correct
+
+      ✔️ No further action needed.
+    next: done
+
+  osg_290_no_match:
+    id: osg_290_no_match
+    type: choice
+    message: |
+      **Existing Service Does NOT Match**
+
+      You need to investigate whether the existing cross connects are valid.
+
+      What is the status of the existing service on the port?
+    choices:
+      - label: "The existing service is valid (active/legitimate)"
+        next: osg_290_valid
+      - label: "The existing service is invalid / left-in"
+        next: osg_290_invalid
+
+  osg_290_valid:
+    id: osg_290_valid
+    type: info
+    message: |
+      **Existing Service is Valid — Facility Conflict**
+
+      The installing order needs a new facility assignment. This port is
+      legitimately in use by another service.
+
+      1. Do NOT remove or alter the existing service
+      2. **Refer to the LPM (Local Plant Manager) of the property** for review
+      3. A new facility assignment will be required before this install can complete
+
+      ⚠️ This is a plant-side issue — escalate accordingly.
+    next: done
+
+  osg_290_invalid:
+    id: osg_290_invalid
+    type: info
+    message: |
+      **Existing Service is Invalid (Left-In) — Remove & Resend**
+
+      The cross connects on this port are from a left-in/orphaned service.
+
+      1. **Remove the left-in service** from the port in EMS/CMS
+      2. **Resend the fallout to OSG**
+      3. Verify VLANs, ONT, DTN, and Speed after OSG completes
+
+      ✔️ This should clear the 290 error and allow OSG to build correctly.
+    next: done
+
+  # ---------------------------------------------------------------------------
+  # OSG ERROR 14
+  # ---------------------------------------------------------------------------
+  osg_14:
+    id: osg_14
+    type: info
+    message: |
+      **Error 14 — FAILED, I/O ERROR READING SO IN SWITCHGATE**
+
+      This is a database connection or system failure — an OSG communication
+      issue between CMS/EMS and OSG. Not a facility or programming config problem.
+
+      **Resolution:**
+
+      **Step 1:** Resend to OSG
+      - If OSG succeeds → Verify VLANs, ONT, DTN, and Speed. Done.
+
+      **Step 2:** If it fails again:
+      1. Verify whether service is already programmed in EMS
+      2. If NOT programmed → Manually program the service
+      3. Reset OSG to Complete
+
+      💡 This error is transient in most cases — a single resend often resolves it.
+    next: done
+
+  # ---------------------------------------------------------------------------
+  # OSG ERROR 15
+  # ---------------------------------------------------------------------------
+  osg_15:
+    id: osg_15
+    type: info
+    message: |
+      **Error 15 — FAILED, INVALID PROG CO/E911 CO SW ID**
+
+      The element name in the **network manager** does not match the name in
+      **CMS/EMS**. This is a naming/hostname mismatch.
+
+      **For CRIS Markets:**
+
+      Update the "Hostname" in the network device record to match the correct
+      CMS element name:
+
+      | Element | IP Address |
+      |---|---|
+      | `CALXQ1_XML` | Q1 — 155.70.106.65 |
+      | `CALXQ2_XML` | Q2 — 155.70.106.66 |
+
+      After correcting the hostname:
+      1. Save the network device record
+      2. Resend to OSG
+      3. Verify VLANs, ONT, DTN, and Speed
+
+      ⚠️ If your market is NOT a CRIS market, verify the correct hostname
+      format with your local network manager documentation.
+    next: done
+
+  # ---------------------------------------------------------------------------
+  # DONE
+  # ---------------------------------------------------------------------------
+  done:
+    id: done
+    type: end
+    message: |
+      ✅ **Workflow Complete**
+
+      Your Instant Internet fallout item has been addressed.
+
+      **Before closing out, confirm:**
+      - [ ] OSG status is resolved (Complete or re-queued cleanly)
+      - [ ] VLANs, ONT, DTN, and Speed are verified correct
+      - [ ] Work ticket status is updated in Optius
+      - [ ] Session logged
+
+      Need to work another ticket? Start the workflow again from the top.
+
+      ---
+      📚 **Reference:** QF Instant Internet Programming Fallout SOP — Rev. 2 (04/16/25)
+      🔗 Optius: http://o2prod.corp.intranet/optius/
