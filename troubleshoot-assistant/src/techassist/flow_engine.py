@@ -1,7 +1,11 @@
 import yaml
+import logging
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 from pathlib import Path
+
+class FlowDefinitionError(Exception):
+    """Custom exception for errors in flow definitions."""
 
 
 @dataclass
@@ -35,6 +39,7 @@ class TroubleshootingEngine:
         Args:
             flows_file: Path to YAML file or directory containing flows and solutions
         """
+        self.logger = logging.getLogger(__name__)
         self.flows = []
         self.solutions = {}
 
@@ -44,12 +49,13 @@ class TroubleshootingEngine:
         if flows_path.is_dir():
             yaml_files = list(flows_path.glob('*.yaml')) + list(flows_path.glob('*.yml'))
             if not yaml_files:
+                self.logger.error(f"No YAML files found in directory: {flows_path}")
                 raise FileNotFoundError(f"No YAML files found in directory: {flows_path}")
 
-            print(f"Loading {len(yaml_files)} workflow files...")
+            self.logger.info(f"Loading {len(yaml_files)} workflow files...")
             for yaml_file in sorted(yaml_files):
                 self._load_file(yaml_file)
-                print(f"  Loaded: {yaml_file.name}")
+                self.logger.info(f"  Loaded: {yaml_file.name}")
 
         # If a single file is passed, load just that file
         elif flows_path.is_file():
@@ -57,6 +63,19 @@ class TroubleshootingEngine:
 
         else:
             raise FileNotFoundError(f"Flows file or directory not found: {flows_file}")
+
+    def _add_flow_if_unique(self, new_flow: Dict, source_file: Path, is_top_level: bool = False):
+        flow_id = new_flow.get('id')
+        if not flow_id:
+            raise FlowDefinitionError(f"Attempted to add a flow without 'id' from {source_file.name}.")
+
+        if any(f['id'] == flow_id for f in self.flows):
+            source_context = "top-level" if is_top_level else "'flows' key"
+            self.logger.warning(f"Duplicate flow ID '{flow_id}' found in {source_file.name} ({source_context}). Skipping.")
+        else:
+            self.flows.append(new_flow)
+            source_context = "top-level" if is_top_level else "'flows' key"
+            self.logger.info(f"Appended new {source_context} flow '{flow_id}' from {source_file.name}.")
 
     def _load_file(self, file_path: Path):
         """Load a single YAML file and merge into existing flows/solutions"""
@@ -66,16 +85,34 @@ class TroubleshootingEngine:
         if not data:
             return
 
-        # Merge flows
-        new_flows = data.get('flows', [])
-        self.flows.extend(new_flows)
+        # Handle new format with top-level 'steps'
+        if 'steps' in data and isinstance(data['steps'], list):
+            flow_id = data.get('id') or file_path.stem # Use explicit ID if present, otherwise filename
+            new_flow = {
+                'id': flow_id,
+                'name': data.get('name') or flow_id.replace('_', ' ').title(),
+                'description': data.get('description') or f"[AUTO-GENERATED] Troubleshooting guide for '{flow_id.replace('_', ' ').title()}' from {file_path.name}. Please add a specific 'description' in the YAML for better user experience.",
+                'steps': data['steps']
+            }
+            self._add_flow_if_unique(new_flow, file_path, is_top_level=True)
+
+        # Merge flows from 'flows' key, avoiding duplicates
+        flows_from_key = data.get('flows', [])
+        for flow_from_key in flows_from_key:
+            if 'id' not in flow_from_key:
+                raise FlowDefinitionError(
+                    f"Flow without 'id' found in 'flows' key in {file_path.name}. "
+                    "All flows must have a unique 'id'. Consider updating to the new top-level 'steps' format "
+                    "or ensuring each flow under 'flows' has a unique 'id'."
+                )
+            self._add_flow_if_unique(flow_from_key, file_path, is_top_level=False)
 
         # Merge solutions - check for duplicate IDs
         new_solutions = data.get('solutions', [])
         for s in new_solutions:
             sol_id = s['id']
             if sol_id in self.solutions:
-                print(f"  WARNING: Duplicate solution ID '{sol_id}' in {file_path.name} - overwriting")
+                self.logger.warning(f"  WARNING: Duplicate solution ID '{sol_id}' in {file_path.name} - overwriting")
             self.solutions[sol_id] = Solution(**s)
 
     def list_flows(self) -> List[Dict]:

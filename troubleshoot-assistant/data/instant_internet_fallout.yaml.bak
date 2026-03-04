@@ -10,6 +10,7 @@
 
 id: instant_internet_fallout
 title: "Instant Internet Programming Fallout"
+name: "Instant Internet Fallout"
 description: >
   Step-by-step workflow for monitoring and completing Optius programming
   fallout for Quantum Fiber Instant Internet (MDU) orders, including

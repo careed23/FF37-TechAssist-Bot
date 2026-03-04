@@ -1,0 +1,1450 @@
+flows:
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow1
+  name: Overview
+  description: ''
+  steps: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow2
+  name: Effective Date
+  description: ''
+  steps: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow3
+  name: Related Documents/Links
+  description: ''
+  steps: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow4
+  name: E7-2 and E7-20 Standard FTTP HSI Activation GPON
+  description: ''
+  steps:
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step1
+    question: Access
+    options: []
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step2
+    question: Calix CMS ONT ID Search
+    options: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow5
+  name: Provisioning Service
+  description: ''
+  steps:
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step3
+    question: Provision Data Service using the Table tab.
+    options: []
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step4
+    question: Provision Data Service using the Form tab.
+    options: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow6
+  name: Deleting Service
+  description: ''
+  steps:
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step5
+    question: Deleting Services using the Ports Tab
+    options: []
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step6
+    question: Deleting Services using Form Tab
+    options: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow7
+  name: Create ONT ID
+  description: ''
+  steps: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow8
+  name: "Calix CMS Replace or \u201CZero\u201D ONT"
+  description: ''
+  steps:
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step7
+    question: "Calix CMS \u201CZero\u201D ONT"
+    options: []
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step8
+    question: Calix CMS Replace
+    options: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow9
+  name: Calix CMS Global ONT/SmartNID Serial Number Search
+  description: ''
+  steps: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow10
+  name: 844G Switching from RG to GE Programming
+  description: 'Important: to maintain database integrity, it is necessary to follow
+    the steps below. Do not delete the ONT ID. Overview of Steps:'
+  steps: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow11
+  name: Firmware
+  description: 'To view SmartNID Firmware:'
+  steps: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow12
+  name: Troubleshooting, Tips, and Known Issues
+  description: ''
+  steps:
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step9
+    question: Calix C7 1G Service
+    options: []
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step10
+    question: Identify missing ONT ID
+    options: []
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step11
+    question: Create ONT Profile
+    options: []
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step12
+    question: Verify Light Levels
+    options: []
+  - id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_step13
+    question: Resetting ONT/SmartNID
+    options: []
+- id: calix-e7-2-and-e7-20-gpon-data-only-programming-remote-tech-assist_flow13
+  name: Document Management
+  description: ''
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow1
+  name: Overview
+  description: ''
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow2
+  name: Effective Date
+  description: ''
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow3
+  name: Related Links
+  description: ''
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow4
+  name: 360 Wifi Overview
+  description: "360 WiFi creates a network throughout the home or business to ensure\
+    \ devices receive the best connection possible. This makes spotty, inconsistent\
+    \ connections, and voids without the Internet a problem of the past. It also includes\
+    \ a primary control system that routes and directs traffic to connected and Smart\
+    \ Home / Internet of Things (IoT) devices. Reducing slow-downs, parental controls,\
+    \ and enhanced cyber security is available and activated. Axon\_Cyber Security"
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow5
+  name: Ordering and Removing 360 WiFi
+  description: The customer should use the website to order new service, add 360 WiFi
+    to existing service, or to disconnect existing service, and to return equipment.
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow6
+  name: SSID and Password/The Quantum Fiber App
+  description: "Customers should utilize the QF App to establish a SSID and Password.\
+    \ If the customer purchased their phone out of the country, for example, the customer\
+    \ purchased an iPhone in Germany, they will have issues trying to download the\
+    \ app. The customer should update their region details\_in the settings menu to\
+    \ be able to view the US version of their store. See more information in the Tech\
+    \ Assist Scenarios section of this document."
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow7
+  name: Identifying a 360 WiFi7 Customer
+  description: 'In Salesforce:'
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow8
+  name: Tech Assist Scenarios
+  description: ''
+  steps:
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step1
+    question: Onboarding Pods Scenarios
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step2
+    question: Installation Equipment (Technician is onsite)
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step3
+    question: "New Install \u2013 Customer says \u201CI don\u2019t want the 360 WiFi\u201D\
+      ."
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step4
+    question: "New Install \u2013 Additional pod(s) needed"
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step5
+    question: Divorced/Roommate Situation or using pods from one account to another
+    options: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow9
+  name: SmartNID Activation Troubleshooting
+  description: "If a SmartNID fails to activate, follow the steps in the Troubleshooting\
+    \ SmartNID Activation section of the Quantum Fiber \u2013 SmartNID document. \
+    \ The link for this can be found in the Related Links section of this document."
+  steps: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow10
+  name: Claiming and Activating SmartNIDs or Pods
+  description: 'Note:  It has been discovered that when a SmartNID is swapped, the
+    system does not automatically trigger a DHCP refresh for W1701K pods. After swapping
+    an ONT/SmartNID all W1701K pods must be removed and then added back to the account.
+    Refer to Removing Pods, Unclaiming Pods, and Adding Pods sections of the QMate
+    document for process of unclaiming and adding Pods.'
+  steps:
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step6
+    question: Claiming Pods
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step7
+    question: Unclaiming Pods
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step8
+    question: SmartNID Active but Pod Does Not Activate
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step9
+    question: Pod Mismatches
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step10
+    question: Creating an Analyst Support Case
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step11
+    question: Updating Pod Serial Numbers
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step12
+    question: Sync Pods / Correct Pod Count
+    options: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow11
+  name: Troubleshooting
+  description: If the customer has Q9500WK Pods and the Main Pod is not connecting,
+    but has power, the pod equipment will need to be replaced.  Q9500WK Pods are no
+    longer available, and the customer will have to be upgraded to WiFi7 equipment.
+  steps:
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step13
+    question: If a Pod cannot be Added
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step14
+    question: SSID Broadcasting Issues
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step15
+    question: How to Factory Reset a Pod
+    options:
+    - value: hold-down-the-reset-button-for-15-seconds
+      description: Hold down the reset button for 15 seconds
+      next: quantum-fiber---360-wifi-qf-tech-assist_step16
+      original_paragraph_index: 172
+    - value: once-the-button-is-released-the-light-will-change-to-an-amber-color-and-then-the-pod-will-reboot
+      description: Once the button is released, the light will change to an amber
+        color and then the pod will reboot
+      next: quantum-fiber---360-wifi-qf-tech-assist_step16
+      original_paragraph_index: 173
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step16
+    question: Troubleshooting Ethernet connected devices
+    options:
+    - value: if-the-wired-device-is-not-connecting-to-the-network-try-power-cycling-the-pod-while-the-device-is-still-connected-by-ethernet
+      description: If the wired device is not connecting to the network, try power-cycling
+        the pod while the device is still connected by Ethernet.
+      next: quantum-fiber---360-wifi-qf-tech-assist_step17
+      original_paragraph_index: 176
+    - value: try-another-ethernet-cable-ethernet-cables-can-fail-and-cause-a-poor-or-unstable-connections
+      description: Try another Ethernet cable. Ethernet cables can fail and cause
+        a poor or unstable connections.
+      next: quantum-fiber---360-wifi-qf-tech-assist_step17
+      original_paragraph_index: 178
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step17
+    question: What does the LED light on the Pod mean?
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step18
+    question: Additional factors
+    options: []
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step19
+    question: WiFi Interferance
+    options:
+    - value: what-if-there-is-poor-connection-to-certain-devices-or-in-certain-parts-of-the-home
+      description: 'What:  If there is poor connection to certain devices or in certain
+        parts of the home'
+      next: quantum-fiber---360-wifi-qf-tech-assist_step20
+      original_paragraph_index: 189
+    - value: why-this-could-be-caused-by-conditions-unique-to-the-homeproperty-such-as-home-construction-or-home-decor-example-mirrors-etc-that-can-cause-wifi-transmission-issues
+      description: "Why: This could be caused by conditions unique to the home/property,\
+        \ such as home construction or home d\xE9cor (example:  Mirrors, etc) that\
+        \ can cause WiFi transmission issues."
+      next: quantum-fiber---360-wifi-qf-tech-assist_step20
+      original_paragraph_index: 190
+    - value: indicators
+      description: 'Indicators:'
+      next: quantum-fiber---360-wifi-qf-tech-assist_step20
+      original_paragraph_index: 191
+    - value: only-some-devices-experience-issues
+      description: Only some devices experience issues
+      next: quantum-fiber---360-wifi-qf-tech-assist_step20
+      original_paragraph_index: 192
+    - value: rssi-values-for-certain-devices-are-in-the-red--108db-in-qmate
+      description: RSSI values for certain devices are in the red (-108db) in QMate.
+      next: quantum-fiber---360-wifi-qf-tech-assist_step20
+      original_paragraph_index: 193
+    - value: note-rssi-indicator-bar-in-qmate-green-excellent-yellow-marginal-red-poor
+      description: "Note:\_RSSI Indicator bar in QMate = Green (excellent), Yellow\
+        \ (marginal), Red (poor)."
+      next: quantum-fiber---360-wifi-qf-tech-assist_step20
+      original_paragraph_index: 194
+    - value: how-to-fix-the-customer-may-need-to-move-obstructions-or-the-device-may-need-to-be-moved-away-from-the-obstruction
+      description: 'How to fix:  The customer may need to move obstructions or the
+        device may need to be moved away from the obstruction.'
+      next: quantum-fiber---360-wifi-qf-tech-assist_step20
+      original_paragraph_index: 195
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step20
+    question: "Poor Coverage/Underserviced \u2013 Inadequate number or placement of\
+      \ Pods"
+    options:
+    - value: what-there-is-poor-connection-to-some-devices
+      description: 'What:  There is poor connection to some devices'
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 198
+    - value: why-wifi-coverage-is-inadequate-due-to-number-of-or-placement-of-pods
+      description: 'Why: WiFi coverage is inadequate due to number of or placement
+        of Pods'
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 199
+    - value: indicators
+      description: 'Indicators:'
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 200
+    - value: only-some-devices-are-affected
+      description: Only some devices are affected
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 201
+    - value: rssi-indicators-are-yellow-or-red
+      description: RSSI indicators are yellow or red
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 202
+    - value: rssi-value-in-yellow-at--74dbm
+      description: RSSI value in yellow at -74dBm
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 203
+    - value: note-rssi-indicator-bar-in-qmate-green-excellent-yellow-marginal-red-poor
+      description: "Note:\_RSSI Indicator bar in QMate = Green (excellent), Yellow\
+        \ (marginal), Red (poor)."
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 204
+    - value: pods-are-connecting-to-other-pods-and-not-the-main-pod
+      description: Pods are connecting to other Pods and not the main Pod
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 205
+    - value: how-to-fix
+      description: 'How to fix:'
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 206
+    - value: determine-the-location-of-the-pods-within-the-home-in-comparison-to-the-reported-devices-with-connection-issues
+      description: Determine the location of the pods within the home in comparison
+        to the reported devices with connection issues.
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 207
+    - value: determine-if-pods-andor-devices-can-be-moved-to-optimize-wifi-coverage
+      description: Determine if Pods and/or devices can be moved to optimize WiFi
+        coverage.
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 208
+    - value: in-the-rare-circumstance-where-it-is-determined-an-additional-pod-would-resolve-the-gap-in-wifi-coverage-the-customer-would-need-to-order-an-additional-pods
+      description: In the rare circumstance where it is determined an additional Pod
+        would resolve the gap in WiFi coverage, the customer would need to order an
+        additional Pod(s).
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 209
+    - value: techs-do-not-get-dispatched-on-non-360-wifi-accounts
+      description: Techs do not get dispatched on non-360 WiFi Accounts
+      next: quantum-fiber---360-wifi-qf-tech-assist_step21
+      original_paragraph_index: 210
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step21
+    question: Oversaturation/Too many Pods
+    options:
+    - value: what-devices-are-experiencing-the-dropping-of-wifi-signal
+      description: 'What:  Devices are experiencing the dropping of WiFi signal'
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol1
+    - value: why-too-many-pods-are-within-the-home-causing-overlapping-channels
+      description: 'Why: Too many Pods are within the home causing overlapping channels'
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol2
+    - value: indicators
+      description: 'Indicators:'
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol3
+    - value: a-smaller-home-is-described-and-there-are-2-pods-in-the-home
+      description: A smaller home is described and there are 2+ Pods in the home.
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol4
+    - value: rssi-values-on-all-pods-are--30-dbm-or-lower
+      description: RSSI values on all Pods are -30 dBM or lower
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol5
+    - value: note-rssi-indicator-bar-in-qmate-green-excellent-yellow-marginal-red-poor
+      description: "Note:\_RSSI Indicator bar in QMate = Green (excellent), Yellow\
+        \ (marginal), Red (poor)."
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol6
+    - value: review-the-rssi-indicator-on-the-pods-making-note-of-if-it-is-green-and-has-no-connected-devices
+      description: Review the RSSI indicator on the Pods, making note of if it is
+        green and has no connected devices
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol7
+    - value: devices-drop-and-reconnect-randomly
+      description: Devices drop and reconnect randomly.
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol8
+    - value: how-to-fix
+      description: 'How to fix:'
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol9
+    - value: remove-a-pod-with-the-low-rssi-or-move-pods-further-away-from-each-other
+      description: Remove a Pod (with the low RSSI) or move Pods further away from
+        each other
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol10
+    - value: determine-which-devices-tend-to-drop-wifi-signal-and-have-the-closest-pod-removeddisconnected
+      description: Determine which devices tend to drop WiFi signal and have the closest
+        Pod removed/disconnected
+      solution: quantum-fiber---360-wifi-qf-tech-assist_sol11
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow12
+  name: Third Party Equipment
+  description: To connect to WiFi, customers will either select 360 WiFi or bring
+    their own WiFi solution (if the option is available in the buy-flow). If a customer
+    declines 360 WiFi and indicates they want to provide their own equipment, a Third
+    Party Equipment Requirements notice will appear to the customer.
+  steps:
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step22
+    question: Third Party Equipment Requirements
+    options:
+    - value: 1-gbps-ethernet-wan-port
+      description: 1 Gbps Ethernet WAN port
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 251
+    - value: dhcp-to-obtain-wan-ip-address
+      description: DHCP to obtain WAN IP Address
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 252
+    - value: firewall-support-recommended
+      description: Firewall support (recommended)
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 253
+    - value: latest-wifi-technologies-that-are-also-available-in-your-wireless-clients-at-least-2x2
+      description: "Latest WiFi technologies that are also available in your wireless\
+        \ clients (at least 2\xD72"
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 257
+    - value: radio-with-80211ac-andor-80211ax
+      description: radio with 802.11AC and/or 802.11AX)
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 258
+    - value: accurate-auto-channel-selection
+      description: Accurate auto-channel selection
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 259
+    - value: ethernet-port-must-forward-packets-between-lan-and-wan-at-the-same-rate-as
+      description: Ethernet port must forward packets between LAN and WAN, at the
+        same rate as
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 260
+    - value: purchased-speed
+      description: purchased speed
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 261
+    - value: security-features-such-as-malware-protection-antivirus-and-content-protection
+      description: Security Features such as malware protection, antivirus, and content
+        protection
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 264
+    - value: access-control-to-allow-or-block-certain-devices-from-connecting-at-certain-times
+      description: Access control to allow or block certain devices from connecting
+        at certain times
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 265
+    - value: wireless-optimization-including-dynamic-channel-optimization-and-band-steering
+      description: Wireless Optimization, including Dynamic Channel Optimization and
+        Band Steering
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 266
+    - value: technical-support-for-troubleshooting
+      description: Technical support for troubleshooting
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 267
+    - value: pro-active-monitoring-of-your-service-above-the-physical-layer
+      description: Pro-active monitoring of your service above the physical layer
+      next: quantum-fiber---360-wifi-qf-tech-assist_step23
+      original_paragraph_index: 268
+  - id: quantum-fiber---360-wifi-qf-tech-assist_step23
+    question: Third Party Troubleshooting
+    options: []
+- id: quantum-fiber---360-wifi-qf-tech-assist_flow13
+  name: Document Management
+  description: ''
+  steps: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow1
+  name: Overview
+  description: ''
+  steps: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow2
+  name: Effective Date
+  description: ''
+  steps: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow3
+  name: Related Links
+  description: ''
+  steps: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow4
+  name: What is a Salesforce Case?
+  description: Cases are a powerful tool within Salesforce used for recording, tracking,
+    and resolving issues. Cases facilitate interactions with customers, other agents,
+    or teams to communicate and solve problems that might prevent an order from being
+    assigned, such as facility or engineering issues. When a Quantum Fiber (QF) order
+    cannot be completed due to company-related reasons requiring investigation, such
+    as engineering or facilities issues, a Case is created to record, track, and resolve
+    the problem. Additionally, automated cases may be generated based on specific
+    error messages to address potential issues before the customer's due date, thereby
+    preventing delays and avoiding unnecessary dispatches. Cases are managed through
+    Salesforce queues and can be routed to various departments, enabling effective
+    communication and collaboration to resolve problems. Salesforce Case Management
+    supports the recording, tracking, and resolution of customer issues through sales,
+    service, and support channels. This functionality includes capabilities to create
+    cases from emails (email to case), web forms (web to case), manually, or via automation.
+  steps: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow5
+  name: Checklist
+  description: ''
+  steps: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow6
+  name: Creating Cases in Salesforce
+  description: 'TIP! Before creating a new case check to see if there is an existing
+    case on the account that should be used. If so, update the Case Owner and Case
+    Type instead of creating a new case. See Subject below. NOTE: Cases that have
+    PDAP in the subject field should not be closed by QFTA. It is ok to modify the
+    case, when appropriate (Tip: See the PDAP Cases section of this document.) Open
+    a new case to account for the work or to send to another queue. If this Case Type
+    is in the Facility Support queue, reassign it to the case creator. PDAP (Past
+    Due Activation Project) is how Fiber Customer Success Team (FCST) tracks the past
+    due and held orders to ensure it is followed up on and the customer is notified.
+    To see the entire Case history for an Account, select Cases in the Highlight Panel
+    (in the Related List Quick Links section)'
+  steps:
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step1
+    question: Case Record Types and Subtypes
+    options:
+    - value: create-a-fiberchia-case---for-general-customer-support-issues
+      description: Create a Fiber/CHIA case - for general customer support issues
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+      original_paragraph_index: 122
+    - value: chia-consumer-hsi-integrated-architecture
+      description: CHIA = Consumer HSI Integrated Architecture
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+      original_paragraph_index: 123
+    - value: create-engineering-fallout-case---for-issues-related-to-new-service
+      description: Create Engineering Fallout Case - for issues related to new service
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+      original_paragraph_index: 124
+    - value: create-repair-case---troubleshoot-issues-dispatch-tech-or-replace-equipment
+      description: Create Repair Case - Troubleshoot issues, dispatch tech, or replace
+        equipment
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+      original_paragraph_index: 125
+    - value: create-deactivation-case---disable-products-or-services
+      description: Create Deactivation Case - Disable products or services
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+      original_paragraph_index: 126
+    - value: create-legacy-disconnect-case---for-disconnecting-existing-centurylink-service
+      description: Create Legacy Disconnect Case - for disconnecting existing Centurylink
+        service
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+      original_paragraph_index: 127
+    - value: create-pending-past-due-case---for-install-order-fallout-issues
+      description: Create Pending Past Due Case - for Install Order Fallout issues.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+      original_paragraph_index: 128
+    - value: other-actions---issue-credit-memo-or-refund-reward-card-lifeline-loyalty-price-correction-and-promo-code
+      description: Other Actions - Issue Credit Memo or Refund, Reward Card, Lifeline,
+        Loyalty, Price Correction and Promo Code
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+      original_paragraph_index: 129
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step2
+    question: Fiber/CHIA case
+    options:
+    - value: create-a-callback-case
+      description: Create a Callback case
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step3
+      original_paragraph_index: 133
+    - value: create-a-facilities-supportprogramming-case
+      description: Create a Facilities Support/Programming case
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step3
+      original_paragraph_index: 134
+    - value: create-a-tech-assist-case
+      description: Create a Tech Assist case
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step3
+      original_paragraph_index: 135
+    - value: create-an-engineering-records-correction-this-can-also-be-done-by-selecting-engineering-fallout-instead-of-fiberchia
+      description: Create an Engineering Records Correction (This can also be done
+        by selecting Engineering Fallout instead of Fiber/CHIA)
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step3
+      original_paragraph_index: 136
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step3
+    question: Callback
+    options:
+    - value: there-is-an-address-issue-that-requires-clarification-from-the-customer
+      description: There is an address issue that requires clarification from the
+        customer
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step4
+      original_paragraph_index: 148
+    - value: eg-missing-unit-or-address-correction-requiring-cancel-and-recreation-of-order
+      description: E.g. missing unit or address correction requiring cancel and recreation
+        of order.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step4
+      original_paragraph_index: 149
+    - value: note-do-not-create-order-in-o2-as-this-will-cause-order-fall-out-later
+      description: 'Note: DO NOT create order in O2 as this will cause order fall
+        out later.'
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step4
+      original_paragraph_index: 150
+    - value: there-is-other-working-service-ows-in-quantum-fiber-use-legacy-disconnect-case-for-ows-in-legacy
+      description: There is Other Working Service (OWS) in Quantum Fiber (Use Legacy
+        Disconnect case for OWS in Legacy)
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step4
+      original_paragraph_index: 151
+    - value: a-case-was-falsely-routed-to-facility-support-when-it-should-have-gone-to-callback
+      description: A case was falsely routed to Facility Support when it should have
+        gone to Callback
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step4
+      original_paragraph_index: 152
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step4
+    question: Facilities Support/Programming
+    options:
+    - value: a-case-should-be-created-for-every-dtn-including-bulk-property
+      description: A case should be created for every DTN including Bulk Property.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step5
+      original_paragraph_index: 167
+    - value: the-subtype-should-be-selected-from-the-drop-down-list-using-the-appropriate-corresponding-subtype-reason
+      description: The Subtype should be selected from the drop-down list using the
+        appropriate corresponding subtype reason.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step5
+      original_paragraph_index: 168
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step5
+    question: Tech Assist
+    options:
+    - value: a-case-should-be-created-for-every-dtn-including-bulk-property
+      description: A case should be created for every DTN, including Bulk Property.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step6
+      original_paragraph_index: 175
+    - value: the-subtype-should-be-selected-from-the-drop-down-list-using-the-appropriate-corresponding-subtype-reason
+      description: The Subtype should be selected from the drop-down list using the
+        appropriate corresponding subtype reason.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step6
+      original_paragraph_index: 177
+    - value: selecting-a-case-type-of-tech-assist-will-also-require-the-agent-to-verify-the-tech-that-is-being-spoken-to-in-order-to-fill-in-the-additional-fields-section
+      description: Selecting a Case Type of Tech Assist will also require the agent
+        to verify the Tech that is being spoken to in order to fill in the Additional
+        Fields section.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step6
+      original_paragraph_index: 179
+    - value: if-the-tech-is-the-same-tech-that-is-assigned-the-service-appointment-sa-then-the-agent-can-select-the-sa-option-that-should-already-display-that-technicians-name
+      description: "If the Tech is the same Tech that is assigned the Service Appointment\
+        \ (SA), then the agent can select the SA option that should already display\
+        \ that technician\u2019s name."
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step6
+      original_paragraph_index: 180
+    - value: if-that-is-not-the-tech-that-is-calling-in-the-agent-should-select-the-other-radio-and-start-typing-in-the-techs-name-until-the-desired-result-becomes-selectable-or-the-cuid-can-be-entered-and-searched-by-entering-the-ciud-information-selecting-the-show-all-results-for-
+      description: If that is not the Tech that is calling in, the agent should select
+        the Other radio and start typing in the Techs name until the desired result
+        becomes selectable, or the CUID can be entered and searched by entering the
+        CIUD information, selecting the Show all Results for ____.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step6
+      original_paragraph_index: 184
+    - value: note-as-part-of-the-transition-to-forged-fiber-37-newly-created-technician-profiles-will-no-longer-utilize-cuids-request-the-technicians-to-provide-their-name-as-appears-in-the-company-directory
+      description: "Note:  As part of the transition to Forged Fiber 37, newly created\
+        \ Technician profiles will no longer utilize CUID\u2019s.  Request the Technicians\
+        \ to provide their name as appears in the Company Directory."
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step6
+      original_paragraph_index: 185
+    - value: if-the-caller-is-a-customer-the-agent-should-populate-the-agents-own-name
+      description: If the caller is a customer, the agent should populate the agents
+        own name.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step6
+      original_paragraph_index: 186
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step6
+    question: Tech Assist Subtypes
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step7
+    question: Error encountered using T2G-activate ONT
+    options:
+    - value: programming---activate-ont
+      description: "Programming \u2013 Activate ONT"
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step8
+      original_paragraph_index: 213
+    - value: programming---smartnid
+      description: "Programming \u2013 SmartNID"
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step8
+      original_paragraph_index: 214
+    - value: programming---swap-ont
+      description: "Programming \u2013 Swap ONT"
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step8
+      original_paragraph_index: 215
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step8
+    question: Internal Assist
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step9
+    question: Engineering Fallout Case
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step10
+    question: Customer Address Fallout
+    options:
+    - value: qf-tech-assist-will-not-use-this-case-type
+      description: QF Tech Assist will not use this Case Type.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step11
+      original_paragraph_index: 248
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step11
+    question: Engineering Fallout
+    options:
+    - value: subtype-should-be-selected-from-the-drop-down-list-using-the-appropriate-corresponding-subtype-reason
+      description: Subtype should be selected from the drop-down list using the appropriate
+        corresponding subtype reason.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step12
+      original_paragraph_index: 250
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step12
+    question: Engineering Records Correction
+    options:
+    - value: this-case-type-was-added-in-the-august-25-2023-salesforce-release-and-will-be-used-to-communicate-any-records-corrections-that-need-to-be-sent-to-engineering-subtype-should-be-selected-from-the-drop-down-list-using-the-appropriate-corresponding-subtype-reason
+      description: This Case Type was added in the August 25, 2023, Salesforce Release
+        and will be used to communicate any records corrections that need to be sent
+        to Engineering. Subtype should be selected from the drop-down list using the
+        appropriate corresponding subtype reason.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step13
+      original_paragraph_index: 252
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step13
+    question: Planning Fallout
+    options:
+    - value: select-a-subtype-of-splitter-exhaust-any-time-there-is-a-splitter-exhaust-or-olt-exhaust-issue
+      description: Select a Subtype oF Splitter Exhaust any time there is a Splitter
+        exhaust or OLT exhaust issue.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step14
+      original_paragraph_index: 254
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step14
+    question: Repair Case
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step15
+    question: Deactivation Case
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step16
+    question: Legacy Disconnect Case
+    options:
+    - value: disconnect-type
+      description: Disconnect Type
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 271
+    - value: select-the-appropriate-legacy-service
+      description: Select the appropriate Legacy Service
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 272
+    - value: note-the-option-of-unknown-has-been-added
+      description: 'Note: the option of Unknown has been added'
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 273
+    - value: is-the-customers-name-and-address-an-exact-match-to-legacy-systems
+      description: "Is the customer\u2019s name and address an exact match to legacy\
+        \ systems?"
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 274
+    - value: select-no-which-will-cause-the-provide-alternate-details-field-to-appear
+      description: Select No, which will cause the Provide alternate details field
+        to appear
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 275
+    - value: input-unknown
+      description: Input Unknown
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 276
+    - value: legacy-account-number
+      description: Legacy Account Number
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 277
+    - value: input-the-legacy-phone-number
+      description: Input the Legacy Phone Number
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 278
+    - value: requested-callback-time
+      description: Requested Callback Time
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 279
+    - value: do-not-action-these-fields
+      description: Do not action these fields
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+      original_paragraph_index: 280
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step17
+    question: Pending Past Due Case
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step18
+    question: PDAP Cases
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step19
+    question: Other Actions - Issue Credit Memo, Reward Card, Lifelink, Loyalty, Price
+      Correction and Promo Code
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step20
+    question: Status
+    options:
+    - value: open---if-the-ticket-is-being-routed-to-another-department-or-if-agent-work-isnt-complete
+      description: "Open - if the ticket is being routed to another department or\
+        \ if Agent work isn\u2019t complete."
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step21
+      original_paragraph_index: 321
+    - value: closed---if-the-ticket-has-been-completed
+      description: Closed - if the ticket has been completed.
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step21
+      original_paragraph_index: 322
+    - value: cancelled---if-opened-in-error
+      description: Cancelled - if opened in error
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step21
+      original_paragraph_index: 323
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step21
+    question: Caller Name
+    options:
+    - value: fiberchia
+      description: Fiber/CHIA
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step22
+      original_paragraph_index: 327
+    - value: engineering-fallout
+      description: Engineering Fallout
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step22
+      original_paragraph_index: 328
+    - value: repair-not-used-by-qfta
+      description: Repair (not used by QFTA)
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step22
+      original_paragraph_index: 329
+    - value: deactivation-not-used-by-qfta
+      description: Deactivation (not used by QFTA)
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step22
+      original_paragraph_index: 330
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step22
+    question: Subject
+    options:
+    - value: coqftaaddress-fallout
+      description: CO/QFTA/Address Fallout
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step23
+      original_paragraph_index: 349
+    - value: flqftared-e
+      description: FL/QFTA/Red E
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step23
+      original_paragraph_index: 350
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step23
+    question: Notes
+    options:
+    - value: examples
+      description: 'Examples:'
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+      original_paragraph_index: 358
+    - value: input-reason-for-technician-engagement
+      description: input reason for technician engagement
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+      original_paragraph_index: 359
+    - value: input-fallout-reason
+      description: input fallout reason
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+      original_paragraph_index: 360
+    - value: changed-leg
+      description: changed Leg
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+      original_paragraph_index: 361
+    - value: changed-mst
+      description: changed MST
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+      original_paragraph_index: 362
+    - value: programmed-ont
+      description: programmed ONT
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+      original_paragraph_index: 363
+    - value: splitter-is-full
+      description: splitter is full
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+      original_paragraph_index: 364
+    - value: mst-is-full
+      description: MST is full
+      next: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+      original_paragraph_index: 365
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step24
+    question: Description
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step25
+    question: Case Owner
+    options: []
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step26
+    question: Click to Call Case
+    options: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow7
+  name: Case Sub Status
+  description: This was created for and will only be used by a specific team within
+    the FCST. This will not be used by QFTA.
+  steps: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow8
+  name: Reassign Case and Changing Ownership
+  description: Once a case has been created, it can be reassigned to a different department
+    by using the Reassign Case button. In the rare occasion that a Case needs to be
+    reassigned to a person, see the Reassigning a Case to a Person section of this
+    document. Open the case that changes need to be applied to and select Reassign
+    Case.
+  steps:
+  - id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_step27
+    question: Reassigning a Case to a Person
+    options:
+    - value: sasktel-service-order-assign-call-failure
+      description: Sasktel Service Order Assign call failure
+      solution: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol1
+    - value: the-process-failed-before-even-attempting-to-create-the-order-in-optius-therefor-this-is-not-a-valid-facility-support-case-and-the-case-should-be-reassigned-to-the-lpm
+      description: The process failed before even attempting to create the order in
+        Optius, therefor this is not a valid Facility Support case, and the Case should
+        be reassigned to the LPM.
+      solution: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol2
+    - value: sasktelunabletocomplete-30124---odin---unable-to-assign-resources-reason-me12487-rachael-dr-does-not-have-available-ports
+      description: 'SASKTEL:UNABLE_TO_COMPLETE : 30124 - ODiN - Unable to assign resources,
+        reason: ME=12487 RACHAEL DR does not have available ports'
+      solution: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol3
+    - value: this-odin-error-will-still-be-valid-to-fallout-to-facility-support-however-this-happened-due-to-ows-and-subsequent-ciasn-order-pended-this-happened-before-the-aug-iia-tool-automation-will-resolve-new-instances-of-this-fallout-however-older-manual-fixes-will-be-required
+      description: "This ODiN error will still be valid to fallout to Facility Support,\
+        \ however this happened due to OWS and subsequent CIASN order pended.\_ This\
+        \ happened before the Aug IIA tool automation will resolve NEW instances of\
+        \ this fallout, however older manual fixes will be required"
+      solution: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol4
+    - value: this-error-happened-because-the-ont-is-full-is-possible-in-other-scenarios-that-the-eng-design-needs-to-be-updated-if-more-addresses-were-assigned-to-the-ont-than-the-ont-is-capable-of-supporting-or-the-ont-size-may-need-to-be-changed-the-lpm-and-the-eng-will-work-together-to-resolve-the-issue-reassign-the-case-to-the-lpm
+      description: This error happened because the ONT is full.  Is possible in other
+        scenarios that the ENG design needs to be updated if more addresses were assigned
+        to the ONT than the ONT is capable of supporting, or the ONT size may need
+        to be changed. The LPM and the ENG will work together to resolve the issue.
+        Reassign the case to the LPM.
+      solution: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol5
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow9
+  name: Escalate
+  description: The Escalate/Escalated buttons should not be selected by QFTA, unless
+    following the Quantum Fiber - New Build Not Ready Escalation Process (QF Structure
+    Load) process.  The NBNR process is the only time that QFTA should be escalating
+    a case.
+  steps: []
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_flow10
+  name: Document Management
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow1
+  name: Overview
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow2
+  name: Effective Date
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow3
+  name: Related Documents
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow4
+  name: Accessing the Adtran
+  description: ''
+  steps:
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step1
+    question: Optius
+    options: []
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step2
+    question: Poll DSLAM
+    options: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow5
+  name: ONT Discovery
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow6
+  name: Create New ONT
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow7
+  name: ONT Activation
+  description: ''
+  steps:
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step3
+    question: DUMY ONT
+    options: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow8
+  name: Base ONT provisioning
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow9
+  name: Provision the ONT, Ethernet Port
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow10
+  name: Create Interface Map
+  description: ''
+  steps:
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step4
+    question: Subscriber Interface
+    options: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow11
+  name: Create Shapers
+  description: ''
+  steps:
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step5
+    question: Creating Downstream Shaper
+    options: []
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step6
+    question: Creating Upstream Shaper
+    options: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow12
+  name: Identify Interface Map
+  description: Sometimes the Interface Map Name is unknown (the Name field), so it
+    would need to be found by the Subscriber Interface. In order to find the Subscriber
+    Interface, it will be important to know how to understand the Subscriber Interface
+    format. Looking at the example image below, the Subscriber Interface is GE 1/0/1/@1/17/4
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow13
+  name: Deleting Interface Map or Shaper
+  description: ''
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow14
+  name: Firmware
+  description: To identify the SmartNID Firmware go to the ONT screen and verify the
+    ONT Active Software Version field for the corresponding ONT.
+  steps: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow15
+  name: Troubleshooting
+  description: ''
+  steps:
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step7
+    question: PON Operational Status/Testing
+    options: []
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step8
+    question: "Searching Unrecognized ONT\u2019s"
+    options: []
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step9
+    question: Using FDT to Verify Assigned Splitters at FDH
+    options: []
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step10
+    question: Conflict with EVC Map Error
+    options: []
+  - id: adtran-ta5000-series-gpon-programming-remote-tech-assist_step11
+    question: Identifying if ONT Serial Number is Connected to Wrong Splitter
+    options: []
+- id: adtran-ta5000-series-gpon-programming-remote-tech-assist_flow16
+  name: Document Management
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow1
+  name: Overview
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow2
+  name: Effective Date
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow3
+  name: Related Documents
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow4
+  name: Overview
+  description: Positron G.hn Fiber Extension will improve MDU/MTU broadband service
+    for existing underserved assets by enhancing performance and speed offering, where
+    placing fiber to the unit is not an option due to wiring restrictions or cost.
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow5
+  name: Login
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow6
+  name: View Subscriber Service
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow7
+  name: Create Subscriber Service
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow8
+  name: Edit Subscriber Service
+  description: To edit service, the account can be deleted and rebuilt or edit an
+    existing account using the steps below.
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow9
+  name: View VLANS
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow10
+  name: Troubleshooting
+  description: When there are issues of no PING or incorrect speeds, always verify
+    the port is provisioned correctly and an IMPROV account is setup for the DTN using
+    the correct VLANs and speed. See View or Create for steps on reviewing or creating
+    subscriber accounts. If provisioning is correct, and the steps below do not resolve
+    the issue, ask the Technician to try a new Bridge modem & gateway, or move to
+    a new port.
+  steps:
+  - id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_step1
+    question: DHCP
+    options: []
+  - id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_step2
+    question: Bridge Modem Details
+    options: []
+  - id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_step3
+    question: Modem Details
+    options: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow11
+  name: Delete Subscriber Service
+  description: ''
+  steps: []
+- id: positron-ghn-programming-cor-tsc-and-qf-tech-assist-_flow12
+  name: Document Management
+  description: ''
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow1
+  name: Overview
+  description: ''
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow2
+  name: Effective Date
+  description: ''
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow3
+  name: Related Links
+  description: ''
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow4
+  name: Overview
+  description: 'G.Fast (G-Series Fast Access to Subscriber) technology allows the
+    company to improve broadband service for existing and underserved MDU/MTUs, where
+    placing new fiber or Cat5e/6 to the unit is cost prohibitive.  G.Fast programming
+    and capabilities will vary slightly based on the device type: CALIX E7 Casa G.Fast:'
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow5
+  name: Login
+  description: "There are 2 instances of CALIX SMx \u2013 One for Lumen, and one for\
+    \ Brightspeed, which is also where the Wisconsin T096 properties are. Lumen SMx:\
+    \ https://155.70.106.84:3443/smx/ Brightspeed SMx: https://155.70.71.71:3443/smx/"
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow6
+  name: View Service
+  description: Agent can view service by searching for the subscriber TN / DTN (Subscriber
+    Search), or by navigating to the Device and viewing the port (Manual Port Search).
+    A normal view for G.FAST would display both INTERFACE and SUBSCRIBERS.
+  steps:
+  - id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_step1
+    question: Using the Search window to View Subscriber
+    options: []
+  - id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_step2
+    question: Searching for a Subscriber using the Subscriber Tab
+    options: []
+  - id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_step3
+    question: Manual Port Search
+    options: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow7
+  name: Create Subscriber
+  description: "Tip:  See the related video \tG.Fast \u2013 Calix SMx Verify Programming\
+    \ The link for which can be found in the Related Documents section of this document."
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow8
+  name: Edit Subscriber
+  description: "This is used to change the Account, Name, or Address.  In order to\
+    \ change the VLAN\u2019s, see Edit Data Service."
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow9
+  name: Edit Data Service
+  description: "This is used to change the VLAN\u2019s.  In order to change the Account,\
+    \ Name, or Address, see Edit Subscriber."
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow10
+  name: Pause Service
+  description: ''
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow11
+  name: Resume Service
+  description: ''
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow12
+  name: Deleting Service
+  description: There are two steps when deleting services. Deleting the Subscriber
+    and deleting the ONT
+  steps:
+  - id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_step4
+    question: Deleting the Subscriber
+    options: []
+  - id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_step5
+    question: Deleting the GFAST Interface
+    options: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow13
+  name: Firmware
+  description: SmartNID Firmware cannot be found in G.Fast because the SmartNID is
+    behind a bridge device. The SmartNID Firmware that is shown would be on the bridge
+    device, and not the SmartNID.
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow14
+  name: Troubleshooting
+  description: Always attempt normal troubleshooting steps -- Verify customer is provisioned
+    correctly (VLANs match assignment & speed is correct) and ensure an IMPROV account
+    exists.  If the steps below do not resolve the issue, try Rip/Rebuild or ask the
+    technician to try a replacement Modem if needed.
+  steps:
+  - id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_step6
+    question: "How to Verify the Subscriber\u2019s IP Address"
+    options: []
+  - id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_step7
+    question: How to View Authentication on all of the Ports on the DPU
+    options: []
+  - id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_step8
+    question: How to Resynchronize the CLLI
+    options: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow15
+  name: Videos
+  description: 'Several videos have been created and the links for these videos can
+    be found in the Related Documents section of this document:'
+  steps: []
+- id: calix-e3-16f-e5-16f-gfast-smx-programming-remote-tech-assist_flow16
+  name: Document Management
+  description: ''
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow1
+  name: Overview
+  description: ''
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow2
+  name: Effective Date
+  description: ''
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow3
+  name: Related Documents
+  description: ''
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow4
+  name: 844G ONT
+  description: '844G is an integrated, all in one, ONT type that includes a built-in
+    modem and ATA (analog telephone adapter). This ONT type uses the RG (residential
+    gateway) port to program service, instead of the traditional GE port. When using
+    the RG port, an ONT will incorporate all 4 GE ports, which means programming to
+    the RG port will allow the technician to use ports 1, 2, 3 or 4 to get ping. If
+    GE port 1 goes bad or does not ping, technicians can plug into port 2, 3 or 4
+    and attempt ping without re-programming service. Special Notes on Programming:'
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow5
+  name: Switching from GE to RG Programming
+  description: 'Important: to maintain database integrity, it is necessary to follow
+    the steps below. Do not delete the ONT ID. Overview of Steps:'
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow6
+  name: Switching from RG to GE Programming
+  description: 'Important: to maintain database integrity, it is necessary to follow
+    the steps below. Do not delete the ONT ID. Overview of Steps:'
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow7
+  name: Auto-Switch Overview
+  description: "An upgrade to CMS allows auto-switch of settings after an ONT is RONTA\u2019\
+    d. Example: If an ONT is programmed as 700 series with GE services and an 844G\
+    \ ONT is connected, CMS will automatically switch to 844G and move to RG-1 provisioning."
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow8
+  name: Changing ONT type from 844G to 803G or C5500XK
+  description: "Previously 844G ONT\u2019s were only used for CTL-ON and Instant Internet\
+    \ MDU Properties. If the technician needs to replace the 844G, whenever possible\
+    \ it should be replaced with a different 844G. If that is not possible, recommend\
+    \ that an 803G be used. A C5500KX maybe  used if the technician does not have\
+    \ an 803G. Here are the steps to update the provisioning when changing from an\
+    \ 844G to an 803G or C5500XK. Note: Do not delete the existing ONT."
+  steps: []
+- id: 844g-integrated-ont-programming---calix-e7-cor-tsc-and-qf-tech-assist_flow9
+  name: Document Management
+  description: ''
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow1
+  name: Overview
+  description: ''
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow2
+  name: Effective Date
+  description: ''
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow3
+  name: Related Links
+  description: ''
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow4
+  name: E3-2 GPON Overview
+  description: 'E3-2 is an Intelligent PON Node that allows multiple PON technologies
+    (GPON, XGS-PON and NG-PON2), and provides flexibility to fit various deployment
+    configurations. E3-2 can support the same ONT card types as E7 GPON, including
+    CASA DPU (ONT). Note: North Carolina field trial locations will be loaded into
+    MARTENS and programmed Manually, while widescale deployments will be inventoried
+    in O2 (Optius and ODiN) and supported by the Quantum Fiber stack, as well as programmed
+    by OSG. Programming, troubleshooting and maintenance will be done through the
+    SMx EMS.'
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow5
+  name: Login
+  description: 'The URL link to SMx has been updated. The previous URL, https://smx:3443  (also
+    accessible via https://155.70.106.84:3443/smx/) and will no longer work at the
+    start of the maintenance window. These URLs will be replaced by the new URL link
+    provided in the Related Document section. This change will become effective on
+    November 7, 2024. Important: Users are advised to utilize the new URL link instead
+    of the IP address, if known. This allows the Element Management Systems (EMS)
+    Support to effectively switch the application between Omaha and Denver servers
+    without causing disruption to end-users, particularly during maintenance or when
+    a data center is briefly unavailable. *Chrome is the preferred browser'
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow6
+  name: View Service
+  description: ''
+  steps:
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step1
+    question: Using the Search window to View Subscriber
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step2
+    question: Searching for a Subscriber using the Subscriber Tab
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step3
+    question: Interface
+    options: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow7
+  name: Create Subscriber
+  description: ''
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow8
+  name: Edit Subscriber
+  description: "This is used to change the Account, Name, or Address. In order to\
+    \ change the VLAN\u2019s, see Edit Data Service."
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow9
+  name: Edit Data Service
+  description: "This is used to change VLAN\u2019s. In order to change the Account,\
+    \ Name, or Address, see Edit Subscriber."
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow10
+  name: Pause Service
+  description: ''
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow11
+  name: Resume Service
+  description: ''
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow12
+  name: Deleting Service
+  description: There are two steps when deleting services. Deleting the Subscriber
+    and deleting the ONT
+  steps:
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step4
+    question: Deleting the Subscriber
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step5
+    question: Deleting the ONT
+    options: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow13
+  name: Firmware
+  description: 'The SmartNID Firmware can be found by:'
+  steps: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow14
+  name: Troubleshooting
+  description: Always attempt normal troubleshooting steps first. Verify customer
+    is provisioned correctly (VLANs match what is assigned), ONT is linked, and IMPROV
+    account exist. If the steps below do not resolve issue, try Rip/Rebuild or ask
+    the Technician to try a replacement ONT or Modem if needed.
+  steps:
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step6
+    question: "How to Verify the Subscriber\u2019s IP Address"
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step7
+    question: Linking an ONT
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step8
+    question: Reset ONT
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step9
+    question: Replace ONT
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step10
+    question: Searching VLANs
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step11
+    question: Verifying SHUTDOWN is set to False
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step12
+    question: How to Resynchronize the CLLI
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step13
+    question: No Authentication/No Ping
+    options:
+    - value: 201-tagging-is-missing
+      description: 201 tagging is missing
+      next: calix-e3-2-gpon-smx-programming-remote-tech-assist_step14
+      original_paragraph_index: 172
+    - value: cvlan-needs-to-be-present-and-correct-and-not-duplicated
+      description: CVLAN needs to be present and correct and not duplicated
+      next: calix-e3-2-gpon-smx-programming-remote-tech-assist_step14
+      original_paragraph_index: 173
+    - value: verify-shutdown-is-set-to-false
+      description: Verify Shutdown is set to False
+      next: calix-e3-2-gpon-smx-programming-remote-tech-assist_step14
+      original_paragraph_index: 174
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step14
+    question: When the Registration ID (aka RONTA) is missing
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step15
+    question: Using the Search Bar
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step16
+    question: Using Subscriber Tab and Network Tab
+    options: []
+  - id: calix-e3-2-gpon-smx-programming-remote-tech-assist_step17
+    question: Calix SMx Global SmartNID Search
+    options: []
+- id: calix-e3-2-gpon-smx-programming-remote-tech-assist_flow15
+  name: Document Management
+  description: ''
+  steps: []
+solutions:
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol1
+  title: 'Solution for What:  Devices are experiencing the dropping of WiFi signal'
+  steps:
+  - 'Implement action for What:  Devices are experiencing the dropping of WiFi signal'
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol2
+  title: 'Solution for Why: Too many Pods are within the home causing overlapping
+    channels'
+  steps:
+  - 'Implement action for Why: Too many Pods are within the home causing overlapping
+    channels'
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol3
+  title: 'Solution for Indicators:'
+  steps:
+  - 'Implement action for Indicators:'
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol4
+  title: Solution for A smaller home is described and there are 2+ Pods in the home.
+  steps:
+  - Implement action for A smaller home is described and there are 2+ Pods in the
+    home.
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol5
+  title: Solution for RSSI values on all Pods are -30 dBM or lower
+  steps:
+  - Implement action for RSSI values on all Pods are -30 dBM or lower
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol6
+  title: "Solution for Note:\_RSSI Indicator bar in QMate = Green (excellent), Yellow\
+    \ (marginal), Red (poor)."
+  steps:
+  - "Implement action for Note:\_RSSI Indicator bar in QMate = Green (excellent),\
+    \ Yellow (marginal), Red (poor)."
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol7
+  title: Solution for Review the RSSI indicator on the Pods, making note of if it
+    is green and has no connected devices
+  steps:
+  - Implement action for Review the RSSI indicator on the Pods, making note of if
+    it is green and has no connected devices
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol8
+  title: Solution for Devices drop and reconnect randomly.
+  steps:
+  - Implement action for Devices drop and reconnect randomly.
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol9
+  title: 'Solution for How to fix:'
+  steps:
+  - 'Implement action for How to fix:'
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol10
+  title: Solution for Remove a Pod (with the low RSSI) or move Pods further away from
+    each other
+  steps:
+  - Implement action for Remove a Pod (with the low RSSI) or move Pods further away
+    from each other
+- id: quantum-fiber---360-wifi-qf-tech-assist_sol11
+  title: Solution for Determine which devices tend to drop WiFi signal and have the
+    closest Pod removed/disconnected
+  steps:
+  - Implement action for Determine which devices tend to drop WiFi signal and have
+    the closest Pod removed/disconnected
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol1
+  title: Solution for Sasktel Service Order Assign call failure
+  steps:
+  - Implement action for Sasktel Service Order Assign call failure
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol2
+  title: Solution for The process failed before even attempting to create the order
+    in Optius, therefor this is not a valid Facility Support case, and the Case should
+    be reassigned to the LPM.
+  steps:
+  - Implement action for The process failed before even attempting to create the order
+    in Optius, therefor this is not a valid Facility Support case, and the Case should
+    be reassigned to the LPM.
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol3
+  title: 'Solution for SASKTEL:UNABLE_TO_COMPLETE : 30124 - ODiN - Unable to assign
+    resources, reason: ME=12487 RACHAEL DR does not have available ports'
+  steps:
+  - 'Implement action for SASKTEL:UNABLE_TO_COMPLETE : 30124 - ODiN - Unable to assign
+    resources, reason: ME=12487 RACHAEL DR does not have available ports'
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol4
+  title: "Solution for This ODiN error will still be valid to fallout to Facility\
+    \ Support, however this happened due to OWS and subsequent CIASN order pended.\_\
+    \ This happened before the Aug IIA tool automation will resolve NEW instances\
+    \ of this fallout, however older manual fixes will be required"
+  steps:
+  - "Implement action for This ODiN error will still be valid to fallout to Facility\
+    \ Support, however this happened due to OWS and subsequent CIASN order pended.\_\
+    \ This happened before the Aug IIA tool automation will resolve NEW instances\
+    \ of this fallout, however older manual fixes will be required"
+- id: quantum-fiber---working-with-salesforce-cases-qf-tech-assist_sol5
+  title: "If there are other cases that shouldn\u2019t be assigned to Facility Support,\
+    \ please reach out to report them."
+  steps:
+  - "If there are other cases that shouldn\u2019t be assigned to Facility Support,\
+    \ please reach out to report them."
+  - To reassign a case to a person, select the Change Owner icon on the right side
+    of the Case Owner line.
+  - Begin typing the name of the person that the case is being reassigned to.
+  - Select the corresponding name in the results suggestions below.
+  - Important!  Be sure to select the Send notification email box.
