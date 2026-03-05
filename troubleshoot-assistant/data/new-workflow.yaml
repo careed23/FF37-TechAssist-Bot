@@ -317,4 +317,10 @@ solutions:
       - "If no conflict: Select 'Resend to OSG' button"
     escalate_if: "Modification cannot be applied due to device limitations or data inconsistencies"
   - id: sol_status_06_resolve_parent
-    title:
+    title: "Resolve Parent Command Error (Status 06)"
+    steps:
+      - "Identify the parent error message that occurred before the 'PARENT COMMAND FAILED' notification in the Work Ticket."
+      - "Follow the specific resolution steps for that parent error."
+      - "Once the parent error is resolved and has a 'Green C - Completed' status, select 'Resend to OSG' for the '06 FAILED' task."
+      - "Monitor the Work Ticket to ensure the command completes successfully."
+    escalate_if: "Parent error cannot be identified or resolved."
