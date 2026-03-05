@@ -353,6 +353,7 @@ def create_app() -> Flask:
         # Fall back to the original Jinja2 UI when no React build is present.
         app.register_blueprint(bp)
 
+    app.logger.info(f"App config: {app.config}")
     return app
 
 
