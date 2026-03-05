@@ -330,9 +330,8 @@ def create_app() -> Flask:
     )
     app.secret_key = load_secret_key()
 
-    # Temporarily load only generated_flows.yaml for debugging
-    #app.config["ENGINE"] = TroubleshootingEngine(str(DATA_PATH))
-    #app.config["LOGGER"] = TroubleshootingLogger(str(LOG_PATH))
+    app.config["ENGINE"] = TroubleshootingEngine(str(DATA_PATH))
+    app.config["LOGGER"] = TroubleshootingLogger(str(LOG_PATH))
 
     # JSON API blueprint (always registered)
     from .api import api_bp  # noqa: PLC0415
@@ -353,7 +352,6 @@ def create_app() -> Flask:
         # Fall back to the original Jinja2 UI when no React build is present.
         app.register_blueprint(bp)
 
-    app.logger.info(f"App config: {app.config}")
     return app
 
 
