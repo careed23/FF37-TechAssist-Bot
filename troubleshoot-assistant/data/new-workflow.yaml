@@ -1,0 +1,320 @@
+flows:
+  - id: osg_error_resolution
+    name: "OSG Error Resolution"
+    description: "Troubleshooting workflow for resolving Open Switchgate (OSG) errors on Optius Work Tickets"
+    steps:
+      - id: s1_identify_error
+        question: "What is the OSG error status message displayed in the Programming column?"
+        options:
+          - value: input_data_not_valid
+            description: "INPUT DATA NOT VALID"
+            next: s2_input_data_not_valid
+          - value: status_00_failed
+            description: "00 FAILED, STATUS UNKNOWN"
+            next: s2_status_00_failed
+          - value: status_06_failed
+            description: "06 FAILED, PARENT COMMAND FAILED"
+            next: s2_status_06_failed
+          - value: status_14_failed
+            description: "14 FAILED, I/O ERROR READING SO IN SWITCHGATE"
+            next: s2_status_14_failed
+          - value: status_15_failed
+            description: "15 FAILED, INVALID HOSTNAME FOR DEVICE"
+            next: s2_status_15_failed
+          - value: status_47_failed
+            description: "47 FAILED, COMMAND CONTAINS INVALID SYNTAX"
+            next: s2_status_47_failed
+          - value: status_48_failed
+            description: "48 FAILED, INCONSISTENT DATA COMMAND"
+            next: s2_status_48_failed
+          - value: status_75_invalid
+            description: "75 INVALID COMMAND VALUE OR FORMAT"
+            next: s2_status_75_invalid
+          - value: status_256_failed
+            description: "256 FAILED, INVALID ATTRIBUTES EXIST"
+            next: s2_status_256_failed
+          - value: status_290_failed
+            description: "290 FAILED, THE OBJECT ALREADY EXISTS"
+            next: s2_status_290_failed
+          - value: status_291_failed
+            description: "291 FAILED, THE OBJECT SPECIFIED COULD NOT BE FOUND"
+            next: s2_status_291_failed
+          - value: status_292_failed
+            description: "292 FAILED, THE DEVICE ENCOUNTERED AN INTERNAL ERROR"
+            next: s2_status_292_failed
+          - value: status_333_failed
+            description: "333 FAILED, NETWORK NOT CONNECTED"
+            next: s2_status_333_failed
+          - value: status_912_failed
+            description: "912 FAILED, NETWORK ELEMENT UNREACHABLE"
+            next: s2_status_912_failed
+          - value: error_not_listed
+            description: "Error message not listed in this guide"
+            solution: sol_error_not_listed
+      - id: s2_input_data_not_valid
+        question: "Review the Command Text in the Programming Work Ticket. Does the error involve data validation issues?"
+        options:
+          - value: yes_data_validation
+            description: "Yes, there are data validation issues"
+            solution: sol_input_data_not_valid
+          - value: need_sme_help
+            description: "Unable to determine cause, need SME assistance"
+            solution: sol_contact_sme
+      - id: s2_status_00_failed
+        question: "Review the Command column. What type of command failed with STATUS UNKNOWN?"
+        options:
+          - value: add_command
+            description: "ADD command (adding device or service)"
+            next: s3_status_00_add
+          - value: delete_command
+            description: "DELETE command (removing device or service)"
+            next: s3_status_00_delete
+          - value: modify_command
+            description: "MODIFY command (changing existing service)"
+            solution: sol_status_00_modify
+          - value: unknown_command
+            description: "Cannot determine command type"
+            solution: sol_contact_sme
+      - id: s3_status_00_add
+        question: "Check the EMS system (Calix CMS, Adtran, SMx, XGS, etc.). Does the object already exist?"
+        options:
+          - value: object_exists
+            description: "Yes, the object already exists in EMS"
+            solution: sol_status_00_object_exists
+          - value: object_not_exists
+            description: "No, the object does not exist"
+            solution: sol_status_00_resend_osg
+          - value: cannot_access_ems
+            description: "Cannot access EMS to verify"
+            solution: sol_contact_sme
+      - id: s3_status_00_delete
+        question: "Check the EMS system. Does the object still exist that needs to be deleted?"
+        options:
+          - value: object_still_exists
+            description: "Yes, object still exists in EMS"
+            solution: sol_status_00_manual_delete
+          - value: object_already_deleted
+            description: "No, object is already deleted"
+            solution: sol_status_00_reset_complete
+          - value: cannot_verify
+            description: "Cannot verify object status"
+            solution: sol_contact_sme
+      - id: s2_status_06_failed
+        question: "This indicates a parent command failed. Review the Work Ticket - is there another error listed above this one?"
+        options:
+          - value: parent_error_found
+            description: "Yes, there is a parent error listed above"
+            solution: sol_status_06_resolve_parent
+          - value: no_parent_error
+            description: "No parent error visible"
+            solution: sol_status_06_resend
+      - id: s2_status_14_failed
+        question: "This is an I/O error reading Service Order in Switchgate. Has the order been recently created or modified?"
+        options:
+          - value: recently_created
+            description: "Yes, order was recently created or modified"
+            solution: sol_status_14_wait_resend
+          - value: older_order
+            description: "No, this is an older order"
+            solution: sol_status_14_escalate
+      - id: s2_status_15_failed
+        question: "Invalid hostname detected. Review the hostname in the Work Ticket. Does it match the Hostname Matrix format?"
+        options:
+          - value: hostname_incorrect
+            description: "Hostname format is incorrect or invalid"
+            solution: sol_status_15_invalid_hostname
+          - value: hostname_correct
+            description: "Hostname appears correct but still failing"
+            solution: sol_status_15_facility_support
+          - value: bad_qualifier
+            description: "Device has bad qualifier"
+            solution: sol_status_15_facility_support
+      - id: s2_status_47_failed
+        question: "Command contains invalid syntax. Review the Command Text. Can you identify the syntax issue?"
+        options:
+          - value: syntax_identified
+            description: "Yes, syntax issue is clear"
+            solution: sol_status_47_syntax_fix
+          - value: syntax_unclear
+            description: "No, cannot identify syntax issue"
+            solution: sol_contact_sme
+      - id: s2_status_48_failed
+        question: "Inconsistent data command detected. Check the EMS - does the existing configuration conflict with the new command?"
+        options:
+          - value: conflict_found
+            description: "Yes, there is a configuration conflict"
+            solution: sol_status_48_resolve_conflict
+          - value: no_conflict
+            description: "No conflict found"
+            solution: sol_status_48_resend
+          - value: cannot_check
+            description: "Cannot access EMS to check"
+            solution: sol_contact_sme
+      - id: s2_status_75_invalid
+        question: "Invalid command value or format. What type of data appears to be invalid?"
+        options:
+          - value: vlan_issue
+            description: "VLAN value appears incorrect"
+            solution: sol_status_75_vlan
+          - value: port_issue
+            description: "Port configuration issue"
+            solution: sol_status_75_port
+          - value: profile_issue
+            description: "Service profile issue"
+            solution: sol_status_75_profile
+          - value: other_format
+            description: "Other format or value issue"
+            solution: sol_status_75_general
+      - id: s2_status_256_failed
+        question: "Invalid attributes exist. Review the service attributes in Optius. Are there any obvious mismatches?"
+        options:
+          - value: attribute_mismatch
+            description: "Yes, attributes don't match expected values"
+            solution: sol_status_256_fix_attributes
+          - value: attributes_correct
+            description: "Attributes appear correct"
+            solution: sol_status_256_resend
+      - id: s2_status_290_failed
+        question: "Object already exists. Check the EMS - is there existing programming for this customer or service?"
+        options:
+          - value: same_customer
+            description: "Yes, programming exists for the same customer"
+            solution: sol_status_290_same_customer
+          - value: different_customer
+            description: "Yes, but programming is for a different customer"
+            solution: sol_status_290_different_customer
+          - value: no_existing
+            description: "No existing programming found"
+            solution: sol_status_290_resend
+      - id: s2_status_291_failed
+        question: "Object not found. What type of command is being attempted?"
+        options:
+          - value: delete_command_291
+            description: "DELETE command - trying to remove non-existent object"
+            solution: sol_status_291_delete
+          - value: modify_command_291
+            description: "MODIFY command - trying to change non-existent object"
+            solution: sol_status_291_modify
+          - value: other_command_291
+            description: "Other command type"
+            solution: sol_status_291_general
+      - id: s2_status_292_failed
+        question: "Device encountered an internal error. Check the device status. Is the device online and accessible?"
+        options:
+          - value: device_offline
+            description: "Device appears offline or unreachable"
+            next: s3_status_292_offline
+          - value: device_online
+            description: "Device is online but returning internal error"
+            next: s3_status_292_online
+          - value: cannot_ping
+            description: "Cannot ping or access device"
+            solution: sol_status_292_network_issue
+      - id: s3_status_292_offline
+        question: "Device is offline. Is this a known network outage or device failure?"
+        options:
+          - value: known_outage
+            description: "Yes, there is a known outage"
+            solution: sol_status_292_wait_outage
+          - value: unknown_outage
+            description: "No known outage"
+            solution: sol_status_292_report_outage
+          - value: device_replaced
+            description: "Device was recently replaced"
+            solution: sol_status_292_device_replacement
+      - id: s3_status_292_online
+        question: "Device is online. Check the EMS for configuration issues. Are there any sync errors or configuration mismatches?"
+        options:
+          - value: sync_error
+            description: "Yes, sync errors detected"
+            solution: sol_status_292_sync_fix
+          - value: firmware_issue
+            description: "Firmware version mismatch"
+            solution: sol_status_292_firmware
+          - value: no_config_issue
+            description: "No configuration issues found"
+            solution: sol_status_292_resend_qf_hsi
+      - id: s2_status_333_failed
+        question: "Network not connected. Is this affecting a single device or multiple devices?"
+        options:
+          - value: single_device
+            description: "Single device affected"
+            solution: sol_status_333_single
+          - value: multiple_devices
+            description: "Multiple devices affected"
+            solution: sol_status_333_multiple
+          - value: unknown_scope
+            description: "Unknown scope of impact"
+            solution: sol_status_333_check_scope
+      - id: s2_status_912_failed
+        question: "Network element unreachable. Verify device connectivity. Can you ping the device?"
+        options:
+          - value: ping_successful
+            description: "Yes, device responds to ping"
+            solution: sol_status_912_resend
+          - value: ping_failed
+            description: "No, device does not respond to ping"
+            solution: sol_status_912_network_outage
+          - value: cannot_test
+            description: "Cannot test connectivity"
+            solution: sol_contact_sme
+solutions:
+  - id: sol_input_data_not_valid
+    title: "Resolve INPUT DATA NOT VALID Error"
+    steps:
+      - "Review the Command Text in the Work Ticket to identify which data field is invalid"
+      - "Verify the service order data in Optius matches the expected format and values"
+      - "Correct any invalid data fields in Optius (e.g., VLAN, port, profile)"
+      - "After corrections, select 'Resend to OSG' button to reinitiate programming"
+      - "Monitor the Work Ticket for successful completion (Green C status)"
+    escalate_if: "Data validation rules are unclear or corrections do not resolve the error after resend"
+  - id: sol_status_00_object_exists
+    title: "Resolve Status 00 - Object Already Exists"
+    steps:
+      - "Access the appropriate EMS system (Calix CMS, Adtran, SMx, or XGS)"
+      - "Locate the existing object using the service details from the Work Ticket"
+      - "Verify if the existing object belongs to the same customer or a different customer"
+      - "If same customer: Delete the existing object in EMS, then select 'Resend to OSG' in Optius"
+      - "If different customer: Contact SME/Lead to resolve the conflict and determine proper resolution"
+      - "After manual deletion, select 'Resend to OSG' button"
+      - "Monitor for Green C - Completed status"
+    reference_doc: "Quantum Fiber - Updating Broadband Services in Optius (QF Tech Assist).docx"
+    escalate_if: "Object cannot be deleted due to active services or ownership conflicts"
+  - id: sol_status_00_resend_osg
+    title: "Resend to OSG for Status 00"
+    steps:
+      - "Verify no conflicting objects exist in the EMS system"
+      - "In Optius Work Ticket, select the 'Resend to OSG' button"
+      - "Wait for OSG to process the command (monitor for status change)"
+      - "If successful, verify Green C - Completed status appears"
+      - "If error persists after resend, document the scenario and contact SME/Lead"
+    escalate_if: "Error persists after resend and no obvious cause is identified"
+  - id: sol_status_00_manual_delete
+    title: "Manually Delete Object and Reset"
+    steps:
+      - "Access the appropriate EMS system for the device"
+      - "Locate the object that needs to be deleted using service details"
+      - "Manually delete the object in the EMS"
+      - "Verify the deletion is successful and object no longer exists"
+      - "In Optius, select 'Reset Status to Complete' button"
+      - "Document the manual intervention in Work Ticket notes"
+    reference_doc: "Quantum Fiber - Creating Disconnect order in Optius (All Markets).docx"
+  - id: sol_status_00_reset_complete
+    title: "Reset Status to Complete"
+    steps:
+      - "Verify in EMS that the object has already been deleted successfully"
+      - "In Optius Work Ticket, select the 'Reset Status to Complete' button"
+      - "Document in notes that object was already deleted and status was reset"
+      - "Verify Work Ticket shows Green C - Completed status"
+  - id: sol_status_00_modify
+    title: "Resolve Status 00 for MODIFY Command"
+    steps:
+      - "Review the modification details in the Command Text"
+      - "Access the EMS and verify current object configuration"
+      - "Check if the modification conflicts with existing settings"
+      - "If conflict exists: Manually update the configuration in EMS to match desired state"
+      - "Select 'Reset Status to Complete' button if manual fix was successful"
+      - "If no conflict: Select 'Resend to OSG' button"
+    escalate_if: "Modification cannot be applied due to device limitations or data inconsistencies"
+  - id: sol_status_06_resolve_parent
+    title:
