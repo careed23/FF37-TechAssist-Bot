@@ -1,0 +1,346 @@
+flows:
+  - id: authentication_troubleshooting
+    name: "Authentication Troubleshooting"
+    description: "Diagnose and resolve customer authentication issues including duplicate CVLAN, EMS programming verification, and Improv credential validation"
+    steps:
+      - id: s1_auth_initial_check
+        question: "What type of authentication issue is the customer experiencing?"
+        options:
+          - value: no_internet_connection
+            description: "Customer has no internet connectivity"
+            next: s2_auth_verify_programming
+          - value: intermittent_connection
+            description: "Customer has intermittent connectivity"
+            next: s2_auth_check_duplicate_cvlan
+          - value: slow_speeds
+            description: "Customer reports slow speeds"
+            next: s2_auth_speed_verification
+      - id: s2_auth_verify_programming
+        question: "Check Optius programming status. Is the order status complete?"
+        options:
+          - value: optius_complete
+            description: "Optius shows order complete"
+            next: s3_auth_verify_ems
+          - value: optius_pending
+            description: "Optius shows pending status"
+            solution: auth_sol_optius_pending
+          - value: optius_failed
+            description: "Optius shows failed status"
+            solution: auth_sol_optius_failed
+      - id: s3_auth_verify_ems
+        question: "Verify EMS programming in QMate. Does the subscriber appear in QMate with correct CVLAN?"
+        options:
+          - value: qmate_correct
+            description: "QMate shows correct CVLAN and subscriber data"
+            next: s4_auth_improv_check
+          - value: qmate_missing
+            description: "Subscriber not found in QMate"
+            solution: auth_sol_qmate_missing
+          - value: qmate_wrong_cvlan
+            description: "CVLAN mismatch in QMate"
+            solution: auth_sol_cvlan_mismatch
+      - id: s4_auth_improv_check
+        question: "Verify Improv credentials using QMate. Are credentials present and correct?"
+        options:
+          - value: improv_correct
+            description: "Improv credentials are correct"
+            next: s5_auth_light_levels
+          - value: improv_missing
+            description: "Improv credentials missing or incorrect"
+            solution: auth_sol_improv_credentials
+          - value: improv_error
+            description: "Error accessing Improv"
+            solution: auth_sol_improv_error
+      - id: s5_auth_light_levels
+        question: "Check ONT light levels in Poll DSLAM. Are light levels within acceptable range?"
+        options:
+          - value: light_levels_good
+            description: "Light levels are within acceptable range (-28 to -8 dBm)"
+            solution: auth_sol_advanced_troubleshooting
+          - value: light_levels_low
+            description: "Light levels below -28 dBm"
+            solution: auth_sol_light_levels_low
+          - value: light_levels_high
+            description: "Light levels above -8 dBm"
+            solution: auth_sol_light_levels_high
+      - id: s2_auth_check_duplicate_cvlan
+        question: "Check for duplicate CVLAN in QMate and Mosaic. Is there a duplicate CVLAN?"
+        options:
+          - value: duplicate_found
+            description: "Duplicate CVLAN detected"
+            solution: auth_sol_duplicate_cvlan
+          - value: no_duplicate
+            description: "No duplicate CVLAN found"
+            next: s3_auth_verify_ems
+          - value: cannot_verify
+            description: "Unable to access systems to verify"
+            solution: auth_sol_escalate_systems_access
+      - id: s2_auth_speed_verification
+        question: "Has a speed test been performed using QMate 2.0?"
+        options:
+          - value: speed_test_completed
+            description: "Speed test shows below provisioned speed"
+            next: s3_speed_check_programming
+          - value: speed_test_good
+            description: "Speed test meets provisioned speed"
+            solution: auth_sol_customer_device_issue
+          - value: speed_test_not_done
+            description: "Speed test not yet performed"
+            solution: auth_sol_perform_speed_test
+      - id: s3_speed_check_programming
+        question: "Verify programming in Poll DSLAM and Improv View Tool. Is speed profile correct?"
+        options:
+          - value: speed_profile_correct
+            description: "Speed profile matches order"
+            next: s4_speed_check_congestion
+          - value: speed_profile_wrong
+            description: "Speed profile does not match order"
+            solution: auth_sol_correct_speed_profile
+          - value: no_profile_found
+            description: "No speed profile found"
+            solution: auth_sol_provision_speed_profile
+      - id: s4_speed_check_congestion
+        question: "Check for network congestion in Poll DSLAM. Is there congestion on the node?"
+        options:
+          - value: congestion_detected
+            description: "Congestion detected on network"
+            solution: auth_sol_congestion_escalation
+          - value: no_congestion
+            description: "No congestion detected"
+            solution: auth_sol_advanced_speed_troubleshooting
+  - id: calix_c7_gpon_programming
+    name: "Calix C7 GPON Programming"
+    description: "Create, view, edit, and delete subscriber services on Calix C7 GPON platform"
+    steps:
+      - id: s1_c7_action_type
+        question: "What action needs to be performed on Calix C7 GPON?"
+        options:
+          - value: search_subscriber
+            description: "Search for existing subscriber"
+            next: s2_c7_search_method
+          - value: create_subscriber
+            description: "Create new subscriber service"
+            solution: c7_sol_create_subscriber
+          - value: edit_subscriber
+            description: "Modify existing subscriber service"
+            next: s2_c7_edit_type
+          - value: delete_subscriber
+            description: "Remove subscriber service"
+            solution: c7_sol_delete_subscriber
+      - id: s2_c7_search_method
+        question: "What information do you have to search for the subscriber?"
+        options:
+          - value: search_by_tn
+            description: "Have telephone number (TN) or data telephone number (DTN)"
+            solution: c7_sol_search_by_tn
+          - value: search_by_clli
+            description: "Have CLLI code"
+            next: s3_c7_clli_method
+          - value: search_by_region
+            description: "Have region information"
+            solution: c7_sol_search_by_region
+          - value: search_by_clli_ip
+            description: "Have CLLI IP address"
+            solution: c7_sol_search_by_clli_ip
+      - id: s3_c7_clli_method
+        question: "Which CLLI search method would you like to use?"
+        options:
+          - value: c7_node_method
+            description: "Search through C7 Node"
+            solution: c7_sol_clli_node_method
+          - value: web_site_map
+            description: "Search through Web Site Map"
+            solution: c7_sol_clli_web_site_map
+          - value: subscriber_search_box
+            description: "Use Subscriber search box"
+            solution: c7_sol_clli_subscriber_box
+      - id: s2_c7_edit_type
+        question: "What type of edit is required?"
+        options:
+          - value: edit_data_service
+            description: "Modify data service parameters"
+            solution: c7_sol_edit_data_service
+          - value: pause_service
+            description: "Temporarily pause service"
+            solution: c7_sol_pause_service
+          - value: resume_service
+            description: "Resume paused service"
+            solution: c7_sol_resume_service
+          - value: edit_subscriber_info
+            description: "Edit subscriber information"
+            solution: c7_sol_edit_subscriber_info
+  - id: calix_gfast_programming
+    name: "Calix E3-16F & E5-16F G.Fast Programming"
+    description: "Manage G.Fast SMx subscriber services including create, view, edit, pause and resume"
+    steps:
+      - id: s1_gfast_action
+        question: "What G.Fast SMx action needs to be performed?"
+        options:
+          - value: view_service
+            description: "View existing subscriber service"
+            next: s2_gfast_view_method
+          - value: create_service
+            description: "Create new subscriber service"
+            solution: gfast_sol_create_subscriber
+          - value: edit_service
+            description: "Edit existing service"
+            next: s2_gfast_edit_type
+          - value: troubleshoot_service
+            description: "Troubleshoot service issues"
+            solution: gfast_sol_troubleshoot
+      - id: s2_gfast_view_method
+        question: "How would you like to search for the subscriber?"
+        options:
+          - value: search_window
+            description: "Use the Search window"
+            solution: gfast_sol_search_window
+          - value: subscriber_tab
+            description: "Use the Subscriber Tab"
+            solution: gfast_sol_subscriber_tab
+          - value: manual_port_search
+            description: "Perform manual port search"
+            solution: gfast_sol_manual_port_search
+      - id: s2_gfast_edit_type
+        question: "What type of service modification is needed?"
+        options:
+          - value: edit_data_service
+            description: "Edit data service parameters"
+            solution: gfast_sol_edit_data_service
+          - value: pause_service
+            description: "Pause active service"
+            solution: gfast_sol_pause_service
+          - value: resume_service
+            description: "Resume paused service"
+            solution: gfast_sol_resume_service
+          - value: edit_subscriber_details
+            description: "Edit subscriber details"
+            solution: gfast_sol_edit_subscriber
+  - id: calix_e7_gpon_programming
+    name: "Calix E7-2 and E7-20 GPON Programming"
+    description: "Provision and manage data-only services on Calix E7-2 and E7-20 GPON platforms"
+    steps:
+      - id: s1_e7_action
+        question: "What action is required on Calix E7 GPON?"
+        options:
+          - value: provision_service
+            description: "Provision new data service"
+            next: s2_e7_provision_method
+          - value: search_ont
+            description: "Search for ONT ID"
+            solution: e7_sol_ont_search
+          - value: delete_service
+            description: "Delete existing service"
+            next: s2_e7_delete_method
+          - value: view_service
+            description: "View existing service details"
+            solution: e7_sol_view_service
+      - id: s2_e7_provision_method
+        question: "Which provisioning method would you like to use?"
+        options:
+          - value: table_tab
+            description: "Provision using Table tab"
+            solution: e7_sol_provision_table_tab
+          - value: form_tab
+            description: "Provision using Form tab"
+            solution: e7_sol_provision_form_tab
+      - id: s2_e7_delete_method
+        question: "Which deletion method would you like to use?"
+        options:
+          - value: delete_table_tab
+            description: "Delete using Table tab"
+            solution: e7_sol_delete_table_tab
+          - value: delete_form_tab
+            description: "Delete using Form tab"
+            solution: e7_sol_delete_form_tab
+  - id: osg_error_resolution
+    name: "Open Switchgate (OSG) Error Resolution"
+    description: "Diagnose and resolve various OSG programming errors and statuses"
+    steps:
+      - id: s1_osg_error_type
+        question: "What OSG error or status are you encountering?"
+        options:
+          - value: failed_status_unknown
+            description: "00 FAILED, STATUS UNKNOWN error"
+            next: s2_osg_failed_unknown
+          - value: ont_exists_error
+            description: "ONT already exists in EMS/GUI"
+            solution: osg_sol_ont_exists
+          - value: no_communication
+            description: "No communication to device/OSG"
+            solution: osg_sol_no_communication
+          - value: other_osg_error
+            description: "Other OSG error message"
+            next: s2_osg_other_error
+      - id: s2_osg_failed_unknown
+        question: "Is there an ONT already programmed in EMS for this service?"
+        options:
+          - value: ont_exists_in_ems
+            description: "ONT exists in EMS/GUI"
+            solution: osg_sol_ont_exists
+          - value: ont_not_in_ems
+            description: "ONT not in EMS"
+            next: s3_osg_communication_check
+          - value: cannot_verify_ems
+            description: "Cannot access EMS to verify"
+            solution: osg_sol_escalate_ems_access
+      - id: s3_osg_communication_check
+        question: "Can you ping or communicate with the ONT/OLT?"
+        options:
+          - value: communication_successful
+            description: "Can communicate with device"
+            solution: osg_sol_reflow_order
+          - value: communication_failed
+            description: "Cannot communicate with device"
+            solution: osg_sol_no_communication
+          - value: unsure_how_to_check
+            description: "Unsure how to verify communication"
+            solution: osg_sol_communication_help
+      - id: s2_osg_other_error
+        question: "Have you checked the OSG Error Resolution document for this specific error?"
+        options:
+          - value: error_in_document
+            description: "Error is documented with resolution steps"
+            solution: osg_sol_follow_documented_steps
+          - value: error_not_documented
+            description: "Error not found in documentation"
+            solution: osg_sol_escalate_undocumented_error
+          - value: tried_documented_steps
+            description: "Tried documented steps but issue persists"
+            solution: osg_sol_escalate_after_troubleshooting
+  - id: positron_ghn_programming
+    name: "Positron G.HN Programming"
+    description: "Create, view, edit, and troubleshoot Positron G.HN subscriber services"
+    steps:
+      - id: s1_positron_action
+        question: "What Positron G.HN action is required?"
+        options:
+          - value: view_subscriber
+            description: "View existing subscriber service"
+            solution: positron_sol_view_subscriber
+          - value: create_subscriber
+            description: "Create new subscriber service"
+            solution: positron_sol_create_subscriber
+          - value: edit_subscriber
+            description: "Edit existing subscriber service"
+            solution: positron_sol_edit_subscriber
+          - value: troubleshoot_service
+            description: "Troubleshoot service issues"
+            next: s2_positron_troubleshoot
+          - value: delete_subscriber
+            description: "Delete subscriber service"
+            solution: positron_sol_delete_subscriber
+      - id: s2_positron_troubleshoot
+        question: "What type of troubleshooting is needed?"
+        options:
+          - value: dhcp_issues
+            description: "DHCP-related issues"
+            solution: positron_sol_dhcp_troubleshoot
+          - value: bridge_modem_issues
+            description: "Bridge modem details needed"
+            solution: positron_sol_bridge_modem_details
+          - value: modem_details
+            description: "General modem details needed"
+            solution: positron_sol_modem_details
+          - value: view_vlans
+            description: "Need to view VLAN configuration"
+            solution: positron_sol_view_vlans
