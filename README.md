@@ -353,6 +353,20 @@ Use this data to identify training needs, optimize procedures, and track team pe
 
 ---
 
+## ✅ Verifying Your Download
+
+Before running the installer, verify the file hasn't 
+been tampered with:
+
+**Windows (PowerShell):**
+Get-FileHash FF37-TechAssist-Bot.exe -Algorithm SHA256
+
+Compare the output against the hash in SHA256SUMS.txt.
+They should match exactly.
+
+**Linux/Mac:**
+sha256sum -c SHA256SUMS.txt
+
 ## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
